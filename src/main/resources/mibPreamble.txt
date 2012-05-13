@@ -1,0 +1,26 @@
+Boolean ::= TEXTUAL-CONVENTION
+    SYNTAX      OCTET STRING { "true", "false" }
+
+IndexString  OBJECT-TYPE
+	SYNTAX		OCTET STRING (SIZE(0..65535))
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	::= { 0 0 }
+
+IndexInteger  OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	::= { 0 0 }
+
+TEST-MIB DEFINITIONS ::= BEGIN
+
+    IMPORTS
+        MODULE-IDENTITY, OBJECT-TYPE, OBJECT-IDENTITY,
+        NOTIFICATION-TYPE, mib-2, enterprises,
+        Counter32, Integer32, TimeTicks        FROM SNMPv2-SMI
+
+        TEXTUAL-CONVENTION, DisplayString      FROM SNMPv2-TC
+
+        MODULE-COMPLIANCE, OBJECT-GROUP,
+        NOTIFICATION-GROUP                     FROM SNMPv2-CONF;
