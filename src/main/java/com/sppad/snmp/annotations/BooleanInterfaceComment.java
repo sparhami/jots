@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 public @interface BooleanInterfaceComment
 {
     String type = "Boolean";
+    String falseSynopsis();
     String synopsis();
     String trueSynopsis();
-    String falseSynopsis();
 }

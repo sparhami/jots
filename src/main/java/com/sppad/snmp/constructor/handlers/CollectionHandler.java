@@ -11,6 +11,28 @@ import com.sppad.snmp.constructor.SnmpTreeConstructor;
 public class CollectionHandler implements ObjectHandler
 {
 
+    /**
+     * Get the value type: if the type can be found, use that otherwise, find
+     * the common ancestor class of all the values in the collection, and treat
+     * that as the collection type. This needs to be done since there are no
+     * reified generics yet and we need to be able find something to act as the
+     * type for this collection.
+     * 
+     * @param field
+     * @param collection
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public Class<?> getValueType(Field field, Collection<?> collection)
+    {
+	ParameterizedType pType = (ParameterizedType) field.getGenericType();
+	if (pType.getActualTypeArguments()[0] instanceof Class<?>)
+	    return (Class<?>) pType.getActualTypeArguments()[0];
+	else
+	    return ClassInfo
+		    .getLeastCommonSuperclassForObjects((Collection<Object>) collection);
+    }
+
     @Override
     public final void handle(SnmpTreeConstructor descender, Object obj,
 	    Field field) throws IllegalArgumentException,
@@ -36,27 +58,5 @@ public class CollectionHandler implements ObjectHandler
 	}
 
 	descender.onCollectionExit(obj, field);
-    }
-
-    /**
-     * Get the value type: if the type can be found, use that otherwise, find
-     * the common ancestor class of all the values in the collection, and treat
-     * that as the collection type. This needs to be done since there are no
-     * reified generics yet and we need to be able find something to act as the
-     * type for this collection.
-     * 
-     * @param field
-     * @param collection
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public Class<?> getValueType(Field field, Collection<?> collection)
-    {
-	ParameterizedType pType = (ParameterizedType) field.getGenericType();
-	if (pType.getActualTypeArguments()[0] instanceof Class<?>)
-	    return (Class<?>) pType.getActualTypeArguments()[0];
-	else
-	    return ClassInfo
-		    .getLeastCommonSuperclassForObjects((Collection<Object>) collection);
     }
 }

@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 public @interface IntegerInterfaceComment
 {
     String type = "Integer";
-    String synopsis();
-    int minValue();
     int maxValue();
+    int minValue();
+    String synopsis();
 }

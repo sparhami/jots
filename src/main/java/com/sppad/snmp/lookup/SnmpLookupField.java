@@ -42,14 +42,6 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
 	this.writable = checkIsWritable();
     }
     
-    public String getFieldName() {
-	return field.getName();
-    }
-    
-    public Object getObject() {
-	return object;
-    }
-
     /**
      * Compares the OID of this field to the given field.
      */
@@ -58,7 +50,7 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
     {
 	return oid.compareTo(o.oid);
     }
-
+    
     /**
      * Performs a get, implementation specific to the type of a field.
      * 
@@ -81,6 +73,14 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
     public Annotation getAnnotation(Class annotationClass)
     {
 	return field.getAnnotation(annotationClass);
+    }
+
+    public String getFieldName() {
+	return field.getName();
+    }
+
+    public Object getObject() {
+	return object;
     }
 
     /**

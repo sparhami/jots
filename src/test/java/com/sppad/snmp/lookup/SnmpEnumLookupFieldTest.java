@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 
+import com.sppad.snmp.exceptions.SnmpBadValueException;
 import com.sppad.snmp.lookup.SnmpEnumLookupField;
 
 public class SnmpEnumLookupFieldTest
@@ -16,7 +17,7 @@ public class SnmpEnumLookupFieldTest
     {
 	private static enum TestEnum
 	{
-	    FOO, BAR, BAZ
+	    BAR, BAZ, FOO
 	}
 
 	public TestEnum testEnum = TestEnum.FOO;
@@ -66,5 +67,19 @@ public class SnmpEnumLookupFieldTest
 
 	String value = (String) testField.get();
 	assertThat(value, is(TestClass.TestEnum.BAR.toString()));
+    }
+    
+    @Test(expected=SnmpBadValueException.class)
+    public void testSet_badValue() throws SecurityException, NoSuchFieldException,
+            NoSuchMethodException
+    {
+        TestClass tc = new TestClass();
+        Field field = tc.getClass().getDeclaredField("testEnum");
+
+        Method method = tc.getClass().getDeclaredMethod("setTestEnum",
+                TestClass.TestEnum.class);
+        SnmpEnumLookupField testField = new SnmpEnumLookupField(null, field,
+                tc, method);
+        testField.doSet("this is a bad value");
     }
 }

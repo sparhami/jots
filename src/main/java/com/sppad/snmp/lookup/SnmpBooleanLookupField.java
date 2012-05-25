@@ -9,6 +9,10 @@ import com.sppad.snmp.exceptions.SnmpBadValueException;
 
 public class SnmpBooleanLookupField extends SnmpLookupField
 {
+    private static final String FALSE_STRING = "false";
+    
+    private static final String TRUE_STRING = "true";
+    
     public SnmpBooleanLookupField(OID oid, Field field, Object object, Method setter)
     {
 	super(oid, field, object, setter);
@@ -23,9 +27,9 @@ public class SnmpBooleanLookupField extends SnmpLookupField
     @Override
     public void doSet(String value)
     {
-	if ("true".equalsIgnoreCase(value))
+	if (TRUE_STRING.equalsIgnoreCase(value))
 	    setValue(true);
-	else if ("false".equalsIgnoreCase(value))
+	else if (FALSE_STRING.equalsIgnoreCase(value))
 	    setValue(false);
 	else
 	    throw new SnmpBadValueException(value);

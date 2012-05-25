@@ -74,17 +74,6 @@ public class SnmpTree
 	return createVarBind(field.getOid(), field.get());
     }
 
-    public SnmpLookupField getBackingField(int index)
-    {
-	Preconditions.checkArgument(index >= 0, "Index cannot be negative");
-
-	if (index > lastIndex)
-	    throw new SnmpNoMoreEntriesException(
-		    "There are no more values in this MIB");
-
-	return fieldArray[index];
-    }
-
     public VariableBinding get(OID oid)
     {
 	return createVarBind(oid, getValue(getIndex(oid)));
@@ -103,6 +92,17 @@ public class SnmpTree
     public Annotation getAnnotation(int index, Class<?> annotationClass)
     {
 	return fieldArray[index].getAnnotation(annotationClass);
+    }
+
+    public SnmpLookupField getBackingField(int index)
+    {
+	Preconditions.checkArgument(index >= 0, "Index cannot be negative");
+
+	if (index > lastIndex)
+	    throw new SnmpNoMoreEntriesException(
+		    "There are no more values in this MIB");
+
+	return fieldArray[index];
     }
 
     /**
@@ -198,28 +198,6 @@ public class SnmpTree
     }
 
     /**
-     * Finds the common prefix OID for the two given prefixes.
-     * 
-     * @param prefixOne
-     * @param prefixTwo
-     * @return An int array with the common prefix
-     */
-    private int[] findCommonPrefix(int[] prefixOne, int[] prefixTwo)
-    {
-	int minPrefixLength = Math.min(prefixOne.length, prefixTwo.length);
-	IntStack prefix = new IntStack(minPrefixLength);
-
-	// add all the OID parts that are the same
-	for (int i = 0; i < minPrefixLength; i++)
-	    if (prefixOne[i] != prefixTwo[i])
-		break;
-	    else
-		prefix.push(prefixOne[i]);
-
-	return prefix.toArray();
-    }
-
-    /**
      * Performs a set for the given OID.
      * 
      * @param oid
@@ -250,6 +228,28 @@ public class SnmpTree
 	    throw new SnmpNotWritableException("Cannot write to this OID");
 
 	field.set(value);
+    }
+
+    /**
+     * Finds the common prefix OID for the two given prefixes.
+     * 
+     * @param prefixOne
+     * @param prefixTwo
+     * @return An int array with the common prefix
+     */
+    private int[] findCommonPrefix(int[] prefixOne, int[] prefixTwo)
+    {
+	int minPrefixLength = Math.min(prefixOne.length, prefixTwo.length);
+	IntStack prefix = new IntStack(minPrefixLength);
+
+	// add all the OID parts that are the same
+	for (int i = 0; i < minPrefixLength; i++)
+	    if (prefixOne[i] != prefixTwo[i])
+		break;
+	    else
+		prefix.push(prefixOne[i]);
+
+	return prefix.toArray();
     }
 
     /**

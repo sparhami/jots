@@ -21,9 +21,9 @@ import com.sppad.snmp.lookup.SnmpStringLookupField;
 
 public class SnmpTreeSkeleton
 {
-    private final SortedSet<SnmpLookupField> sortSet = new TreeSet<SnmpLookupField>();
-
     private final int[] prefix;
+
+    private final SortedSet<SnmpLookupField> sortSet = new TreeSet<SnmpLookupField>();
 
     public SnmpTreeSkeleton(int[] prefix)
     {

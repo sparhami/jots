@@ -84,20 +84,6 @@ public class SnmpTreeTest
     }
 
     @Test
-    public void testGetNextRoot()
-    {
-	String oid = tree.getNext(new OID(".1")).getOid().toString();
-	assertThat(oid, is("1.1"));
-    }
-
-    @Test
-    public void testGetNextIndexRoot() throws SecurityException
-    {
-	int index = tree.getNextIndex(new OID(".1"));
-	assertThat(index, is(0));
-    }
-
-    @Test
     public void testGetNext()
     {
 	String oid = tree.getNext(new OID(".1.1")).getOid().toString();
@@ -112,27 +98,24 @@ public class SnmpTreeTest
     }
 
     @Test
-    public void testSetInt_primative() throws SecurityException
+    public void testGetNextIndexRoot() throws SecurityException
     {
-	tree.set(new OID(".1.3"), "123");
-	String intVal = tree.get(new OID(".1.3")).getVariable().toString();
-	assertThat(intVal, is("123"));
+	int index = tree.getNextIndex(new OID(".1"));
+	assertThat(index, is(0));
     }
 
     @Test
-    public void testSetFalse_primative() throws SecurityException
+    public void testGetNextRoot()
     {
-	tree.set(new OID(".1.1"), "false");
-	String boolVal = tree.get(new OID(".1.1")).getVariable().toString();
-	assertThat(boolVal, is("false"));
+	String oid = tree.getNext(new OID(".1")).getOid().toString();
+	assertThat(oid, is("1.1"));
     }
 
-    @Test
-    public void testSetTrue_object() throws SecurityException
+    @Test(
+	expected = SnmpBadValueException.class)
+    public void testSetBoolean_primative_wrongType() throws SecurityException
     {
-	tree.set(new OID(".1.2"), "true");
-	String boolVal = tree.get(new OID(".1.2")).getVariable().toString();
-	assertThat(boolVal, is("true"));
+	tree.set(new OID(".1.1"), "123asfa");
     }
 
     @Test
@@ -144,18 +127,35 @@ public class SnmpTreeTest
     }
 
     @Test
+    public void testSetFalse_primative() throws SecurityException
+    {
+	tree.set(new OID(".1.1"), "false");
+	String boolVal = tree.get(new OID(".1.1")).getVariable().toString();
+	assertThat(boolVal, is("false"));
+    }
+
+    @Test
+    public void testSetInt_primative() throws SecurityException
+    {
+	tree.set(new OID(".1.3"), "123");
+	String intVal = tree.get(new OID(".1.3")).getVariable().toString();
+	assertThat(intVal, is("123"));
+    }
+
+    @Test
+    public void testSetTrue_object() throws SecurityException
+    {
+	tree.set(new OID(".1.2"), "true");
+	String boolVal = tree.get(new OID(".1.2")).getVariable().toString();
+	assertThat(boolVal, is("true"));
+    }
+
+    @Test
     public void testSetTrue_primative() throws SecurityException
     {
 	tree.set(new OID(".1.1"), "true");
 	String boolVal = tree.get(new OID(".1.1")).getVariable().toString();
 	assertThat(boolVal, is("true"));
-    }
-
-    @Test(
-	expected = SnmpBadValueException.class)
-    public void testSetBoolean_primative_wrongType() throws SecurityException
-    {
-	tree.set(new OID(".1.1"), "123asfa");
     }
 
     @Test(

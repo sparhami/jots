@@ -11,37 +11,6 @@ import com.sppad.snmp.constructor.SnmpTreeConstructor;
 
 public class MapHandler implements ObjectHandler
 {
-    @Override
-    public final void handle(SnmpTreeConstructor descender, Object obj,
-	    Field field) throws IllegalArgumentException,
-	    IllegalAccessException, InvocationTargetException
-    {
-	Map<?, ?> map = (Map<?, ?>) obj;
-	ParameterizedType pType = (ParameterizedType) field.getGenericType();
-
-	// find the key type for the map, if it can be found
-	Class<?> keyType = Object.class;
-	if (pType.getActualTypeArguments()[0] instanceof Class<?>)
-	    keyType = (Class<?>) pType.getActualTypeArguments()[0];
-
-	Class<?> valueType = getValueType(field, map);
-
-	descender.onCollectionEnter(obj, field, keyType);
-
-	for (final Map.Entry<?, ?> entry : map.entrySet())
-	{
-	    if (entry.getValue() != null)
-	    {
-		descender.onNextCollectionValue(entry.getValue(),
-			entry.getKey());
-
-		descender.descend(entry.getValue(), valueType, field);
-	    }
-	}
-
-	descender.onCollectionExit(obj, field);
-    }
-
     /**
      * Get the value type: if the type can be found, use that otherwise, find
      * the common ancestor class of all the values in the collection, and treat
@@ -77,5 +46,36 @@ public class MapHandler implements ObjectHandler
 	    return ClassInfo
 		    .getLeastCommonSuperclassForObjects((Collection<Object>) map
 			    .values());
+    }
+
+    @Override
+    public final void handle(SnmpTreeConstructor descender, Object obj,
+	    Field field) throws IllegalArgumentException,
+	    IllegalAccessException, InvocationTargetException
+    {
+	Map<?, ?> map = (Map<?, ?>) obj;
+	ParameterizedType pType = (ParameterizedType) field.getGenericType();
+
+	// find the key type for the map, if it can be found
+	Class<?> keyType = Object.class;
+	if (pType.getActualTypeArguments()[0] instanceof Class<?>)
+	    keyType = (Class<?>) pType.getActualTypeArguments()[0];
+
+	Class<?> valueType = getValueType(field, map);
+
+	descender.onCollectionEnter(obj, field, keyType);
+
+	for (final Map.Entry<?, ?> entry : map.entrySet())
+	{
+	    if (entry.getValue() != null)
+	    {
+		descender.onNextCollectionValue(entry.getValue(),
+			entry.getKey());
+
+		descender.descend(entry.getValue(), valueType, field);
+	    }
+	}
+
+	descender.onCollectionExit(obj, field);
     }
 }

@@ -6,13 +6,18 @@ public class IntStack
 {
     private int[] backingArray;
 
-    private int topIndex = -1;
-
     private final int incrementSize = 10;
+
+    private int topIndex = -1;
 
     public IntStack()
     {
 	this(10);
+    }
+
+    public IntStack(int initialCapacity)
+    {
+	backingArray = new int[initialCapacity];
     }
 
     public IntStack(IntStack srcStack)
@@ -22,30 +27,9 @@ public class IntStack
 	srcStack.copyTo(backingArray, 0);
     }
 
-    public IntStack(int initialCapacity)
+    public void clear()
     {
-	backingArray = new int[initialCapacity];
-    }
-
-    public void push(int value)
-    {
-	if (topIndex + 1 >= backingArray.length)
-	    increaseSize(backingArray.length + incrementSize);
-
-	backingArray[++topIndex] = value;
-    }
-
-    private void increaseSize(int newSize)
-    {
-	int[] newBackingArray = new int[newSize];
-	System.arraycopy(backingArray, 0, newBackingArray, 0,
-		backingArray.length);
-	backingArray = newBackingArray;
-    }
-
-    public void copyTo(int[] dest, int destPos)
-    {
-	System.arraycopy(backingArray, 0, dest, destPos, size());
+	topIndex = -1;
     }
 
     public void copyFrom(int[] src, int srcPos, int length)
@@ -58,54 +42,14 @@ public class IntStack
 	topIndex = currentSize + length - 1;
     }
 
-    public void clear()
+    public void copyFrom(IntStack mintyStack)
     {
-	topIndex = -1;
+	copyFrom(mintyStack.backingArray, 0, mintyStack.size());
     }
 
-    public void remove(int count)
+    public void copyTo(int[] dest, int destPos)
     {
-	topIndex -= count;
-    }
-
-    public int pop()
-    {
-	return backingArray[topIndex--];
-    }
-
-    public int peek()
-    {
-	return backingArray[topIndex];
-    }
-
-    public int size()
-    {
-	return topIndex + 1;
-    }
-
-    public int get(int index)
-    {
-	return backingArray[index];
-    }
-
-    public void set(int index, int value)
-    {
-	backingArray[index] = value;
-    }
-
-    @Override
-    public String toString()
-    {
-	StringBuilder builder = new StringBuilder("[");
-
-	for (int i = 0; i <= topIndex; i++)
-	{
-	    builder.append(" " + backingArray[i] + ",");
-	}
-
-	builder.setCharAt(builder.length() - 1, ' ');
-	builder.append("]");
-	return builder.toString();
+	System.arraycopy(backingArray, 0, dest, destPos, size());
     }
 
     @Override
@@ -127,9 +71,10 @@ public class IntStack
 	
 	return true;
     }
-    
-    public int[] toArray() {
-	return Arrays.copyOf(backingArray, topIndex + 1);
+
+    public int get(int index)
+    {
+	return backingArray[index];
     }
 
     @Override
@@ -142,8 +87,63 @@ public class IntStack
 	return result;
     }
 
-    public void copyFrom(IntStack mintyStack)
+    public int peek()
     {
-	copyFrom(mintyStack.backingArray, 0, mintyStack.size());
+	return backingArray[topIndex];
+    }
+
+    public int pop()
+    {
+	return backingArray[topIndex--];
+    }
+
+    public void push(int value)
+    {
+	if (topIndex + 1 >= backingArray.length)
+	    increaseSize(backingArray.length + incrementSize);
+
+	backingArray[++topIndex] = value;
+    }
+
+    public void remove(int count)
+    {
+	topIndex -= count;
+    }
+
+    public void set(int index, int value)
+    {
+	backingArray[index] = value;
+    }
+
+    public int size()
+    {
+	return topIndex + 1;
+    }
+    
+    public int[] toArray() {
+	return Arrays.copyOf(backingArray, topIndex + 1);
+    }
+
+    @Override
+    public String toString()
+    {
+	StringBuilder builder = new StringBuilder("[");
+
+	for (int i = 0; i <= topIndex; i++)
+	{
+	    builder.append(" " + backingArray[i] + ",");
+	}
+
+	builder.setCharAt(builder.length() - 1, ' ');
+	builder.append("]");
+	return builder.toString();
+    }
+
+    private void increaseSize(int newSize)
+    {
+	int[] newBackingArray = new int[newSize];
+	System.arraycopy(backingArray, 0, newBackingArray, 0,
+		backingArray.length);
+	backingArray = newBackingArray;
     }
 }

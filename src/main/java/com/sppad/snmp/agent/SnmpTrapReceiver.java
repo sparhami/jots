@@ -22,10 +22,10 @@ import com.sppad.snmp.exceptions.InformException;
 
 public abstract class SnmpTrapReceiver implements CommandResponder
 {
+    static int version = SnmpConstants.version3;
+
     private static final Logger logger = LoggerFactory
             .getLogger(SnmpTrapReceiver.class);
-
-    static int version = SnmpConstants.version3;
 
     /** Snmp object for dealing with SNMP requests */
     private final Snmp snmp;
@@ -79,36 +79,6 @@ public abstract class SnmpTrapReceiver implements CommandResponder
         snmp.close();
     }
 
-    @Override
-    public void processPdu(CommandResponderEvent request)
-    {
-        logger.debug("Received trap: {}", request.getPDU());
-
-        PDU command = request.getPDU();
-
-        try
-        {
-            switch (command.getType())
-            {
-            case PDU.TRAP:
-                processTrap(request);
-                break;
-            case PDU.INFORM:
-                processInform(request);
-                break;
-            default:
-                throw new Exception(String.format("Type not implemented {} ",
-                        PDU.getTypeString(command.getType())));
-            }
-        }
-        catch (Exception e)
-        {
-            logError(request, e);
-        }
-
-        request.setProcessed(true);
-    }
-
     public void processInform(CommandResponderEvent request)
     {
         PDU response = new PDU();
@@ -140,6 +110,36 @@ public abstract class SnmpTrapReceiver implements CommandResponder
         {
             logger.error("Exception sending inform response: ", e);
         }
+    }
+
+    @Override
+    public void processPdu(CommandResponderEvent request)
+    {
+        logger.debug("Received trap: {}", request.getPDU());
+
+        PDU command = request.getPDU();
+
+        try
+        {
+            switch (command.getType())
+            {
+            case PDU.TRAP:
+                processTrap(request);
+                break;
+            case PDU.INFORM:
+                processInform(request);
+                break;
+            default:
+                throw new Exception(String.format("Type not implemented {} ",
+                        PDU.getTypeString(command.getType())));
+            }
+        }
+        catch (Exception e)
+        {
+            logError(request, e);
+        }
+
+        request.setProcessed(true);
     }
 
     protected abstract void processTrap(CommandResponderEvent request);

@@ -8,6 +8,20 @@ public class JotsOID extends OID
 {
     private static final long serialVersionUID = 1588073102991378510L;
 
+    public JotsOID(int[] prefix, IntStack staticOid)
+    {
+	int oidSize = staticOid.size();
+	int size = prefix.length + oidSize;
+
+	int[] oidArray = new int[size + 1];
+
+	System.arraycopy(prefix, 0, oidArray, 0, prefix.length);
+	staticOid.copyTo(oidArray, prefix.length);
+	oidArray[size] = 0;
+
+	this.setValue(oidArray);
+    }
+
     public JotsOID(int[] prefix, IntStack staticOid, IntStack extension)
     {
 	int oidSize = staticOid.size();
@@ -30,20 +44,6 @@ public class JotsOID extends OID
 
 	staticOid.copyTo(oidArray, 0);
 	extension.copyTo(oidArray, staticOid.size());
-
-	this.setValue(oidArray);
-    }
-
-    public JotsOID(int[] prefix, IntStack staticOid)
-    {
-	int oidSize = staticOid.size();
-	int size = prefix.length + oidSize;
-
-	int[] oidArray = new int[size + 1];
-
-	System.arraycopy(prefix, 0, oidArray, 0, prefix.length);
-	staticOid.copyTo(oidArray, prefix.length);
-	oidArray[size] = 0;
 
 	this.setValue(oidArray);
     }

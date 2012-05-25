@@ -20,17 +20,22 @@ public class MibConstructor
 
 	private PrintStream entryPrintStream = new PrintStream(entryByteStream);
 
+	private List<String> indexTypes;
+
+	private boolean isRoot = false;
+
 	private ByteArrayOutputStream itemByteStream = new ByteArrayOutputStream();
 
 	private PrintStream itemPrintStream = new PrintStream(itemByteStream);
 
-	private boolean isRoot = false;
-
-	private List<String> indexTypes;
-
 	public MibEntry()
 	{
 
+	}
+
+	public MibEntry(boolean isRoot)
+	{
+	    this.isRoot = isRoot;
 	}
 
 	public MibEntry(List<String> indexTypes)
@@ -39,9 +44,20 @@ public class MibConstructor
 
 	}
 
-	public MibEntry(boolean isRoot)
+	public void addEntry(String parentName, String name, int oid,
+		String description)
 	{
-	    this.isRoot = isRoot;
+
+	    entryPrintStream.println();
+	    entryPrintStream.println(name + "Entry  OBJECT-TYPE");
+	    entryPrintStream.println("\tSYNTAX\t\t" + name + "EntryObj");
+	    entryPrintStream.println("\tMAX-ACCESS\tnot-accessible");
+	    entryPrintStream.println("\tSTATUS\t\tcurrent");
+	    entryPrintStream.println("\t::= { " + parentName + "Entry " + oid
+		    + " }");
+
+	    entryPrintStream.println();
+	    entryPrintStream.println(name + "EntryObj ::= SEQUENCE {");
 	}
 
 	public void addItem(String parentName, String name, int oid,
@@ -78,22 +94,6 @@ public class MibConstructor
 
 	    itemPrintStream.println("\t::= { " + parentName + "Entry " + oid
 		    + " }");
-	}
-
-	public void addEntry(String parentName, String name, int oid,
-		String description)
-	{
-
-	    entryPrintStream.println();
-	    entryPrintStream.println(name + "Entry  OBJECT-TYPE");
-	    entryPrintStream.println("\tSYNTAX\t\t" + name + "EntryObj");
-	    entryPrintStream.println("\tMAX-ACCESS\tnot-accessible");
-	    entryPrintStream.println("\tSTATUS\t\tcurrent");
-	    entryPrintStream.println("\t::= { " + parentName + "Entry " + oid
-		    + " }");
-
-	    entryPrintStream.println();
-	    entryPrintStream.println(name + "EntryObj ::= SEQUENCE {");
 	}
 
 	public void addTable(String parentName, String name, int oid,
@@ -150,19 +150,19 @@ public class MibConstructor
 	}
     }
 
-    private final Set<Class<? extends Enum<?>>> enumSyntaxSet = new HashSet<Class<? extends Enum<?>>>();
-
-    private final PrintStream ps;
+    private ByteArrayOutputStream createMibStream = new ByteArrayOutputStream();
 
     private Map<String, MibEntry> entryMap = new LinkedHashMap<String, MibEntry>();
 
-    private int paddingSize = 20;
-
-    private String rootName;
+    private final Set<Class<? extends Enum<?>>> enumSyntaxSet = new HashSet<Class<? extends Enum<?>>>();
 
     private OutputStream outstream;
 
-    private ByteArrayOutputStream createMibStream = new ByteArrayOutputStream();
+    private int paddingSize = 20;
+
+    private final PrintStream ps;
+
+    private String rootName;
 
     public MibConstructor(String rootName, OutputStream os)
     {
@@ -175,51 +175,16 @@ public class MibConstructor
 	entryMap.put(rootName, entry);
     }
 
-    private void printMibHeader() throws IOException
+    public void addEntry(String parentName, String name, int oid,
+	    String description)
     {
-	InputStream is = this.getClass().getResourceAsStream("/mibPreamble.txt");
+	if (parentName == null || parentName.equals(""))
+	    parentName = rootName;
 
-	byte[] readbuf = new byte[256];
-	while (is.available() > 0)
-	{
-	    int len = is.read(readbuf);
-	    ps.write(readbuf, 0, len);
-	}
+	MibEntry entry = new MibEntry();
+	entryMap.put(name, entry);
 
-	ps.println();
-	ps.println();
-	ps.println(rootName + "Entry MODULE-IDENTITY");
-	ps.println("\tLAST-UPDATED \"200005110000Z\"  -- 11 May, 2000");
-	ps.println("\tORGANIZATION \"Test\"");
-	ps.println("\tCONTACT-INFO");
-	ps.println("\t\t\"Test Person");
-	ps.println("\t\tPhone: +1-650-948-6500");
-	ps.println("\t\tFax:   +1-650-745-0671");
-	ps.println("\t\tEmail: test@test.com\"");
-	ps.println("\tDESCRIPTION");
-	ps.println("\t\t\"This is a test MIB\"");
-	ps.println();
-	ps.println("::= { enterprises 15001 }");
-    }
-
-    private void addEnum(Class<? extends Enum<?>> enumClass)
-    {
-	if (enumSyntaxSet.contains(enumClass))
-	    return;
-
-	enumSyntaxSet.add(enumClass);
-
-	StringBuilder builder = new StringBuilder();
-
-	builder.append(enumClass.getSimpleName() + " ::= TEXTUAL-CONVENTION\n");
-	builder.append("\tSYNTAX      OCTET STRING {");
-	for (Enum<?> enumElement : enumClass.getEnumConstants())
-	    builder.append(" \"" + enumElement.name() + "\",");
-
-	builder.deleteCharAt(builder.lastIndexOf(","));
-	builder.append(" }\n");
-
-	ps.println(builder.toString());
+	entry.addEntry(parentName, name, oid, description);
     }
 
     @SuppressWarnings("unchecked")
@@ -268,18 +233,6 @@ public class MibConstructor
 		indexTypes);
     }
 
-    public void addEntry(String parentName, String name, int oid,
-	    String description)
-    {
-	if (parentName == null || parentName.equals(""))
-	    parentName = rootName;
-
-	MibEntry entry = new MibEntry();
-	entryMap.put(name, entry);
-
-	entry.addEntry(parentName, name, oid, description);
-    }
-
     public void finish() throws IOException
     {
 
@@ -296,5 +249,52 @@ public class MibConstructor
 
 	createMibStream.writeTo(outstream);
 	outstream.close();
+    }
+
+    private void addEnum(Class<? extends Enum<?>> enumClass)
+    {
+	if (enumSyntaxSet.contains(enumClass))
+	    return;
+
+	enumSyntaxSet.add(enumClass);
+
+	StringBuilder builder = new StringBuilder();
+
+	builder.append(enumClass.getSimpleName() + " ::= TEXTUAL-CONVENTION\n");
+	builder.append("\tSYNTAX      OCTET STRING {");
+	for (Enum<?> enumElement : enumClass.getEnumConstants())
+	    builder.append(" \"" + enumElement.name() + "\",");
+
+	builder.deleteCharAt(builder.lastIndexOf(","));
+	builder.append(" }\n");
+
+	ps.println(builder.toString());
+    }
+
+    private void printMibHeader() throws IOException
+    {
+	InputStream is = this.getClass().getResourceAsStream("/mibPreamble.txt");
+
+	byte[] readbuf = new byte[256];
+	while (is.available() > 0)
+	{
+	    int len = is.read(readbuf);
+	    ps.write(readbuf, 0, len);
+	}
+
+	ps.println();
+	ps.println();
+	ps.println(rootName + "Entry MODULE-IDENTITY");
+	ps.println("\tLAST-UPDATED \"200005110000Z\"  -- 11 May, 2000");
+	ps.println("\tORGANIZATION \"Test\"");
+	ps.println("\tCONTACT-INFO");
+	ps.println("\t\t\"Test Person");
+	ps.println("\t\tPhone: +1-650-948-6500");
+	ps.println("\t\tFax:   +1-650-745-0671");
+	ps.println("\t\tEmail: test@test.com\"");
+	ps.println("\tDESCRIPTION");
+	ps.println("\t\t\"This is a test MIB\"");
+	ps.println();
+	ps.println("::= { enterprises 15001 }");
     }
 }

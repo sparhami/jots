@@ -36,10 +36,10 @@ public class SnmpAgent implements CommandResponder
         tcp, udp;
     }
 
+    static int version = SnmpConstants.version3;
+
     private static final Logger logger = LoggerFactory
             .getLogger(SnmpAgent.class);
-
-    static int version = SnmpConstants.version3;
 
     /** Snmp object for dealing with SNMP requests */
     private final Snmp snmp;

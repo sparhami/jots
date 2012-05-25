@@ -87,8 +87,8 @@ public class SnmpTreeConstructor
 	Field field;
 	boolean isSimple;
 	boolean isTableType;
-	Method setter;
 	List<IntStack> oidVisitedMap = new LinkedList<IntStack>();
+	Method setter;
 	String snmpName;
 
 	public FieldInfo(Field field)
@@ -140,12 +140,6 @@ public class SnmpTreeConstructor
     private final Cacher<Class<?>, ObjectHandler> _objectHandlerGetter = new Cacher<Class<?>, ObjectHandler>(
 	    new Cacher.CacheMissGetter<Class<?>, ObjectHandler>()
 	    {
-		@Override
-		public ObjectHandler getValue(Class<?> key)
-		{
-		    return handlers.get(getFirstHandledClass(key));
-		}
-
 		public Class<?> getFirstHandledClass(Class<?> klass)
 		{
 		    // check if the class is already handled
@@ -164,6 +158,12 @@ public class SnmpTreeConstructor
 
 		    // nothing matches, just handle it as an object
 		    return Object.class;
+		}
+
+		@Override
+		public ObjectHandler getValue(Class<?> key)
+		{
+		    return handlers.get(getFirstHandledClass(key));
 		}
 	    });
 
@@ -258,6 +258,37 @@ public class SnmpTreeConstructor
 	SnmpTreeConstructor stc = new SnmpTreeConstructor(prefix, obj,
 		mibOutputStream);
 	return stc.snmpTreeSkeleton.finishTreeConstruction();
+    }
+
+    private static Method getSetterMethod(Field field, Class<?> klass)
+    {
+	try
+	{
+	    if (field.getAnnotation(SnmpNotSettable.class) != null)
+		return null;
+
+	    String setterName = SnmpUtils.getSetterName(field.getName());
+	    Class<?> currentClass = klass;
+	    while (currentClass != Object.class)
+	    {
+		try
+		{
+		    return currentClass.getDeclaredMethod(setterName,
+			    field.getType());
+		}
+		catch (NoSuchMethodException e)
+		{
+		    currentClass = currentClass.getSuperclass();
+		}
+	    }
+	}
+	catch (SecurityException e)
+	{
+	    throw new RuntimeException(
+		    "Exception while checking if field is writable: ", e);
+	}
+
+	return null;
     }
 
     /** Sets up initial handler classes. */
@@ -528,12 +559,6 @@ public class SnmpTreeConstructor
 	nameStack.pop();
     }
 
-    private void addToSnmpTable(Object obj, FieldInfo info)
-    {
-	OID oid = new JotsOID(prefix, oidStack, oidExtStack);
-	snmpTreeSkeleton.add(oid, info.field, obj, info.setter);
-    }
-
     protected void postModifiyOidForTable(FieldInfo info)
     {
 	String parent = tableNameStack.peek();
@@ -608,35 +633,10 @@ public class SnmpTreeConstructor
 	}
     }
 
-    private static Method getSetterMethod(Field field, Class<?> klass)
+    private void addToSnmpTable(Object obj, FieldInfo info)
     {
-	try
-	{
-	    if (field.getAnnotation(SnmpNotSettable.class) != null)
-		return null;
-
-	    String setterName = SnmpUtils.getSetterName(field.getName());
-	    Class<?> currentClass = klass;
-	    while (currentClass != Object.class)
-	    {
-		try
-		{
-		    return currentClass.getDeclaredMethod(setterName,
-			    field.getType());
-		}
-		catch (NoSuchMethodException e)
-		{
-		    currentClass = currentClass.getSuperclass();
-		}
-	    }
-	}
-	catch (SecurityException e)
-	{
-	    throw new RuntimeException(
-		    "Exception while checking if field is writable: ", e);
-	}
-
-	return null;
+	OID oid = new JotsOID(prefix, oidStack, oidExtStack);
+	snmpTreeSkeleton.add(oid, info.field, obj, info.setter);
     }
 
     /**

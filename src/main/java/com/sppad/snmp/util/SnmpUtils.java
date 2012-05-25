@@ -19,27 +19,20 @@ public class SnmpUtils
 	builtinClasses.add(String.class);
     }
 
-    public static boolean isBuiltin(Class<?> klass)
-    {
-	return builtinClasses.contains(klass);
-    }
-
-    public static boolean isPrimtive(Class<?> klass)
-    {
-	return klass.isPrimitive();
-    }
-
-    public static boolean isSimple(Class<?> klass)
-    {
-	return isBuiltin(klass) || isPrimtive(klass) || klass.isEnum();
-    }
-
-    public static int[] getSnmpExtension(Object obj)
-    {
-	if (obj instanceof Number)
-	    return new int[] { ((Number) obj).intValue() };
-	else
-	    return getExplicitString(obj.toString());
+    public static int[] combineArrays(int[]... arguments) {
+	int size = 0;
+	
+	for(int[] part : arguments)
+	    size += part.length;
+	
+	int[] combined = new int[size];
+	int lastIndex = 0;
+	for(int[] part : arguments) {
+	    System.arraycopy(part, 0, combined, lastIndex, part.length);
+	    lastIndex = part.length;
+	}
+	
+	return combined;
     }
 
     /**
@@ -66,23 +59,6 @@ public class SnmpUtils
 	return oidInts;
     }
 
-    
-    public static int[] combineArrays(int[]... arguments) {
-	int size = 0;
-	
-	for(int[] part : arguments)
-	    size += part.length;
-	
-	int[] combined = new int[size];
-	int lastIndex = 0;
-	for(int[] part : arguments) {
-	    System.arraycopy(part, 0, combined, lastIndex, part.length);
-	    lastIndex = part.length;
-	}
-	
-	return combined;
-    }
-    
     /**
      * Constructs the setter name for the given fieldName. This is done by
      * adding the prefix "set" and capitalizing the first letter of the given
@@ -104,5 +80,29 @@ public class SnmpUtils
 	setMethodName.setCharAt(3, Character.toUpperCase(firstLetter));
 
 	return setMethodName.toString();
+    }
+
+    public static int[] getSnmpExtension(Object obj)
+    {
+	if (obj instanceof Number)
+	    return new int[] { ((Number) obj).intValue() };
+	else
+	    return getExplicitString(obj.toString());
+    }
+
+    public static boolean isBuiltin(Class<?> klass)
+    {
+	return builtinClasses.contains(klass);
+    }
+
+    
+    public static boolean isPrimtive(Class<?> klass)
+    {
+	return klass.isPrimitive();
+    }
+    
+    public static boolean isSimple(Class<?> klass)
+    {
+	return isBuiltin(klass) || isPrimtive(klass) || klass.isEnum();
     }
 }

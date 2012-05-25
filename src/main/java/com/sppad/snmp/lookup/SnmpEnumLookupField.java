@@ -36,7 +36,7 @@ public class SnmpEnumLookupField extends SnmpLookupField
 	}
 	catch (IllegalArgumentException e)
 	{
-	    throw new SnmpBadValueException(String.format("Value %s is not valud for this field", value));
+	    throw new SnmpBadValueException(String.format("Value %s is not valid for this field", value));
 	}
     }
 

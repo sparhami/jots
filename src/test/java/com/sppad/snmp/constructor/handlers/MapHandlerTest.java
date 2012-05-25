@@ -23,11 +23,6 @@ public class MapHandlerTest
     }
     
 
-    public class TestSuperclass
-    {
-
-    }
-
     public class TestSubclassOne extends TestSuperclass
     {
 
@@ -38,17 +33,9 @@ public class MapHandlerTest
 
     }
 
-    @Test
-    public void testGetValueType_specified() throws SecurityException,
-	    NoSuchFieldException
+    public class TestSuperclass
     {
-	TestObjectOne obj = new TestObjectOne();
-	obj.testMap.put("one", new TestSubclassTwo());
-	obj.testMap.put("two", new TestSubclassTwo());
 
-	Field f = TestObjectOne.class.getDeclaredField("testMap");
-	Class<?> klass = MapHandler.getValueType(f, obj.testMap);
-	assertEquals(TestSuperclass.class, klass);
     }
 
     @Test
@@ -63,7 +50,7 @@ public class MapHandlerTest
 	Class<?> klass = MapHandler.getValueType(f, obj.testMap);
 	assertEquals(TestSubclassTwo.class, klass);
     }
-    
+
     @Test
     public void testGetValueType_generic_parent() throws SecurityException,
 	    NoSuchFieldException
@@ -73,6 +60,19 @@ public class MapHandlerTest
 	obj.testMap.put("two", new TestSubclassOne());
 
 	Field f = obj.getClass().getDeclaredField("testMap");
+	Class<?> klass = MapHandler.getValueType(f, obj.testMap);
+	assertEquals(TestSuperclass.class, klass);
+    }
+    
+    @Test
+    public void testGetValueType_specified() throws SecurityException,
+	    NoSuchFieldException
+    {
+	TestObjectOne obj = new TestObjectOne();
+	obj.testMap.put("one", new TestSubclassTwo());
+	obj.testMap.put("two", new TestSubclassTwo());
+
+	Field f = TestObjectOne.class.getDeclaredField("testMap");
 	Class<?> klass = MapHandler.getValueType(f, obj.testMap);
 	assertEquals(TestSuperclass.class, klass);
     }

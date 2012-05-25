@@ -16,9 +16,9 @@ import static org.junit.Assert.*;
 
 public class CompareUtilsTest
 {
-    private static final String testString = "this is a test array of some bytes, there should be quite a few bytes in here so that it can be tested";
-
     private static byte[] testBytes;
+
+    private static final String testString = "this is a test array of some bytes, there should be quite a few bytes in here so that it can be tested";
 
     @Before
     public void setUp()
@@ -27,23 +27,25 @@ public class CompareUtilsTest
     }
 
     @Test
-    public void testInputStreamCompare_same() throws IOException
+    public void testInputStreamCompare_different_firstLonger()
+	    throws IOException
     {
-	byte[] testBytesCopy = Arrays.copyOf(testBytes, testBytes.length);
+	byte[] testBytesCopy = Arrays.copyOf(testBytes, testBytes.length - 1);
 
 	InputStream isOne = new ByteArrayInputStream(testBytes, 0,
 		testBytes.length);
 	InputStream isTwo = new ByteArrayInputStream(testBytesCopy, 0,
 		testBytesCopy.length);
 
-	assertThat(CompareUtils.streamContentsAreSame(isOne, isTwo), is(true));
+	assertThat(CompareUtils.streamContentsAreSame(isOne, isTwo), is(false));
     }
 
     @Test
-    public void testInputStreamCompare_different_firstLonger()
+    public void testInputStreamCompare_different_sameLength()
 	    throws IOException
     {
-	byte[] testBytesCopy = Arrays.copyOf(testBytes, testBytes.length - 1);
+	byte[] testBytesCopy = Arrays.copyOf(testBytes, testBytes.length);
+	testBytesCopy[testBytes.length / 2] -= 128;
 
 	InputStream isOne = new ByteArrayInputStream(testBytes, 0,
 		testBytes.length);
@@ -68,18 +70,16 @@ public class CompareUtilsTest
     }
 
     @Test
-    public void testInputStreamCompare_different_sameLength()
-	    throws IOException
+    public void testInputStreamCompare_same() throws IOException
     {
 	byte[] testBytesCopy = Arrays.copyOf(testBytes, testBytes.length);
-	testBytesCopy[testBytes.length / 2] -= 128;
 
 	InputStream isOne = new ByteArrayInputStream(testBytes, 0,
 		testBytes.length);
 	InputStream isTwo = new ByteArrayInputStream(testBytesCopy, 0,
 		testBytesCopy.length);
 
-	assertThat(CompareUtils.streamContentsAreSame(isOne, isTwo), is(false));
+	assertThat(CompareUtils.streamContentsAreSame(isOne, isTwo), is(true));
     }
 
     /**
