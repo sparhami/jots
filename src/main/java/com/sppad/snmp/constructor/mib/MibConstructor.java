@@ -14,287 +14,114 @@ import java.util.Set;
 
 public class MibConstructor
 {
-    private class MibEntry
-    {
-	private ByteArrayOutputStream entryByteStream = new ByteArrayOutputStream();
-
-	private PrintStream entryPrintStream = new PrintStream(entryByteStream);
-
-	private List<String> indexTypes;
-
-	private boolean isRoot = false;
-
-	private ByteArrayOutputStream itemByteStream = new ByteArrayOutputStream();
-
-	private PrintStream itemPrintStream = new PrintStream(itemByteStream);
-
-	public MibEntry()
-	{
-
-	}
-
-	public MibEntry(boolean isRoot)
-	{
-	    this.isRoot = isRoot;
-	}
-
-	public MibEntry(List<String> indexTypes)
-	{
-	    this.indexTypes = indexTypes;
-
-	}
-
-	public void addEntry(String parentName, String name, int oid,
-		String description)
-	{
-
-	    entryPrintStream.println();
-	    entryPrintStream.println(name + "Entry  OBJECT-TYPE");
-	    entryPrintStream.println("\tSYNTAX\t\t" + name + "EntryObj");
-	    entryPrintStream.println("\tMAX-ACCESS\tnot-accessible");
-	    entryPrintStream.println("\tSTATUS\t\tcurrent");
-	    entryPrintStream.println("\t::= { " + parentName + "Entry " + oid
-		    + " }");
-
-	    entryPrintStream.println();
-	    entryPrintStream.println(name + "EntryObj ::= SEQUENCE {");
-	}
-
-	public void addItem(String parentName, String name, int oid,
-		Class<?> type, String description, boolean isWritable)
-	{
-
-	    String typeName;
-
-	    if (type == Integer.class || type == Integer.TYPE)
-		typeName = "Integer32";
-	    else if (type == Boolean.class || type == Boolean.TYPE)
-		typeName = "Boolean";
-	    else if (type.isEnum())
-		typeName = type.getSimpleName();
-	    else
-		typeName = "OCTET STRING (SIZE(0..65535))";
-	    
-	    String maxAccess = isWritable ? "read-write" : "read-only";
-
-	    if (!isRoot)
-	    {
-		entryPrintStream.print(String.format("\t%1$-" + paddingSize
-			+ "s", name));
-		entryPrintStream.println("\tOCTET STRING,");
-	    }
-
-	    itemPrintStream.println();
-	    itemPrintStream.println(name + " OBJECT-TYPE");
-	    itemPrintStream.println("\tSYNTAX\t\t" + typeName);
-	    itemPrintStream.println("\tMAX-ACCESS\t" + maxAccess);
-	    itemPrintStream.println("\tSTATUS\t\tcurrent");
-	    itemPrintStream.println("\tDESCRIPTION");
-	    itemPrintStream.println("\t\t\"" + description + "\"");
-
-	    itemPrintStream.println("\t::= { " + parentName + "Entry " + oid
-		    + " }");
-	}
-
-	public void addTable(String parentName, String name, int oid,
-		boolean isParentTable, String description,
-		List<String> indexTypes)
-	{
-	    parentName += isParentTable ? "Table" : "Entry";
-
-	    entryPrintStream.println();
-	    entryPrintStream.println(name + "Table  OBJECT-TYPE");
-	    entryPrintStream.println("\tSYNTAX\t\tSEQUENCE OF " + name
-		    + "EntryObj");
-	    entryPrintStream.println("\tMAX-ACCESS\tnot-accessible");
-	    entryPrintStream.println("\tSTATUS\t\tcurrent");
-	    entryPrintStream.println("\tDESCRIPTION");
-	    entryPrintStream.println("\t\t\"" + description + "\"");
-
-	    entryPrintStream
-		    .println("\t::= { " + parentName + " " + oid + " }");
-
-	    entryPrintStream.println();
-	    entryPrintStream.println(name + "Entry  OBJECT-TYPE");
-	    entryPrintStream.println("\tSYNTAX\t\t" + name + "EntryObj");
-	    entryPrintStream.println("\tMAX-ACCESS\tnot-accessible");
-	    entryPrintStream.println("\tSTATUS\t\tcurrent");
-	    if (indexTypes != null && indexTypes.size() > 0)
-	    {
-		entryPrintStream.print("\tINDEX\t\t{ ");
-		for (int i = 0; i < indexTypes.size(); i++)
-		{
-		    entryPrintStream.print(indexTypes.get(i));
-		    if (i + 1 < indexTypes.size())
-			entryPrintStream.print(", ");
-		}
-
-		entryPrintStream.println(" }");
-	    }
-
-	    entryPrintStream.println("\t::= { " + name + "Table 1 }");
-
-	    entryPrintStream.println();
-	    entryPrintStream.println(name + "EntryObj ::= SEQUENCE {");
-	}
-
-	public void finish() throws IOException
-	{
-
-	    if (!isRoot)
-	    {
-		entryPrintStream.println("}");
-	    }
-
-	    itemByteStream.writeTo(entryPrintStream);
-	}
-    }
-
     private ByteArrayOutputStream createMibStream = new ByteArrayOutputStream();
 
-    private Map<String, MibEntry> entryMap = new LinkedHashMap<String, MibEntry>();
+    private Map<String, MibSubtree> entryMap = new LinkedHashMap<String, MibSubtree>();
 
     private final Set<Class<? extends Enum<?>>> enumSyntaxSet = new HashSet<Class<? extends Enum<?>>>();
 
     private OutputStream outstream;
 
-    private int paddingSize = 20;
-
     private final PrintStream ps;
 
-    private String rootName;
+    private final String mibName;
 
-    public MibConstructor(String rootName, OutputStream os)
+    private final String rootName;
+
+    private final String parentTree;
+
+    private final int mibTree;
+
+    public MibConstructor(String mibName, String rootName, String parentTree,
+            int mibTree, OutputStream os)
     {
-	this.rootName = rootName;
+        this.mibName = mibName;
+        this.rootName = rootName;
+        this.parentTree = parentTree;
+        this.mibTree = mibTree;
 
-	outstream = os;
-	ps = new PrintStream(createMibStream);
+        outstream = os;
+        ps = new PrintStream(createMibStream);
 
-	MibEntry entry = new MibEntry(true);
-	entryMap.put(rootName, entry);
+        MibSubtree entry = new MibRoot();
+        entryMap.put(rootName, entry);
     }
 
     public void addEntry(String parentName, String name, int oid,
-	    String description)
+            String description)
     {
-	if (parentName == null || parentName.equals(""))
-	    parentName = rootName;
+        if (parentName == null || parentName.equals(""))
+            parentName = rootName;
 
-	MibEntry entry = new MibEntry();
-	entryMap.put(name, entry);
+        MibEntry entry = new MibEntry();
+        entryMap.put(name, entry);
 
-	entry.addEntry(parentName, name, oid, description);
+        entry.addEntry(parentName, name, oid, description);
     }
 
     @SuppressWarnings("unchecked")
     public void addItem(String parentName, String name, int oid, Class<?> type,
-	    String description, boolean isWritable)
+            String description, boolean isWritable)
     {
-	if (type.isEnum())
-	    addEnum((Class<? extends Enum<?>>) type);
+        if (type.isEnum())
+            addEnum((Class<? extends Enum<?>>) type);
 
-	if (parentName == null || parentName.equals(""))
-	    parentName = rootName;
+        if (parentName == null || parentName.equals(""))
+            parentName = rootName;
 
-	MibEntry entry = entryMap.get(parentName);
-	entry.addItem(parentName, name, oid, type, description, isWritable);
+        MibSubtree entry = entryMap.get(parentName);
+        entry.addItem(parentName, name, oid, type, description, isWritable);
     }
 
     public void addTable(String parentName, String name, int oid,
-	    boolean isParentTable, String description, Class<?> keyType)
+            boolean isParentTable, String description, Class<?> keyType)
     {
-	if (parentName == null || parentName.equals(""))
-	    parentName = rootName;
+        if (parentName == null || parentName.equals(""))
+            parentName = rootName;
 
-	MibEntry parentEntry = entryMap.get(parentName);
-	List<String> indexTypes;
-	if (parentEntry != null && parentEntry.indexTypes != null)
-	{
-	    indexTypes = new ArrayList<String>();
-	    for (String indexType : parentEntry.indexTypes)
-		indexTypes.add(indexType);
-	}
-	else
-	{
-	    indexTypes = new ArrayList<String>();
-	}
+        MibSubtree parentEntry = entryMap.get(parentName);
+        List<String> indexTypes = new ArrayList<String>(parentEntry.indexTypes);
 
-	String indexType = "IndexInteger";
-	if (keyType == String.class)
-	    indexType = "IndexString";
+        String indexType = (keyType == String.class) ? "IndexString"
+                : "IndexInteger";
+        indexTypes.add(indexType);
 
-	indexTypes.add(indexType);
-
-	MibEntry entry = new MibEntry(indexTypes);
-	entryMap.put(name, entry);
-
-	entry.addTable(parentName, name, oid, isParentTable, description,
-		indexTypes);
+        MibSubtree entry = new MibTable(parentName, name, oid, isParentTable,
+                description, indexTypes);
+        entryMap.put(name, entry);
     }
 
     public void finish() throws IOException
     {
+        ps.print(MibInfo.createMibHeader(mibName, rootName + "Entry", "",
+                parentTree, mibTree));
 
-	printMibHeader();
-	
-	for (MibEntry entry : entryMap.values())
-	{
-	    entry.finish();
-	    entry.entryByteStream.writeTo(ps);
-	}
+        for (MibSubtree entry : entryMap.values())
+            entry.finish().writeTo(ps);
 
-	ps.println();
-	ps.println("END");
+        ps.println("\nEND");
 
-	createMibStream.writeTo(outstream);
-	outstream.close();
+        createMibStream.writeTo(outstream);
+        outstream.close();
     }
 
     private void addEnum(Class<? extends Enum<?>> enumClass)
     {
-	if (enumSyntaxSet.contains(enumClass))
-	    return;
+        if (enumSyntaxSet.contains(enumClass))
+            return;
 
-	enumSyntaxSet.add(enumClass);
+        enumSyntaxSet.add(enumClass);
 
-	StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
 
-	builder.append(enumClass.getSimpleName() + " ::= TEXTUAL-CONVENTION\n");
-	builder.append("\tSYNTAX      OCTET STRING {");
-	for (Enum<?> enumElement : enumClass.getEnumConstants())
-	    builder.append(" \"" + enumElement.name() + "\",");
+        builder.append(enumClass.getSimpleName() + " ::= TEXTUAL-CONVENTION\n");
+        builder.append("\tSYNTAX      OCTET STRING {");
+        for (Enum<?> enumElement : enumClass.getEnumConstants())
+            builder.append(" \"" + enumElement.name() + "\",");
 
-	builder.deleteCharAt(builder.lastIndexOf(","));
-	builder.append(" }\n");
+        builder.deleteCharAt(builder.lastIndexOf(","));
+        builder.append(" }\n");
 
-	ps.println(builder.toString());
-    }
-
-    private void printMibHeader() throws IOException
-    {
-	InputStream is = this.getClass().getResourceAsStream("/mibPreamble.txt");
-
-	byte[] readbuf = new byte[256];
-	while (is.available() > 0)
-	{
-	    int len = is.read(readbuf);
-	    ps.write(readbuf, 0, len);
-	}
-
-	ps.println();
-	ps.println();
-	ps.println(rootName + "Entry MODULE-IDENTITY");
-	ps.println("\tLAST-UPDATED \"200005110000Z\"  -- 11 May, 2000");
-	ps.println("\tORGANIZATION \"Test\"");
-	ps.println("\tCONTACT-INFO");
-	ps.println("\t\t\"Test Person");
-	ps.println("\t\tPhone: +1-650-948-6500");
-	ps.println("\t\tFax:   +1-650-745-0671");
-	ps.println("\t\tEmail: test@test.com\"");
-	ps.println("\tDESCRIPTION");
-	ps.println("\t\t\"This is a test MIB\"");
-	ps.println();
-	ps.println("::= { enterprises 15001 }");
+        ps.println(builder.toString());
     }
 }
