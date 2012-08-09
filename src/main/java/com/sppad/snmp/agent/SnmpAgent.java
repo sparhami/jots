@@ -70,28 +70,28 @@ public class SnmpAgent implements CommandResponder
 
         snmp = new Snmp(transport);
 
-        if (version == SnmpConstants.version3)
-        {
-            // byte[] localEngineID = MPv3.createLocalEngineID();
-            byte[] localEngineID = "foobar".getBytes();
-            USM usm = new USM(SecurityProtocols.getInstance(), new OctetString(
-                    localEngineID), 0);
-            SecurityModels.getInstance().addSecurityModel(usm);
-            snmp.setLocalEngine(localEngineID, 0, 0);
-
-            OctetString secName = new OctetString("foo");
-            OID authProto = AuthSHA.ID;
-            OctetString authPass = new OctetString("foo12345");
-            OID privProto = PrivAES128.ID;
-            OctetString privPass = new OctetString("foo12345");
-
-            UsmUser user = new UsmUser(secName, authProto, authPass, privProto,
-                    privPass);
-
-            OctetString engineId = new OctetString(localEngineID);
-            usm.addUser(user.getSecurityName(), engineId, user);
-            // Add the configured user to the USM
-        }
+//        if (version == SnmpConstants.version3)
+//        {
+//            // byte[] localEngineID = MPv3.createLocalEngineID();
+//            byte[] localEngineID = "foobar".getBytes();
+//            USM usm = new USM(SecurityProtocols.getInstance(), new OctetString(
+//                    localEngineID), 0);
+//            SecurityModels.getInstance().addSecurityModel(usm);
+//            snmp.setLocalEngine(localEngineID, 0, 0);
+//+
+//            OctetString secName = new OctetString("foo");
+//            OID authProto = AuthSHA.ID;
+//            OctetString authPass = new OctetString("foo12345");
+//            OID privProto = PrivAES128.ID;
+//            OctetString privPass = new OctetString("foo12345");
+//
+//            UsmUser user = new UsmUser(secName, authProto, authPass, privProto,
+//                    privPass);
+//
+//            OctetString engineId = new OctetString(localEngineID);
+//            usm.addUser(user.getSecurityName(), engineId, user);
+//            // Add the configured user to the USM
+//        }
 
         // USM usm = snmp.getUSM();
 
@@ -239,15 +239,30 @@ public class SnmpAgent implements CommandResponder
         logger.debug("Finished request, time: {}", time);
     }
 
+    /**
+     * Replaces the tree used by the SnmpAgent with a new one.
+     * 
+     * @param tree
+     *            The tree use for future requests.
+     */
     public void updateTree(SnmpTree tree)
     {
         updateLock.writeLock().lock();
-
         this.tree = tree;
-
         updateLock.writeLock().unlock();
     }
 
+    /**
+     * Performs a bulk get, getting the requested number of entries after the
+     * given OID.
+     * 
+     * @param oid
+     *            The start OID to get entries from
+     * @param getCount
+     *            How many following entries to get
+     * @param response
+     *            The response to add to
+     */
     void doSnmpBulkGet(OID oid, int getCount, CustomPDU response)
     {
         int startIndex = tree.getNextIndex(oid);
@@ -267,14 +282,9 @@ public class SnmpAgent implements CommandResponder
      *            The request object.
      * @param response
      *            The response to add to.
-     * @throws IllegalAccessException
      */
     void processGet(CommandResponderEvent request, CustomPDU response)
     {
-        // using getBulk
-        // request.getPDU().setNonRepeaters(Integer.MAX_VALUE);
-        // processGetBulk(request, response);
-
         for (VariableBinding var : request.getPDU().getVariableBindings())
         {
             doSnmpGet(var.getOid(), response);
@@ -287,15 +297,11 @@ public class SnmpAgent implements CommandResponder
      * non-repeaters (simple gets) and repeaters (bulk gets). For those varBinds
      * that are bulk gets, the {@link #doSnmpBulkGet(OID, int, CustomPDU)} is
      * used to add varBinds to the response.
-     * <p>
-     * The size of the bulk get (number of following OIDs after the specified
-     * OID to get) is maxRepititions.
      * 
      * @param request
      *            The request object.
      * @param response
      *            The response to add to.
-     * @throws IllegalAccessException
      */
     void processGetBulk(CommandResponderEvent request, CustomPDU response)
     {
@@ -323,14 +329,9 @@ public class SnmpAgent implements CommandResponder
      *            The request object.
      * @param response
      *            The response to add to.
-     * @throws IllegalAccessException
      */
     void processGetNext(CommandResponderEvent request, CustomPDU response)
     {
-        // using getBulk
-        // request.getPDU().setMaxRepetitions(1);
-        // processGetBulk(request, response);
-
         for (VariableBinding var : request.getPDU().getVariableBindings())
         {
             doSnmpGetNext(var.getOid(), response);
@@ -338,6 +339,13 @@ public class SnmpAgent implements CommandResponder
         }
     }
 
+    /**
+     * Processes a set request.
+     * 
+     * @param request
+     *            The request object.
+     * @param response
+     */
     void processSet(CommandResponderEvent request, CustomPDU response)
     {
         for (VariableBinding var : request.getPDU().getVariableBindings())

@@ -249,13 +249,13 @@ public class SnmpTreeConstructor
 	return stc.snmpTreeSkeleton.finishTreeConstruction();
     }
 
-    public static SnmpTree createSnmpTree(int[] prefix, Object obj,
+    public static SnmpTree createSnmpTree(String mibName, String rootName, int[] prefix, Object obj,
 	    OutputStream mibOutputStream) throws IllegalAccessException,
 	    IllegalArgumentException, InvocationTargetException, IOException
     {
 	Preconditions.checkNotNull(mibOutputStream);
 
-	SnmpTreeConstructor stc = new SnmpTreeConstructor(prefix, obj,
+	SnmpTreeConstructor stc = new SnmpTreeConstructor(mibName, rootName, prefix, obj,
 		mibOutputStream);
 	return stc.snmpTreeSkeleton.finishTreeConstruction();
     }
@@ -323,7 +323,7 @@ public class SnmpTreeConstructor
 
     }
 
-    private SnmpTreeConstructor(int[] prefix, Object obj,
+    private SnmpTreeConstructor(String mibName, String rootName, int[] prefix, Object obj,
 	    OutputStream mibOutputStream) throws IllegalArgumentException,
 	    IllegalAccessException, InvocationTargetException, IOException
     {
@@ -334,7 +334,7 @@ public class SnmpTreeConstructor
 	this.tableOidIndexStack.push(1);
 	this.snmpTreeSkeleton = new SnmpTreeSkeleton(prefix);
 
-	this.mc = new MibConstructor("testMib", mibOutputStream);
+	this.mc = new MibConstructor(mibName, rootName, "enterprises", 15001, mibOutputStream);
 	this.descend(obj, obj.getClass(), null);
 	this.mc.finish();
     }

@@ -45,28 +45,28 @@ public abstract class SnmpTrapReceiver implements CommandResponder
 
         snmp = new Snmp(transport);
 
-        if (version == SnmpConstants.version3)
-        {
-            // byte[] localEngineID = MPv3.createLocalEngineID();
-            byte[] localEngineID = "foobar".getBytes();
-            USM usm = new USM(SecurityProtocols.getInstance(), new OctetString(
-                    localEngineID), 0);
-            SecurityModels.getInstance().addSecurityModel(usm);
-            snmp.setLocalEngine(localEngineID, 0, 0);
-
-            OctetString secName = new OctetString("foo");
-            OID authProto = AuthSHA.ID;
-            OctetString authPass = new OctetString("foo12345");
-            OID privProto = PrivAES128.ID;
-            OctetString privPass = new OctetString("foo12345");
-
-            UsmUser user = new UsmUser(secName, authProto, authPass, privProto,
-                    privPass);
-
-            OctetString engineId = new OctetString(localEngineID);
-            usm.addUser(user.getSecurityName(), engineId, user);
-            // Add the configured user to the USM
-        }
+//        if (version == SnmpConstants.version3)
+//        {
+//            // byte[] localEngineID = MPv3.createLocalEngineID();
+//            byte[] localEngineID = "foobar".getBytes();
+//            USM usm = new USM(SecurityProtocols.getInstance(), new OctetString(
+//                    localEngineID), 0);
+//            SecurityModels.getInstance().addSecurityModel(usm);
+//            snmp.setLocalEngine(localEngineID, 0, 0);
+//
+//            OctetString secName = new OctetString("foo");
+//            OID authProto = AuthSHA.ID;
+//            OctetString authPass = new OctetString("foo12345");
+//            OID privProto = PrivAES128.ID;
+//            OctetString privPass = new OctetString("foo12345");
+//
+//            UsmUser user = new UsmUser(secName, authProto, authPass, privProto,
+//                    privPass);
+//
+//            OctetString engineId = new OctetString(localEngineID);
+//            usm.addUser(user.getSecurityName(), engineId, user);
+//            // Add the configured user to the USM
+//        }
 
         // USM usm = snmp.getUSM();
 

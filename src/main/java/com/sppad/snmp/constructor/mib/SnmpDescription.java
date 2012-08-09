@@ -9,8 +9,6 @@ public class SnmpDescription
 {
     public static String getDescription(Field field)
     {
-	//System.out.println(field.getType());
-	
 	Type type = field.getType();
 	if(type.equals(Boolean.class))
 	    return getBooleanDescription(field);
