@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface SnmpName
 {
-    String value();
+  String value();
 }

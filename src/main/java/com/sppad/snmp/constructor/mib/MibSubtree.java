@@ -8,89 +8,85 @@ import java.util.List;
 
 public class MibSubtree
 {
-    private static final int paddingSize = 20;
+  private static final int paddingSize = 20;
 
-    protected final ByteArrayOutputStream entryByteStream = new ByteArrayOutputStream();
+  protected final ByteArrayOutputStream entryByteStream = new ByteArrayOutputStream();
 
-    protected final PrintStream entryPrintStream = new PrintStream(
-            entryByteStream);
+  protected final PrintStream entryPrintStream = new PrintStream(
+      entryByteStream);
 
-    protected final List<String> indexTypes;
+  protected final List<String> indexTypes;
 
-    protected final ByteArrayOutputStream itemByteStream = new ByteArrayOutputStream();
+  protected final ByteArrayOutputStream itemByteStream = new ByteArrayOutputStream();
 
-    protected final PrintStream itemPrintStream = new PrintStream(
-            itemByteStream);
+  protected final PrintStream itemPrintStream = new PrintStream(itemByteStream);
 
-    public MibSubtree(List<String> indexTypes)
-    {
-        this.indexTypes = indexTypes;
-    }
-    
-    public MibSubtree()
-    {
-        this.indexTypes = Collections.emptyList();
-    }
+  public MibSubtree(List<String> indexTypes)
+  {
+    this.indexTypes = indexTypes;
+  }
 
-    public void addEntry(String parentName, String name, int oid,
-            String description)
-    {
-        entryPrintStream.println();
-        entryPrintStream.println(name + "Entry  OBJECT-TYPE");
-        entryPrintStream.println("\tSYNTAX\t\t" + name + "EntryObj");
-        entryPrintStream.println("\tMAX-ACCESS\tnot-accessible");
-        entryPrintStream.println("\tSTATUS\t\tcurrent");
-        entryPrintStream.println("\t::= { " + parentName + "Entry " + oid
-                + " }");
+  public MibSubtree()
+  {
+    this.indexTypes = Collections.emptyList();
+  }
 
-        entryPrintStream.println();
-        entryPrintStream.println(name + "EntryObj ::= SEQUENCE {");
-    }
+  public void addEntry(String parentName, String name, int oid,
+      String description)
+  {
+    entryPrintStream.println();
+    entryPrintStream.println(name + "Entry  OBJECT-TYPE");
+    entryPrintStream.println("\tSYNTAX\t\t" + name + "EntryObj");
+    entryPrintStream.println("\tMAX-ACCESS\tnot-accessible");
+    entryPrintStream.println("\tSTATUS\t\tcurrent");
+    entryPrintStream.println("\t::= { " + parentName + "Entry " + oid + " }");
 
-    private static final String getSyntax(Class<?> type)
-    {
-        if (type == Integer.class || type == Integer.TYPE)
-            return "Integer32";
+    entryPrintStream.println();
+    entryPrintStream.println(name + "EntryObj ::= SEQUENCE {");
+  }
 
-        if (type == Boolean.class || type == Boolean.TYPE)
-            return "Boolean";
+  private static final String getSyntax(Class<?> type)
+  {
+    if (type == Integer.class || type == Integer.TYPE)
+      return "Integer32";
 
-        if (type.isEnum())
-            return type.getSimpleName();
+    if (type == Boolean.class || type == Boolean.TYPE)
+      return "Boolean";
 
-        return "OCTET STRING (SIZE(0..65535))";
-    }
+    if (type.isEnum())
+      return type.getSimpleName();
 
-    public void addItem(String parentName, String name, int oid, Class<?> type,
-            String description, boolean isWritable)
-    {
-        addSequenceEntry(name);
+    return "OCTET STRING (SIZE(0..65535))";
+  }
 
-        String typeName = getSyntax(type);
-        String maxAccess = isWritable ? "read-write" : "read-only";
+  public void addItem(String parentName, String name, int oid, Class<?> type,
+      String description, boolean isWritable)
+  {
+    addSequenceEntry(name);
 
-        itemPrintStream.println();
-        itemPrintStream.println(name + " OBJECT-TYPE");
-        itemPrintStream.println("\tSYNTAX\t\t" + typeName);
-        itemPrintStream.println("\tMAX-ACCESS\t" + maxAccess);
-        itemPrintStream.println("\tSTATUS\t\tcurrent");
-        itemPrintStream.println("\tDESCRIPTION");
-        itemPrintStream.println("\t\t\"" + description + "\"");
+    String typeName = getSyntax(type);
+    String maxAccess = isWritable ? "read-write" : "read-only";
 
-        itemPrintStream
-                .println("\t::= { " + parentName + "Entry " + oid + " }");
-    }
+    itemPrintStream.println();
+    itemPrintStream.println(name + " OBJECT-TYPE");
+    itemPrintStream.println("\tSYNTAX\t\t" + typeName);
+    itemPrintStream.println("\tMAX-ACCESS\t" + maxAccess);
+    itemPrintStream.println("\tSTATUS\t\tcurrent");
+    itemPrintStream.println("\tDESCRIPTION");
+    itemPrintStream.println("\t\t\"" + description + "\"");
 
-    protected void addSequenceEntry(String name)
-    {
-        entryPrintStream.print(String
-                .format("\t%1$-" + paddingSize + "s", name));
-        entryPrintStream.println("\tOCTET STRING,");
-    }
+    itemPrintStream.println("\t::= { " + parentName + "Entry " + oid + " }");
+  }
 
-    public ByteArrayOutputStream finish() throws IOException
-    {
-        itemByteStream.writeTo(entryPrintStream);
-        return entryByteStream;
-    }
+  protected void addSequenceEntry(String name)
+  {
+    entryPrintStream.print(String.format("\t%1$-" + paddingSize + "s", name));
+    entryPrintStream.println("\tOCTET STRING,");
+  }
+
+  public ByteArrayOutputStream finish() throws IOException
+  {
+    itemByteStream.writeTo(entryPrintStream);
+    return entryByteStream;
+  }
 }

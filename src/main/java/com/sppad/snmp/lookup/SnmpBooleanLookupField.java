@@ -9,29 +9,30 @@ import com.sppad.snmp.exceptions.SnmpBadValueException;
 
 public class SnmpBooleanLookupField extends SnmpLookupField
 {
-    private static final String FALSE_STRING = "false";
-    
-    private static final String TRUE_STRING = "true";
-    
-    public SnmpBooleanLookupField(OID oid, Field field, Object object, Method setter)
-    {
-	super(oid, field, object, setter);
-    }
+  private static final String FALSE_STRING = "false";
 
-    @Override
-    public Object doGet() throws IllegalAccessException
-    {
-	return field.get(object);
-    }
+  private static final String TRUE_STRING = "true";
 
-    @Override
-    public void doSet(String value)
-    {
-	if (TRUE_STRING.equalsIgnoreCase(value))
-	    setValue(true);
-	else if (FALSE_STRING.equalsIgnoreCase(value))
-	    setValue(false);
-	else
-	    throw new SnmpBadValueException(value);
-    }
+  public SnmpBooleanLookupField(OID oid, Field field, Object object,
+      Method setter)
+  {
+    super(oid, field, object, setter);
+  }
+
+  @Override
+  public Object doGet() throws IllegalAccessException
+  {
+    return field.get(object);
+  }
+
+  @Override
+  public void doSet(String value)
+  {
+    if (TRUE_STRING.equalsIgnoreCase(value))
+      setValue(true);
+    else if (FALSE_STRING.equalsIgnoreCase(value))
+      setValue(false);
+    else
+      throw new SnmpBadValueException(value);
+  }
 }

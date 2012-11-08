@@ -9,27 +9,28 @@ import com.sppad.snmp.exceptions.SnmpBadValueException;
 
 public class SnmpPrimativeLongLookupField extends SnmpLookupField
 {
-    public SnmpPrimativeLongLookupField(OID oid, Field field, Object object, Method setter)
-    {
-	super(oid, field, object, setter);
-    }
+  public SnmpPrimativeLongLookupField(OID oid, Field field, Object object,
+      Method setter)
+  {
+    super(oid, field, object, setter);
+  }
 
-    @Override
-    public Object doGet() throws IllegalAccessException
-    {
-	return field.getLong(object);
-    }
+  @Override
+  public Object doGet() throws IllegalAccessException
+  {
+    return field.getLong(object);
+  }
 
-    @Override
-    public void doSet(String value)
+  @Override
+  public void doSet(String value)
+  {
+    try
     {
-	try
-	{
-	    setValue(Long.parseLong(value));
-	}
-	catch (NumberFormatException e)
-	{
-	    throw new SnmpBadValueException(value);
-	}
+      setValue(Long.parseLong(value));
     }
+    catch (NumberFormatException e)
+    {
+      throw new SnmpBadValueException(value);
+    }
+  }
 }

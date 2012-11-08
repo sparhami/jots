@@ -9,35 +9,36 @@ import com.sppad.snmp.exceptions.SnmpBadValueException;
 
 public class SnmpEnumLookupField extends SnmpLookupField
 {
-    @SuppressWarnings("rawtypes")
-    private final Class<? extends Enum> enumClass;
+  @SuppressWarnings("rawtypes")
+  private final Class<? extends Enum> enumClass;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public SnmpEnumLookupField(OID oid, Field field, Object object, Method setter)
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public SnmpEnumLookupField(OID oid, Field field, Object object, Method setter)
+  {
+    super(oid, field, object, setter);
+
+    this.enumClass = (Class<? extends Enum>) field.getType();
+  }
+
+  @Override
+  public Object doGet() throws IllegalAccessException
+  {
+    return field.get(object).toString();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void doSet(String value)
+  {
+    try
     {
-	super(oid, field, object, setter);
-
-	this.enumClass = (Class<? extends Enum>) field.getType();
+      this.setValue(Enum.valueOf(enumClass, value));
     }
-
-    @Override
-    public Object doGet() throws IllegalAccessException
+    catch (IllegalArgumentException e)
     {
-	return field.get(object).toString();
+      throw new SnmpBadValueException(String.format(
+          "Value %s is not valid for this field", value));
     }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void doSet(String value)
-    {
-	try
-	{
-	    this.setValue(Enum.valueOf(enumClass, value));
-	}
-	catch (IllegalArgumentException e)
-	{
-	    throw new SnmpBadValueException(String.format("Value %s is not valid for this field", value));
-	}
-    }
+  }
 
 }

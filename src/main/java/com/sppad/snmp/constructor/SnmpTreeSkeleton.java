@@ -21,62 +21,60 @@ import com.sppad.snmp.lookup.SnmpStringLookupField;
 
 public class SnmpTreeSkeleton
 {
-    private final int[] prefix;
+  private final int[] prefix;
 
-    private final SortedSet<SnmpLookupField> sortSet = new TreeSet<SnmpLookupField>();
+  private final SortedSet<SnmpLookupField> sortSet = new TreeSet<SnmpLookupField>();
 
-    public SnmpTreeSkeleton(int[] prefix)
-    {
-	this.prefix = prefix;
-    }
+  public SnmpTreeSkeleton(int[] prefix)
+  {
+    this.prefix = prefix;
+  }
 
-    public void add(OID oid, Field field, Object object, Method setter)
-    {
-	SnmpLookupField lookupField = createLookupField(oid, field, object,
-		setter);
-	sortSet.add(lookupField);
-    }
+  public void add(OID oid, Field field, Object object, Method setter)
+  {
+    SnmpLookupField lookupField = createLookupField(oid, field, object, setter);
+    sortSet.add(lookupField);
+  }
 
-    public SnmpLookupField createLookupField(OID oid, Field field,
-	    Object object, Method setter)
-    {
-	SnmpLookupField lookupField;
-	Class<?> fieldType = field.getType();
+  public SnmpLookupField createLookupField(OID oid, Field field, Object object,
+      Method setter)
+  {
+    SnmpLookupField lookupField;
+    Class<?> fieldType = field.getType();
 
-	// Tried a map / factory pattern here for looking up, but performance
-	// was significantly worse. May need to revist this in the future.
-	if (fieldType == Boolean.TYPE)
-	    lookupField = new SnmpPrimativeBooleanLookupField(oid, field,
-		    object, setter);
-	else if (fieldType == Boolean.class)
-	    lookupField = new SnmpBooleanLookupField(oid, field, object, setter);
-	else if (fieldType == Integer.TYPE)
-	    lookupField = new SnmpPrimativeIntegerLookupField(oid, field,
-		    object, setter);
-	else if (fieldType == Integer.class)
-	    lookupField = new SnmpIntegerLookupField(oid, field, object, setter);
-	else if (fieldType == Long.TYPE)
-	    lookupField = new SnmpPrimativeLongLookupField(oid, field, object,
-		    setter);
-	else if (fieldType == Long.class)
-	    lookupField = new SnmpLongLookupField(oid, field, object, setter);
-	else if (fieldType == Double.TYPE)
-	    lookupField = new SnmpPrimativeDoubleLookupField(oid, field,
-		    object, setter);
-	else if (fieldType == Double.class)
-	    lookupField = new SnmpDoubleLookupField(oid, field, object, setter);
-	else if (fieldType == String.class)
-	    lookupField = new SnmpStringLookupField(oid, field, object, setter);
-	else if (fieldType.isEnum())
-	    lookupField = new SnmpEnumLookupField(oid, field, object, setter);
-	else
-	    throw new RuntimeException("Class not supported: " + fieldType);
+    // Tried a map / factory pattern here for looking up, but performance
+    // was significantly worse. May need to revist this in the future.
+    if (fieldType == Boolean.TYPE)
+      lookupField = new SnmpPrimativeBooleanLookupField(oid, field, object,
+          setter);
+    else if (fieldType == Boolean.class)
+      lookupField = new SnmpBooleanLookupField(oid, field, object, setter);
+    else if (fieldType == Integer.TYPE)
+      lookupField = new SnmpPrimativeIntegerLookupField(oid, field, object,
+          setter);
+    else if (fieldType == Integer.class)
+      lookupField = new SnmpIntegerLookupField(oid, field, object, setter);
+    else if (fieldType == Long.TYPE)
+      lookupField = new SnmpPrimativeLongLookupField(oid, field, object, setter);
+    else if (fieldType == Long.class)
+      lookupField = new SnmpLongLookupField(oid, field, object, setter);
+    else if (fieldType == Double.TYPE)
+      lookupField = new SnmpPrimativeDoubleLookupField(oid, field, object,
+          setter);
+    else if (fieldType == Double.class)
+      lookupField = new SnmpDoubleLookupField(oid, field, object, setter);
+    else if (fieldType == String.class)
+      lookupField = new SnmpStringLookupField(oid, field, object, setter);
+    else if (fieldType.isEnum())
+      lookupField = new SnmpEnumLookupField(oid, field, object, setter);
+    else
+      throw new RuntimeException("Class not supported: " + fieldType);
 
-	return lookupField;
-    }
+    return lookupField;
+  }
 
-    public SnmpTree finishTreeConstruction()
-    {
-	return new SnmpTree(prefix, sortSet);
-    }
+  public SnmpTree finishTreeConstruction()
+  {
+    return new SnmpTree(prefix, sortSet);
+  }
 }

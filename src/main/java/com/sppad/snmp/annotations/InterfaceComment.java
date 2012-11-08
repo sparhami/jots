@@ -5,11 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 @Retention(RetentionPolicy.RUNTIME)
 @Target(
-    value = { ElementType.FIELD, ElementType.ANNOTATION_TYPE })
+  value = { ElementType.FIELD, ElementType.ANNOTATION_TYPE })
 public @interface InterfaceComment
 {
-    String synopsis();
+  String synopsis();
 }

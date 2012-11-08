@@ -7,7 +7,7 @@ import com.sppad.snmp.constructor.SnmpTreeConstructor;
 
 public interface ObjectHandler
 {
-    void handle(SnmpTreeConstructor descender, Object obj, Field field)
-	    throws IllegalArgumentException, IllegalAccessException,
-	    InvocationTargetException;
+  void handle(SnmpTreeConstructor descender, Object obj, Field field)
+      throws IllegalArgumentException, IllegalAccessException,
+      InvocationTargetException;
 }

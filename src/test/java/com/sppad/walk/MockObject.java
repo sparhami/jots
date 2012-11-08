@@ -1,7 +1,6 @@
 package com.sppad.walk;
 
-
 public class MockObject
 {
-    public Boolean testField = true;
+  public Boolean testField = true;
 }

@@ -14,114 +14,114 @@ import java.util.Set;
 
 public class MibConstructor
 {
-    private ByteArrayOutputStream createMibStream = new ByteArrayOutputStream();
+  private ByteArrayOutputStream createMibStream = new ByteArrayOutputStream();
 
-    private Map<String, MibSubtree> entryMap = new LinkedHashMap<String, MibSubtree>();
+  private Map<String, MibSubtree> entryMap = new LinkedHashMap<String, MibSubtree>();
 
-    private final Set<Class<? extends Enum<?>>> enumSyntaxSet = new HashSet<Class<? extends Enum<?>>>();
+  private final Set<Class<? extends Enum<?>>> enumSyntaxSet = new HashSet<Class<? extends Enum<?>>>();
 
-    private OutputStream outstream;
+  private OutputStream outstream;
 
-    private final PrintStream ps;
+  private final PrintStream ps;
 
-    private final String mibName;
+  private final String mibName;
 
-    private final String rootName;
+  private final String rootName;
 
-    private final String parentTree;
+  private final String parentTree;
 
-    private final int mibTree;
+  private final int mibTree;
 
-    public MibConstructor(String mibName, String rootName, String parentTree,
-            int mibTree, OutputStream os)
-    {
-        this.mibName = mibName;
-        this.rootName = rootName;
-        this.parentTree = parentTree;
-        this.mibTree = mibTree;
+  public MibConstructor(String mibName, String rootName, String parentTree,
+      int mibTree, OutputStream os)
+  {
+    this.mibName = mibName;
+    this.rootName = rootName;
+    this.parentTree = parentTree;
+    this.mibTree = mibTree;
 
-        outstream = os;
-        ps = new PrintStream(createMibStream);
+    outstream = os;
+    ps = new PrintStream(createMibStream);
 
-        MibSubtree entry = new MibRoot();
-        entryMap.put(rootName, entry);
-    }
+    MibSubtree entry = new MibRoot();
+    entryMap.put(rootName, entry);
+  }
 
-    public void addEntry(String parentName, String name, int oid,
-            String description)
-    {
-        if (parentName == null || parentName.equals(""))
-            parentName = rootName;
+  public void addEntry(String parentName, String name, int oid,
+      String description)
+  {
+    if (parentName == null || parentName.equals(""))
+      parentName = rootName;
 
-        MibEntry entry = new MibEntry();
-        entryMap.put(name, entry);
+    MibEntry entry = new MibEntry();
+    entryMap.put(name, entry);
 
-        entry.addEntry(parentName, name, oid, description);
-    }
+    entry.addEntry(parentName, name, oid, description);
+  }
 
-    @SuppressWarnings("unchecked")
-    public void addItem(String parentName, String name, int oid, Class<?> type,
-            String description, boolean isWritable)
-    {
-        if (type.isEnum())
-            addEnum((Class<? extends Enum<?>>) type);
+  @SuppressWarnings("unchecked")
+  public void addItem(String parentName, String name, int oid, Class<?> type,
+      String description, boolean isWritable)
+  {
+    if (type.isEnum())
+      addEnum((Class<? extends Enum<?>>) type);
 
-        if (parentName == null || parentName.equals(""))
-            parentName = rootName;
+    if (parentName == null || parentName.equals(""))
+      parentName = rootName;
 
-        MibSubtree entry = entryMap.get(parentName);
-        entry.addItem(parentName, name, oid, type, description, isWritable);
-    }
+    MibSubtree entry = entryMap.get(parentName);
+    entry.addItem(parentName, name, oid, type, description, isWritable);
+  }
 
-    public void addTable(String parentName, String name, int oid,
-            boolean isParentTable, String description, Class<?> keyType)
-    {
-        if (parentName == null || parentName.equals(""))
-            parentName = rootName;
+  public void addTable(String parentName, String name, int oid,
+      boolean isParentTable, String description, Class<?> keyType)
+  {
+    if (parentName == null || parentName.equals(""))
+      parentName = rootName;
 
-        MibSubtree parentEntry = entryMap.get(parentName);
-        List<String> indexTypes = new ArrayList<String>(parentEntry.indexTypes);
+    MibSubtree parentEntry = entryMap.get(parentName);
+    List<String> indexTypes = new ArrayList<String>(parentEntry.indexTypes);
 
-        String indexType = (keyType == String.class) ? "IndexString"
-                : "IndexInteger";
-        indexTypes.add(indexType);
+    String indexType = (keyType == String.class) ? "IndexString"
+        : "IndexInteger";
+    indexTypes.add(indexType);
 
-        MibSubtree entry = new MibTable(parentName, name, oid, isParentTable,
-                description, indexTypes);
-        entryMap.put(name, entry);
-    }
+    MibSubtree entry = new MibTable(parentName, name, oid, isParentTable,
+        description, indexTypes);
+    entryMap.put(name, entry);
+  }
 
-    public void finish() throws IOException
-    {
-        ps.print(MibInfo.createMibHeader(mibName, rootName + "Entry", "",
-                parentTree, mibTree));
+  public void finish() throws IOException
+  {
+    ps.print(MibInfo.createMibHeader(mibName, rootName + "Entry", "",
+        parentTree, mibTree));
 
-        for (MibSubtree entry : entryMap.values())
-            entry.finish().writeTo(ps);
+    for (MibSubtree entry : entryMap.values())
+      entry.finish().writeTo(ps);
 
-        ps.println("\nEND");
+    ps.println("\nEND");
 
-        createMibStream.writeTo(outstream);
-        outstream.close();
-    }
+    createMibStream.writeTo(outstream);
+    outstream.close();
+  }
 
-    private void addEnum(Class<? extends Enum<?>> enumClass)
-    {
-        if (enumSyntaxSet.contains(enumClass))
-            return;
+  private void addEnum(Class<? extends Enum<?>> enumClass)
+  {
+    if (enumSyntaxSet.contains(enumClass))
+      return;
 
-        enumSyntaxSet.add(enumClass);
+    enumSyntaxSet.add(enumClass);
 
-        StringBuilder builder = new StringBuilder();
+    StringBuilder builder = new StringBuilder();
 
-        builder.append(enumClass.getSimpleName() + " ::= TEXTUAL-CONVENTION\n");
-        builder.append("\tSYNTAX      OCTET STRING {");
-        for (Enum<?> enumElement : enumClass.getEnumConstants())
-            builder.append(" \"" + enumElement.name() + "\",");
+    builder.append(enumClass.getSimpleName() + " ::= TEXTUAL-CONVENTION\n");
+    builder.append("\tSYNTAX      OCTET STRING {");
+    for (Enum<?> enumElement : enumClass.getEnumConstants())
+      builder.append(" \"" + enumElement.name() + "\",");
 
-        builder.deleteCharAt(builder.lastIndexOf(","));
-        builder.append(" }\n");
+    builder.deleteCharAt(builder.lastIndexOf(","));
+    builder.append(" }\n");
 
-        ps.println(builder.toString());
-    }
+    ps.println(builder.toString());
+  }
 }
