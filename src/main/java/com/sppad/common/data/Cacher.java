@@ -5,6 +5,16 @@ import java.util.Map;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * Used for caching data for a given key. When there does not exist a mapping
+ * for a given key, a user-supplied function is used to get the value as well as
+ * update the cache.
+ * 
+ * @param <K>
+ *          The key type
+ * @param <V>
+ *          The value type
+ */
 public class Cacher<K, V>
 {
   public static interface CacheMissGetter<K, V>

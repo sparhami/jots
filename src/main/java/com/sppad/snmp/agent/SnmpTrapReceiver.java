@@ -18,7 +18,7 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.mp.SnmpConstants;
 
 import com.sppad.snmp.agent.SnmpAgent.Protocol;
-import com.sppad.snmp.exceptions.InformException;
+import com.sppad.snmp.exceptions.SnmpInformException;
 
 public abstract class SnmpTrapReceiver implements CommandResponder
 {
@@ -87,7 +87,7 @@ public abstract class SnmpTrapReceiver implements CommandResponder
     {
       processTrap(request);
     }
-    catch (InformException e)
+    catch (SnmpInformException e)
     {
       response.setErrorStatus(PDU.badValue);
       response.setErrorIndex(e.index);
