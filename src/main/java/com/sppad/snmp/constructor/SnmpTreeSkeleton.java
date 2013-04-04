@@ -10,11 +10,13 @@ import org.snmp4j.smi.OID;
 import com.sppad.snmp.lookup.SnmpBooleanLookupField;
 import com.sppad.snmp.lookup.SnmpDoubleLookupField;
 import com.sppad.snmp.lookup.SnmpEnumLookupField;
+import com.sppad.snmp.lookup.SnmpFloatLookupField;
 import com.sppad.snmp.lookup.SnmpIntegerLookupField;
 import com.sppad.snmp.lookup.SnmpLongLookupField;
 import com.sppad.snmp.lookup.SnmpLookupField;
 import com.sppad.snmp.lookup.SnmpPrimativeBooleanLookupField;
 import com.sppad.snmp.lookup.SnmpPrimativeDoubleLookupField;
+import com.sppad.snmp.lookup.SnmpPrimativeFloatLookupField;
 import com.sppad.snmp.lookup.SnmpPrimativeIntegerLookupField;
 import com.sppad.snmp.lookup.SnmpPrimativeLongLookupField;
 import com.sppad.snmp.lookup.SnmpStringLookupField;
@@ -36,41 +38,50 @@ public class SnmpTreeSkeleton
     sortSet.add(lookupField);
   }
 
-  public SnmpLookupField createLookupField(OID oid, Field field, Object object,
-      Method setter)
+  private SnmpLookupField createLookupField(OID oid, Field field,
+      Object object, Method setter)
   {
-    SnmpLookupField lookupField;
     Class<?> fieldType = field.getType();
 
     // Tried a map / factory pattern here for looking up, but performance
-    // was significantly worse. May need to revist this in the future.
+    // was significantly worse. May need to revisit this in the future.
     if (fieldType == Boolean.TYPE)
-      lookupField = new SnmpPrimativeBooleanLookupField(oid, field, object,
-          setter);
-    else if (fieldType == Boolean.class)
-      lookupField = new SnmpBooleanLookupField(oid, field, object, setter);
-    else if (fieldType == Integer.TYPE)
-      lookupField = new SnmpPrimativeIntegerLookupField(oid, field, object,
-          setter);
-    else if (fieldType == Integer.class)
-      lookupField = new SnmpIntegerLookupField(oid, field, object, setter);
-    else if (fieldType == Long.TYPE)
-      lookupField = new SnmpPrimativeLongLookupField(oid, field, object, setter);
-    else if (fieldType == Long.class)
-      lookupField = new SnmpLongLookupField(oid, field, object, setter);
-    else if (fieldType == Double.TYPE)
-      lookupField = new SnmpPrimativeDoubleLookupField(oid, field, object,
-          setter);
-    else if (fieldType == Double.class)
-      lookupField = new SnmpDoubleLookupField(oid, field, object, setter);
-    else if (fieldType == String.class)
-      lookupField = new SnmpStringLookupField(oid, field, object, setter);
-    else if (fieldType.isEnum())
-      lookupField = new SnmpEnumLookupField(oid, field, object, setter);
-    else
-      throw new RuntimeException("Class not supported: " + fieldType);
+      return new SnmpPrimativeBooleanLookupField(oid, field, object, setter);
 
-    return lookupField;
+    if (fieldType == Boolean.class)
+      return new SnmpBooleanLookupField(oid, field, object, setter);
+
+    if (fieldType == Integer.TYPE)
+      return new SnmpPrimativeIntegerLookupField(oid, field, object, setter);
+
+    if (fieldType == Integer.class)
+      return new SnmpIntegerLookupField(oid, field, object, setter);
+
+    if (fieldType == Long.TYPE)
+      return new SnmpPrimativeLongLookupField(oid, field, object, setter);
+
+    if (fieldType == Long.class)
+      return new SnmpLongLookupField(oid, field, object, setter);
+    
+    if (fieldType == Float.TYPE)
+      return new SnmpPrimativeFloatLookupField(oid, field, object, setter);
+    
+    if (fieldType == Float.class)
+      return  new SnmpFloatLookupField(oid, field, object, setter);
+
+    if (fieldType == Double.TYPE)
+      return new SnmpPrimativeDoubleLookupField(oid, field, object, setter);
+    
+    if (fieldType == Double.class)
+      return  new SnmpDoubleLookupField(oid, field, object, setter);
+    
+    if (fieldType == String.class)
+      return new SnmpStringLookupField(oid, field, object, setter);
+    
+    if (fieldType.isEnum())
+      return new SnmpEnumLookupField(oid, field, object, setter);
+    
+    throw new RuntimeException("Class not supported: " + fieldType);
   }
 
   public SnmpTree finishTreeConstruction()

@@ -18,6 +18,7 @@ import java.util.Map;
 import org.snmp4j.smi.OID;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.sppad.common.data.Cacher;
@@ -179,9 +180,6 @@ public class SnmpTreeConstructor
    */
   private final Map<Type, ObjectHandler> handlers = new HashMap<Type, ObjectHandler>();
 
-  /** For generating MIB, keeps track of names inside a table */
-  private final Deque<ArrayDeque<String>> inTableNameStackStack = new ArrayDeque<ArrayDeque<String>>();
-
   /** Used for constructing a MIB, if requested */
   private MibConstructor mc;
 
@@ -294,8 +292,13 @@ public class SnmpTreeConstructor
   /** Sets up initial handler classes. */
   {
     // collections types
+    handlers.put(Map.class, new MapHandler());
+    handlers.put(List.class, new CollectionHandler());
+    handlers.put(Collection.class, new CollectionHandler());
+
     handlers.put(ImmutableMap.class, new MapHandler());
     handlers.put(ImmutableList.class, new CollectionHandler());
+    handlers.put(ImmutableCollection.class, new CollectionHandler());
 
     // general object
     handlers.put(Object.class, defaultHandler);
@@ -356,7 +359,7 @@ public class SnmpTreeConstructor
     }
     else if (isTableType(obj.getClass()))
     {
-      handlers.get(obj.getClass()).handle(this, obj, field);
+      getHandler(obj.getClass()).handle(this, obj, field);
     }
     else
     {
@@ -374,9 +377,6 @@ public class SnmpTreeConstructor
   public void onCollectionEnter(Object obj, Field field, Class<?> keyType)
   {
     FieldInfo info = getFieldInfo(field);
-
-    if (createMib)
-      inTableNameStackStack.push(new ArrayDeque<String>());
 
     nameStack.push(info.snmpName);
     tableOidIndexStack.push(oidStack.size());
@@ -406,8 +406,6 @@ public class SnmpTreeConstructor
 
     tableOidIndexStack.pop();
     nameStack.pop();
-    if (createMib)
-      inTableNameStackStack.pop();
   }
 
   public void onNextCollectionValue(Object obj, Object collectionIndex)
@@ -521,8 +519,8 @@ public class SnmpTreeConstructor
     if (field != null && !getFieldInfo(field).isTableType)
     {
       nameStack.push(field.getName());
-      if (createMib)
-        inTableNameStackStack.peek().push(field.getName());
+      // if (createMib)
+      // inTableNameStackStack.peek().push(field.getName());
     }
 
     objectHandleStack.push(obj);
@@ -536,8 +534,8 @@ public class SnmpTreeConstructor
 
     if (field != null && !getFieldInfo(field).isTableType)
     {
-      if (createMib)
-        inTableNameStackStack.peek().pop();
+      // if (createMib)
+      // inTableNameStackStack.peek().pop();
       nameStack.pop();
     }
   }
@@ -606,29 +604,16 @@ public class SnmpTreeConstructor
       // stack
       boolean inTable = (tableNameStack.size() > 1);
 
+      String name = buildStringPath(nameStack, true);
+      String parent = buildStringPath(nameStack, false);
+
       if (info.isTableType)
-      {
-        String name = buildStringPath(tableNameStack, true);
-        String parent = buildStringPath(tableNameStack, false);
         mc.addTable(parent, name, oid, inTable, "", keyType);
-      }
+      else if (info.isSimple)
+        mc.addItem(parent, name, oid, info.field.getType(), info.description,
+            info.isWritable());
       else
-      {
-        String name = buildStringPath(nameStack, true);
-
-        String parent;
-        if (inTable)
-          parent = buildStringPath(tableNameStack, true)
-              + buildStringPath(inTableNameStackStack.peek(), true);
-        else
-          parent = buildStringPath(nameStack, false);
-
-        if (info.isSimple)
-          mc.addItem(parent, name, oid, info.field.getType(), info.description,
-              info.isWritable());
-        else
-          mc.addEntry(parent, name, oid, "");
-      }
+        mc.addEntry(parent, name, oid, "");
 
       info.oidVisitedMap.add(new IntStack(oidStack));
     }

@@ -1,14 +1,11 @@
 package com.sppad.snmp.constructor;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
 
-import com.sppad.snmp.annotations.SnmpIgnore;
 import com.sppad.snmp.annotations.SnmpTableIndex;
 
 public class ClassInfo
@@ -44,8 +41,7 @@ public class ClassInfo
 
     for (Class<?> klass : classStack)
       for (Field field : klass.getDeclaredFields())
-        if (shouldDescend(field))
-          fields.add(field);
+        fields.add(field);
 
     return fields;
   }
@@ -112,24 +108,6 @@ public class ClassInfo
         parentClass = getLeastCommonSuperclass(obj.getClass(), parentClass);
 
     return parentClass;
-  }
-
-  /**
-   * Checks to see if this field should be descended into. If the field is not
-   * static, isn't a reference to an outer class and is not transient, then it
-   * should be traversed into.
-   * 
-   * @param field
-   *          The field to check the properties of.
-   * @return True if the field should be descended into, false otherwise.
-   */
-  private static boolean shouldDescend(Field field)
-  {
-    Annotation snmpIgnoreAnnotation = field.getAnnotation(SnmpIgnore.class);
-
-    int modifiers = field.getModifiers();
-    return !Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)
-        && snmpIgnoreAnnotation == null && !field.getName().equals("this$0");
   }
 
   public ClassInfo(Class<?> klass)

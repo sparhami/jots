@@ -86,9 +86,9 @@ public class IntStack
    * @param mintyStack
    *          The stack to copy elements from.
    */
-  public void copyFrom(IntStack mintyStack)
+  public void copyFrom(IntStack intStack)
   {
-    copyFrom(mintyStack.backingArray, 0, mintyStack.size());
+    copyFrom(intStack.backingArray, 0, intStack.size());
   }
 
   /**
