@@ -5,8 +5,6 @@ import java.util.Arrays;
 /**
  * A stack for ints that uses a backing array to store elements. Does not do any
  * index or size checking.
- * 
- * @author sepand
  */
 public class IntStack
 {

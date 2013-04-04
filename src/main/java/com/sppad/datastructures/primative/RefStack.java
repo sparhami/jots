@@ -1,5 +1,11 @@
 package com.sppad.datastructures.primative;
 
+/**
+ * A stack of Objects. Unlike LinkedList or Stack, contains uses == rather than
+ * the equals method.
+ * 
+ * @param <T> The type of the objects stored in the stack
+ */
 public class RefStack<T>
 {
   private T[] backingArray;
