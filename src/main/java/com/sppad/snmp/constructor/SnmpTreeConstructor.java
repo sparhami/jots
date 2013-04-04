@@ -14,14 +14,18 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.snmp4j.smi.OID;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.sppad.common.data.Cacher;
 import com.sppad.common.object.ObjUtils;
 import com.sppad.datastructures.primative.IntStack;
 import com.sppad.datastructures.primative.RefStack;
@@ -116,31 +120,39 @@ public class SnmpTreeConstructor
   }
 
   /** Gets / caches class info for a particular class */
-  private final Cacher<Class<?>, ClassInfo> _classInfoGetter = new Cacher<Class<?>, ClassInfo>(
-      new Cacher.CacheMissGetter<Class<?>, ClassInfo>()
+  private LoadingCache<Class<?>, ClassInfo> classInfoCache = CacheBuilder
+      .newBuilder().maximumSize(1000)
+      .build(new CacheLoader<Class<?>, ClassInfo>()
       {
         @Override
-        public ClassInfo getValue(Class<?> key)
+        public ClassInfo load(Class<?> key)
         {
           return new ClassInfo(key);
         }
       });
 
   /** Gets / caches class info for a particular field */
-  private final Cacher<Field, FieldInfo> _fieldInfoGetter = new Cacher<Field, FieldInfo>(
-      new Cacher.CacheMissGetter<Field, FieldInfo>()
+  private LoadingCache<Field, FieldInfo> fieldInfoCache = CacheBuilder
+      .newBuilder().maximumSize(1000).build(new CacheLoader<Field, FieldInfo>()
       {
         @Override
-        public FieldInfo getValue(Field key)
+        public FieldInfo load(Field key)
         {
           return new FieldInfo(key);
         }
       });
 
-  /** Gets / caches the handler for a given object */
-  private final Cacher<Class<?>, ObjectHandler> _objectHandlerGetter = new Cacher<Class<?>, ObjectHandler>(
-      new Cacher.CacheMissGetter<Class<?>, ObjectHandler>()
+  /** Gets / caches the handler for a given class */
+  private LoadingCache<Class<?>, ObjectHandler> objectHandlerCache = CacheBuilder
+      .newBuilder().maximumSize(1000)
+      .build(new CacheLoader<Class<?>, ObjectHandler>()
       {
+        @Override
+        public ObjectHandler load(Class<?> key)
+        {
+          return handlers.get(getFirstHandledClass(key));
+        }
+
         public Class<?> getFirstHandledClass(Class<?> klass)
         {
           // check if the class is already handled
@@ -159,12 +171,6 @@ public class SnmpTreeConstructor
 
           // nothing matches, just handle it as an object
           return Object.class;
-        }
-
-        @Override
-        public ObjectHandler getValue(Class<?> key)
-        {
-          return handlers.get(getFirstHandledClass(key));
         }
       });
 
@@ -648,21 +654,40 @@ public class SnmpTreeConstructor
     }
   }
 
-  // For some reason, performance is much better when using this function
   private ClassInfo getClassInfo(Class<?> klass)
   {
-    return _classInfoGetter.get(klass);
+    try
+    {
+      return classInfoCache.get(klass);
+    }
+    catch (ExecutionException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
 
-  // For some reason, performance is much better when using this function
   private FieldInfo getFieldInfo(Field field)
   {
-    return _fieldInfoGetter.get(field);
+    try
+    {
+      return fieldInfoCache.get(field);
+    }
+    catch (ExecutionException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
 
   // For some reason, performance is much better when using this function
   private ObjectHandler getHandler(Class<?> klass)
   {
-    return _objectHandlerGetter.get(klass);
+    try
+    {
+      return objectHandlerCache.get(klass);
+    }
+    catch (ExecutionException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
 }
