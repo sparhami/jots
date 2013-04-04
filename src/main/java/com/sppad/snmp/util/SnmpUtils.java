@@ -19,24 +19,6 @@ public class SnmpUtils
     builtinClasses.add(String.class);
   }
 
-  public static int[] combineArrays(int[]... arguments)
-  {
-    int size = 0;
-
-    for (int[] part : arguments)
-      size += part.length;
-
-    int[] combined = new int[size];
-    int lastIndex = 0;
-    for (int[] part : arguments)
-    {
-      System.arraycopy(part, 0, combined, lastIndex, part.length);
-      lastIndex = part.length;
-    }
-
-    return combined;
-  }
-
   /**
    * Transforms the specified String into an int array representing an explicit
    * SNMP oid table index. This is an array of length n+1 where n is the length
@@ -82,6 +64,15 @@ public class SnmpUtils
     return setMethodName.toString();
   }
 
+  /**
+   * Gets the SNMP table extension for a given object. For Numbers (e.g.
+   * Integer), a single element array containing the number value is returned.
+   * For all other objects, the String representation of the object is used.
+   * 
+   * @param obj
+   *          An object to serve as a table row index
+   * @return An int array representing the table extension
+   */
   public static int[] getSnmpExtension(Object obj)
   {
     if (obj instanceof Number)
@@ -90,18 +81,31 @@ public class SnmpUtils
       return getExplicitString(obj.toString());
   }
 
+  /**
+   * Checks whether a give class corresponds to a primitve (e.g. Integer.class)
+   * or is a String.
+   * 
+   * @return True if the class is a built-in class, false otherwise
+   */
   public static boolean isBuiltin(Class<?> klass)
   {
     return builtinClasses.contains(klass);
   }
 
-  public static boolean isPrimtive(Class<?> klass)
+  /**
+   * @return True if the class is a primitive (e.g. int), false otherwise
+   */
+  public static boolean isPrimitive(Class<?> klass)
   {
     return klass.isPrimitive();
   }
 
+  /**
+   * @return True if the class is a primitive/the object equivalent, a String or
+   *         enum, false otherwise
+   */
   public static boolean isSimple(Class<?> klass)
   {
-    return isBuiltin(klass) || isPrimtive(klass) || klass.isEnum();
+    return isBuiltin(klass) || isPrimitive(klass) || klass.isEnum();
   }
 }
