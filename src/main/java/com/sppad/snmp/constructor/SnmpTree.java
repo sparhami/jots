@@ -151,48 +151,42 @@ public class SnmpTree
    * Merges two SnmpTrees into 1 tree. If both trees contain the same OID, then
    * the OID is represented by the index from tree and not the current object.
    * 
-   * @param tree
-   *          The tree to merge in.
+   * @param other
+   *          The tree to merge in
    * @return An SnmpTree with fields from both the current object and tree
    */
-  public SnmpTree mergeSnmpTrees(SnmpTree tree)
+  public SnmpTree mergeSnmpTrees(SnmpTree other)
   {
-    Preconditions.checkNotNull(tree, "tree must not be null");
+    Preconditions.checkNotNull(other, "argument must not be null");
 
-    List<SnmpLookupField> fields = new ArrayList<SnmpLookupField>(
-        this.lastIndex);
+    List<SnmpLookupField> fields = new ArrayList<>(this.lastIndex);
 
-    int indexOne = 0;
-    int indexTwo = 0;
-    // merge trees by comparing each field pairwise and inserting from
-    // either the first or the second tree
-    while (indexOne <= tree.lastIndex && indexTwo <= this.lastIndex)
+    int thisIndex = 0; // index in this
+    int otherIndex = 0; // index in other
+
+    while (thisIndex <= this.lastIndex && otherIndex <= other.lastIndex)
     {
-      int compareValue = tree.fieldArray[indexOne]
-          .compareTo(this.fieldArray[indexTwo]);
+      SnmpLookupField thisField = this.fieldArray[thisIndex];
+      SnmpLookupField otherField = other.fieldArray[otherIndex];
+  
+      // Ties go to the field from other
+      int cmp = otherField.compareTo(thisField);
+      fields.add(cmp <= 0 ? otherField : thisField);
 
-      if (compareValue == 0)
-      {
-        fields.add(tree.fieldArray[indexOne++]);
-        indexTwo++;
-      }
-      else if (compareValue < 0)
-      {
-        fields.add(tree.fieldArray[indexOne++]);
-      }
-      else
-      {
-        fields.add(this.fieldArray[indexTwo++]);
-      }
+      if (cmp <= 0)
+        otherIndex++;
+
+      if (cmp >= 0)
+        thisIndex++;
     }
 
     // copy any left over fields (should all be greater now)
-    for (int i = indexOne; i <= tree.lastIndex; i++)
-      fields.add(tree.fieldArray[i]);
-    for (int i = indexTwo; i <= this.lastIndex; i++)
+    for (int i = otherIndex; i <= other.lastIndex; i++)
+      fields.add(other.fieldArray[i]);
+    for (int i = thisIndex; i <= this.lastIndex; i++)
       fields.add(this.fieldArray[i]);
 
-    return new SnmpTree(findCommonPrefix(this.prefix, tree.prefix),
+    return new SnmpTree(findCommonPrefix(this.prefix, other.prefix),
         fields.toArray(new SnmpLookupField[fields.size()]));
   }
 

@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.snmp4j.smi.OID;
 
+import com.sppad.snmp.annotations.SnmpNotSettable;
 import com.sppad.snmp.constructor.SnmpTree;
 import com.sppad.snmp.constructor.SnmpTreeSkeleton;
 import com.sppad.snmp.exceptions.SnmpBadValueException;
@@ -24,7 +25,7 @@ public class SnmpTreeTest
     public boolean testBoolean = true;
     public Boolean testBooleanObject = true;
     public int testInteger = 0;
-    @com.sppad.snmp.annotations.SnmpNotSettable
+    @SnmpNotSettable
     public String testString = "can't set this";
 
     public void setTestBoolean(boolean foo)
