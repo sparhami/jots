@@ -128,7 +128,7 @@ public class SnmpTreeConstructor
      * <li>If the field is transient
      * <li>If the field is reference to an outer class
      * <li>If the field is final
-     * <li>If the field simple, see: {@link #isSimple(Class)}
+     * <li>If the field simple, see: {@link SnmpUtils#isSimple(Class)}
      * </ul>
      * 
      * @param field

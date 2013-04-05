@@ -10,14 +10,11 @@ public static SnmpTree createSnmpTree(String mibName, String rootName,
 
 1.2 Code example
 
+// See section 2.1 to see what fields get included
 public class SomeObject {
 	int fieldOne;
 	String fieldTwo;
-	/* Note that fields that are not primitive(or their Object equivalent),
-	 * Strings or enums must be final
-	 */
 	final SomeObjectType fieldThree;
-	
 	...
 }
 
@@ -26,19 +23,21 @@ SnmpTree tree = SnmpTreeConstructor.createSnmpTree(new int[] { 1 }, obj);
 
 1.2.1 Snmp Agent
 
-// At this point, you have an SnmpTree object that lets you do gets and sets.
-// The next step is getting an SNMP agent working. JOTS has an implementation
-// using SNMP4J. Creating your own using a different SNMP library should not
-// be too difficult to integrate instead though.
+/* At this point, you have an SnmpTree object that lets you do gets and sets.
+ * The next step is getting an SNMP agent working. JOTS has an implementation
+ * using SNMP4J. Creating your own using a different SNMP library should not
+ * be too difficult to integrate instead though.
+ */
 
 InetSocketAddress agentAddress = new InetSocketAddress("0.0.0.0", 8161);
 SnmpAgent agent = new SnmpAgent(tree, agentAddress, SnmpAgent.Protocol.udp);
 
 1.2.2 Snmp Trap Receiver
 
-// Creating a trap receiver is done in a similar way to creating an agent. For
-// example, if you want to simply set every trapped OID back into your tree
-// (say you are mirroring subtree on a different Agent), you could do:
+/* Creating a trap receiver is done in a similar way to creating an agent. For
+ * example, if you want to simply set every trapped OID back into your tree
+ * (say you are mirroring subtree on a different Agent), you could do:
+ */
 
 InetSocketAddress agentAddress = new InetSocketAddress("0.0.0.0", 8162);
 SnmpTrapReceiver receiver = new SnmpTrapReceiver(tree, agentAddress, SnmpAgent.Protocol.udp) {
@@ -62,3 +61,43 @@ can be done using the public void updateTree(SnmpTree tree) method. Note
 that this may cause odd behavior for in-flight partial requests, such as
 from an snmp walk. All currently requests currently processing must complete
 before the change takes place.
+
+
+2. Controlling the tree creation behavior
+
+2.1 Fields
+
+Fields are either included or skipped either through modifiers or annotations.
+The first condition encountered in the following list determines whether the 
+field is included or skipped.
+
+1. If there is an SnmpInclude annotation, include it
+2. If there is an SnmpIgnore annotation, skip it
+3. If the field is static or transient, skip it
+4. If the field is final, primitive, primitive wrapper, enum or String, include it
+5. Skip it
+
+2.2 MIB creation
+
+Annotations on fields can be used to generate comments for a generated MIB file.
+For example, given the following object:
+
+public class SomeObject {
+	@BooleanInterfaceComment(
+		synopsis = "The status of Foo",
+		falseSynopsis = "Foo is disabled",
+		trueSynopsis = "Foo is enabled")
+	boolean fooStatus;
+}
+  
+the following  will appear in the generated MIB:
+
+FooStatus OBJECT-TYPE
+	SYNTAX		Boolean
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION
+		"The status of Foo
+		 'true'  -> Foo is enabled
+		 'false' -> Foo is disabled"
+	::= { RootEntry 1 }

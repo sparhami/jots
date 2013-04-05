@@ -87,8 +87,8 @@ public class SnmpUtils
   }
 
   /**
-   * Checks whether a give class corresponds to a primitve (e.g. Integer.class)
-   * or is a String.
+   * Checks whether a given class is a primitive wrapper (e.g. Integer.class) or
+   * is a String.
    * 
    * @return True if the class is a built-in class, false otherwise
    */
@@ -106,7 +106,7 @@ public class SnmpUtils
   }
 
   /**
-   * @return True if the class is a primitive/the object equivalent, a String or
+   * @return True if the class is a primitive/primitive wrapper, a String or an
    *         enum, false otherwise
    */
   public static boolean isSimple(Class<?> klass)
