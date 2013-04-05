@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -29,6 +30,8 @@ import com.sppad.common.object.ObjUtils;
 import com.sppad.datastructures.primative.IntStack;
 import com.sppad.datastructures.primative.RefStack;
 import com.sppad.snmp.JotsOID;
+import com.sppad.snmp.annotations.SnmpIgnore;
+import com.sppad.snmp.annotations.SnmpInclude;
 import com.sppad.snmp.annotations.SnmpName;
 import com.sppad.snmp.annotations.SnmpNotSettable;
 import com.sppad.snmp.constructor.handlers.CollectionHandler;
@@ -87,34 +90,70 @@ public class SnmpTreeConstructor
 {
   private class FieldInfo
   {
-    String description;
-    Field field;
-    boolean isSimple;
-    boolean isTableType;
-    List<IntStack> oidVisitedMap = new LinkedList<IntStack>();
-    Method setter;
-    String snmpName;
+    final String description;
+    final Field field;
+    final List<IntStack> oidVisitedMap = new LinkedList<IntStack>();
+    final Method setter;
+    final boolean shouldSkip;
+    final boolean simple;
+    final String snmpName;
+    final boolean tableType;
 
     public FieldInfo(Field field)
     {
-      isSimple = SnmpUtils.isSimple(field.getType());
-      isTableType = isTableType(field.getType());
-      setter = getSetterMethod(field, field.getDeclaringClass());
-      this.field = field;
-
       SnmpName snmpNameObj = field.getAnnotation(SnmpName.class);
-      if (snmpNameObj == null)
-        snmpName = field.getName();
-      else
-        snmpName = snmpNameObj.value();
 
-      if (createMib)
-        description = SnmpDescription.getDescription(field);
+      this.description = createMib ? SnmpDescription.getDescription(field)
+          : null;
+      this.field = field;
+      this.setter = getSetterMethod(field, field.getDeclaringClass());
+      this.shouldSkip = checkIfShouldSkip(field);
+      this.simple = SnmpUtils.isSimple(field.getType());
+      this.snmpName = (snmpNameObj != null) ? snmpNameObj.value() : field
+          .getName();
+      this.tableType = isTableType(field.getType());
     }
 
     public boolean isWritable()
     {
       return setter != null;
+    }
+
+    /**
+     * Checks if a field should be included based on the following factors:
+     * <ul>
+     * <li>{@link SnmpInclude} annotation, if present
+     * <li>{@link SnmpIgnore} annotation, if present
+     * <li>If the field is static
+     * <li>If the field is transient
+     * <li>If the field is reference to an outer class
+     * <li>If the field is final
+     * <li>If the field simple, see: {@link #isSimple(Class)}
+     * </ul>
+     * 
+     * @param field
+     *          A field to check if it should be included or not
+     * @return True if it should be included, false otherwise
+     */
+    private boolean checkIfShouldSkip(Field field)
+    {
+      int modifiers = field.getModifiers();
+
+      boolean include = field.getAnnotation(SnmpInclude.class) != null;
+      boolean ignore = field.getAnnotation(SnmpIgnore.class) != null;
+
+      if (include)
+        return true;
+
+      if (ignore || Modifier.isStatic(modifiers)
+          || Modifier.isTransient(modifiers)
+          || field.getName().equals("this$0"))
+        return false;
+
+      if (Modifier.isFinal(modifiers) || SnmpUtils.isSimple(field.getType()))
+        return true;
+
+      return false;
     }
   }
 
@@ -130,6 +169,12 @@ public class SnmpTreeConstructor
         }
       });
 
+  /** Whether or not to create a MIB file while creating the tree */
+  private final boolean createMib;
+
+  /** Handlers all non-table, non-basic objects */
+  private final DefaultHandler defaultHandler = new DefaultHandler();
+
   /** Gets / caches class info for a particular field */
   private LoadingCache<Field, FieldInfo> fieldInfoCache = CacheBuilder
       .newBuilder().maximumSize(1000).build(new CacheLoader<Field, FieldInfo>()
@@ -141,17 +186,26 @@ public class SnmpTreeConstructor
         }
       });
 
+  /**
+   * Maps a type to a class implementing how to handle that type while
+   * descending
+   */
+  private final Map<Type, ObjectHandler> handlers = new HashMap<Type, ObjectHandler>();
+
+  /** Used for constructing a MIB, if requested */
+  private MibConstructor mc;
+
+  /** Used for building the MIB name for the current oid */
+  private final Deque<String> nameStack = new ArrayDeque<String>();
+
+  /** Handlers null objects */
+  private final NullHandler nullHandler = new NullHandler();
+
   /** Gets / caches the handler for a given class */
   private LoadingCache<Class<?>, ObjectHandler> objectHandlerCache = CacheBuilder
       .newBuilder().maximumSize(1000)
       .build(new CacheLoader<Class<?>, ObjectHandler>()
       {
-        @Override
-        public ObjectHandler load(Class<?> key)
-        {
-          return handlers.get(getFirstHandledClass(key));
-        }
-
         public Class<?> getFirstHandledClass(Class<?> klass)
         {
           // check if the class is already handled
@@ -171,28 +225,13 @@ public class SnmpTreeConstructor
           // nothing matches, just handle it as an object
           return Object.class;
         }
+
+        @Override
+        public ObjectHandler load(Class<?> key)
+        {
+          return handlers.get(getFirstHandledClass(key));
+        }
       });
-
-  /** Whether or not to create a MIB file while creating the tree */
-  private final boolean createMib;
-
-  /** Handlers all non-table, non-basic objects */
-  private final DefaultHandler defaultHandler = new DefaultHandler();
-
-  /**
-   * Maps a type to a class implementing how to handle that type while
-   * descending
-   */
-  private final Map<Type, ObjectHandler> handlers = new HashMap<Type, ObjectHandler>();
-
-  /** Used for constructing a MIB, if requested */
-  private MibConstructor mc;
-
-  /** Used for building the MIB name for the current oid */
-  private final Deque<String> nameStack = new ArrayDeque<String>();
-
-  /** Handlers null objects */
-  private final NullHandler nullHandler = new NullHandler();
 
   /** Used to detect cycles by checking for visited objects. */
   private final RefStack<Object> objectHandleStack = new RefStack<Object>();
@@ -389,7 +428,7 @@ public class SnmpTreeConstructor
     preModifiyOidForTable(info);
     tableNameStack.push(info.snmpName);
 
-    if (createMib && info.isTableType)
+    if (createMib && info.tableType)
       addToMib(info, keyType, null);
 
     oidStack.push(1);
@@ -458,6 +497,9 @@ public class SnmpTreeConstructor
       throws IllegalArgumentException, IllegalAccessException,
       InvocationTargetException
   {
+    if (!getFieldInfo(field).shouldSkip)
+      return;
+
     field.setAccessible(true);
 
     onNextField(obj, field);
@@ -465,7 +507,7 @@ public class SnmpTreeConstructor
     Object nextObject = field.get(obj);
     if (nextObject == null)
       nullHandler.handle(this, obj, field);
-    else if (!getFieldInfo(field).isSimple)
+    else if (!getFieldInfo(field).simple)
       getHandler(field.getType()).handle(this, nextObject, field);
   }
 
@@ -521,7 +563,7 @@ public class SnmpTreeConstructor
 
   protected void onEnter(Object obj, Field field)
   {
-    if (field != null && !getFieldInfo(field).isTableType)
+    if (field != null && !getFieldInfo(field).tableType)
     {
       nameStack.push(field.getName());
       // if (createMib)
@@ -537,7 +579,7 @@ public class SnmpTreeConstructor
     oidStack.pop();
     objectHandleStack.pop();
 
-    if (field != null && !getFieldInfo(field).isTableType)
+    if (field != null && !getFieldInfo(field).tableType)
     {
       // if (createMib)
       // inTableNameStackStack.peek().pop();
@@ -552,13 +594,13 @@ public class SnmpTreeConstructor
 
     // increment current oid by one if not a table
     // a table won't take up an OID in the current subtree
-    if (!info.isTableType)
+    if (!info.tableType)
       oidStack.push(oidStack.pop() + 1);
 
-    if (createMib && !info.isTableType)
+    if (createMib && !info.tableType)
       addToMib(info, null, obj.getClass());
 
-    if (info.isSimple)
+    if (info.simple)
       addToSnmpTable(obj, info);
 
     nameStack.pop();
@@ -612,9 +654,9 @@ public class SnmpTreeConstructor
       String name = buildStringPath(nameStack, true);
       String parent = buildStringPath(nameStack, false);
 
-      if (info.isTableType)
+      if (info.tableType)
         mc.addTable(parent, name, oid, inTable, "", keyType);
-      else if (info.isSimple)
+      else if (info.simple)
         mc.addItem(parent, name, oid, info.field.getType(), info.description,
             info.isWritable());
       else

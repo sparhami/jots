@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.sppad.snmp.annotations.SnmpIgnore;
+import com.sppad.snmp.annotations.SnmpInclude;
 
 public class SnmpTreeConstructorTest
 {
@@ -42,23 +44,50 @@ public class SnmpTreeConstructorTest
   @SuppressWarnings("unused")
   private static class ListContainingObject
   {
-    public ImmutableList<FlatObject> testList = ImmutableList.of(
+    public final ImmutableList<FlatObject> testList = ImmutableList.of(
         new FlatObject(), new FlatObject());
   }
 
   @SuppressWarnings("unused")
   private static class MapContainingObject
   {
-    public ImmutableMap<String, FlatObject> testMap = ImmutableMap.of("hello",
+    public final ImmutableMap<String, FlatObject> testMap = ImmutableMap.of("hello",
         new FlatObject(), "world", new FlatObject());
   }
 
   @SuppressWarnings("unused")
   private static class NestedMapObject
   {
-    public ImmutableMap<String, MapContainingObject> outerMap = ImmutableMap
+    public final ImmutableMap<String, MapContainingObject> outerMap = ImmutableMap
         .of("one", new MapContainingObject(), "two", new MapContainingObject());
   }
+  
+  @SuppressWarnings("unused")
+  private static class StaticFieldObject
+  {
+    public static final float FLOAT_CONSTANT = 0.0f;
+    
+    public float someFloat = FLOAT_CONSTANT;
+  }
+  
+  @SuppressWarnings("unused")
+  private static class IncludeStaticFieldObject
+  {
+    @SnmpInclude
+    public static final float FLOAT_CONSTANT = 0.0f;
+    
+    public float someFloat = FLOAT_CONSTANT;
+  }
+  
+  @SuppressWarnings("unused")
+  private static class IgnoreAnnotationObject
+  {
+    @SnmpIgnore
+    public boolean testBoolean;
+    
+    public float testFloat;
+  }
+
 
   @Test
   public void testFlatObject() throws IllegalAccessException,
@@ -131,5 +160,39 @@ public class SnmpTreeConstructorTest
     assertThat(getIndexAsFloat(tree, 5), is(0.0f));
     assertThat(getIndexAsFloat(tree, 6), is(0.0f));
     assertThat(getIndexAsFloat(tree, 7), is(0.0f));
+  }
+  
+  @Test
+  public void testStaticFieldObject() throws IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException, IOException
+  {
+    SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
+        new int[] { 1 }, new StaticFieldObject(), new ByteArrayOutputStream());
+
+    assertThat(tree.lastIndex, is(0));
+    assertThat(getIndexAsFloat(tree, 0), is(0.0f));
+  }
+  
+  @Test
+  public void testIncludeAnnotation() throws IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException, IOException
+  {
+    SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
+        new int[] { 1 }, new IncludeStaticFieldObject(), new ByteArrayOutputStream());
+
+    assertThat(tree.lastIndex, is(1));
+    assertThat(getIndexAsFloat(tree, 0), is(0.0f));
+    assertThat(getIndexAsFloat(tree, 1), is(0.0f));
+  }
+  
+  @Test
+  public void testIgnoreAnnotation() throws IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException, IOException
+  {
+    SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
+        new int[] { 1 }, new IgnoreAnnotationObject(), new ByteArrayOutputStream());
+
+    assertThat(tree.lastIndex, is(0));
+    assertThat(getIndexAsFloat(tree, 0), is(0.0f));
   }
 }
