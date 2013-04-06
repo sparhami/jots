@@ -44,7 +44,7 @@ public class SnmpTree implements Iterable<VariableBinding>
   /** The last valid index */
   public final int lastIndex;
 
-  /** Used for BulkGet, since the index of the next entry is known */
+  /** A sorted array that stores all the items in the tree */
   private SnmpLookupField[] fieldArray;
 
   /** The prefix used to create the OIDs in the tree */

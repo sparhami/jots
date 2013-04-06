@@ -4,50 +4,67 @@ JOTS is a Java library that allows creation of a SNMP interface from Java Object
 
 1.1 Creating an SNMP tree is done by using one of the following methods:
 
-public static SnmpTree createSnmpTree(int[] prefix, Object obj)
-public static SnmpTree createSnmpTree(String mibName, String rootName, 
-	int[] prefix, Object obj, OutputStream mibOutputStream)
+	public static SnmpTree createSnmpTree(int[] prefix, Object obj)
+	public static SnmpTree createSnmpTree(String mibName, String rootName,
+		String parentName, int[] prefix, Object obj, OutputStream mibOutputStream)
 
-1.2 Code example
+1.2 Tree without MIB generation
 
-// See section 2.1 to see what fields get included
-public class SomeObject {
-	int fieldOne;
-	String fieldTwo;
-	final SomeObjectType fieldThree;
-	...
-}
+Creating a tree without a MIB is fairly straight-forward. See section 2.1  to 
+see what fields get included in the generated tree.
 
-SomeObject obj = new SomeObject();
-SnmpTree tree = SnmpTreeConstructor.createSnmpTree(new int[] { 1 }, obj);
+	public class SomeObject {
+		int fieldOne;
+		String fieldTwo;
+		final SomeObjectType fieldThree;
+		...
+	}
+	
+	SomeObject obj = new SomeObject();
+	SnmpTree tree = SnmpTreeConstructor.createSnmpTree(new int[] { 1, 3, 6, 1, 4, 1, <some OID> }, obj);
 
-1.2.1 Snmp Agent
+1.3 Tree with MIB generation
 
-/* At this point, you have an SnmpTree object that lets you do gets and sets.
- * The next step is getting an SNMP agent working. JOTS has an implementation
- * using SNMP4J. Creating your own using a different SNMP library should not
- * be too difficult to integrate instead though.
- */
+Creating a MIB along with the tree can be done by:
 
-InetSocketAddress agentAddress = new InetSocketAddress("0.0.0.0", 8161);
-SnmpAgent agent = new SnmpAgent(tree, agentAddress, SnmpAgent.Protocol.udp);
+	ByteArrayOutputStream mibOutputStream = new ByteArrayOutputStream();
 
-1.2.2 Snmp Trap Receiver
+	SomeObject obj = new SomeObject();
+	SnmpTree tree = SnmpTreeConstructor.createSnmpTree("<MIB name>",
+		"<root entry's name>", "enterprises",
+		new int[] { 1, 3, 6, 1, 4, 1, <some OID> }, obj, mibOutputStream);
+		
+	// Do something with mibOutputStream, such as print it to a file
 
-/* Creating a trap receiver is done in a similar way to creating an agent. For
- * example, if you want to simply set every trapped OID back into your tree
- * (say you are mirroring subtree on a different Agent), you could do:
- */
+1.4 Interaction with SNMP4j
 
-InetSocketAddress agentAddress = new InetSocketAddress("0.0.0.0", 8162);
-SnmpTrapReceiver receiver = new SnmpTrapReceiver(tree, agentAddress, SnmpAgent.Protocol.udp) {
-  @Override
-  protected void processTrap(CommandResponderEvent request)
-  {
-    for (VariableBinding vb : request.getPDU().getVariableBindings())
-      tree.set(vb.getOid(), vb.getVariable().toString(), true);
-  }
-}
+1.4.1 Snmp Agent
+
+At this point, you have an SnmpTree object that lets you do gets and sets.
+The next step is getting an SNMP agent working. JOTS has an implementation
+using SNMP4J. Creating your own using a different SNMP library should not
+be too difficult to integrate instead though.
+
+A SNMP agent can be started using an SnmpTree with the following code:
+
+	InetSocketAddress agentAddress = new InetSocketAddress("0.0.0.0", 8161);
+	SnmpAgent agent = new SnmpAgent(tree, agentAddress, SnmpAgent.Protocol.udp);
+
+1.4.2 Snmp Trap Receiver
+
+Creating a trap receiver is done in a similar way to creating an agent. For
+example, if you want to simply set every trapped OID back into your tree
+(say you are mirroring subtree on a different Agent), you could do:
+
+	InetSocketAddress agentAddress = new InetSocketAddress("0.0.0.0", 8162);
+	SnmpTrapReceiver receiver = new SnmpTrapReceiver(tree, agentAddress, SnmpAgent.Protocol.udp) {
+	  @Override
+	  protected void processTrap(CommandResponderEvent request)
+	  {
+	    for (VariableBinding vb : request.getPDU().getVariableBindings())
+	      tree.set(vb.getOid(), vb.getVariable().toString(), true);
+	  }
+	}
 
 1.3 Tables
 
