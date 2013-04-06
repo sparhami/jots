@@ -96,7 +96,8 @@ public class SnmpTreeConstructorTest
       IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
-        new int[] { 1 }, new FlatObject(), new ByteArrayOutputStream());
+        "parent", new int[] { 1 }, new FlatObject(),
+        new ByteArrayOutputStream());
 
     assertThat(tree.lastIndex, is(1));
     assertThat(getIndexAsBoolean(tree, 0), is(false));
@@ -111,7 +112,7 @@ public class SnmpTreeConstructorTest
       IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
-        new int[] { 1 }, new IgnoreAnnotationObject(),
+        "parent", new int[] { 1 }, new IgnoreAnnotationObject(),
         new ByteArrayOutputStream());
 
     assertThat(tree.lastIndex, is(0));
@@ -126,7 +127,7 @@ public class SnmpTreeConstructorTest
       IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
-        new int[] { 1 }, new IncludeStaticFieldObject(),
+        "parent", new int[] { 1 }, new IncludeStaticFieldObject(),
         new ByteArrayOutputStream());
 
     assertThat(tree.lastIndex, is(1));
@@ -142,7 +143,7 @@ public class SnmpTreeConstructorTest
       IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
-        new int[] { 1 }, new ListContainingObject(),
+        "parent", new int[] { 1 }, new ListContainingObject(),
         new ByteArrayOutputStream());
 
     assertThat(tree.lastIndex, is(3));
@@ -159,9 +160,9 @@ public class SnmpTreeConstructorTest
       InvocationTargetException,
       IOException
   {
-    final SnmpTree tree = SnmpTreeConstructor
-        .createSnmpTree("test", "test", new int[] { 1 },
-            new MapContainingObject(), new ByteArrayOutputStream());
+    final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
+        "parent", new int[] { 1 }, new MapContainingObject(),
+        new ByteArrayOutputStream());
 
     assertThat(tree.lastIndex, is(3));
     assertThat(getIndexAsBoolean(tree, 0), is(false));
@@ -178,7 +179,8 @@ public class SnmpTreeConstructorTest
       IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
-        new int[] { 1 }, new NestedMapObject(), new ByteArrayOutputStream());
+        "parent", new int[] { 1 }, new NestedMapObject(),
+        new ByteArrayOutputStream());
 
     assertThat(tree.lastIndex, is(7));
     assertThat(getIndexAsBoolean(tree, 0), is(false));
@@ -199,7 +201,8 @@ public class SnmpTreeConstructorTest
       IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
-        new int[] { 1 }, new OneDeepObject(), new ByteArrayOutputStream());
+        "parent", new int[] { 1 }, new OneDeepObject(),
+        new ByteArrayOutputStream());
 
     assertThat(tree.lastIndex, is(2));
     assertThat(getIndexAsBoolean(tree, 0), is(false));
@@ -215,7 +218,8 @@ public class SnmpTreeConstructorTest
       IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
-        new int[] { 1 }, new StaticFieldObject(), new ByteArrayOutputStream());
+        "parent", new int[] { 1 }, new StaticFieldObject(),
+        new ByteArrayOutputStream());
 
     assertThat(tree.lastIndex, is(0));
     assertThat(getIndexAsFloat(tree, 0), is(0.0f));

@@ -293,6 +293,7 @@ public class SnmpTreeConstructor
   public static SnmpTree createSnmpTree(
       final String mibName,
       final String rootName,
+      final String parentName,
       final int[] prefix,
       final Object obj,
       final OutputStream mibOutputStream)
@@ -305,7 +306,7 @@ public class SnmpTreeConstructor
     Preconditions.checkNotNull(mibOutputStream);
 
     final SnmpTreeConstructor stc = new SnmpTreeConstructor(mibName, rootName,
-        prefix, obj, mibOutputStream);
+        parentName, prefix, obj, mibOutputStream);
     return stc.snmpTreeSkeleton.finishTreeConstruction();
   }
 
@@ -380,6 +381,7 @@ public class SnmpTreeConstructor
   private SnmpTreeConstructor(
       final String mibName,
       final String rootName,
+      final String parentName,
       final int[] prefix,
       final Object obj,
       final OutputStream mibOutputStream)
@@ -396,8 +398,8 @@ public class SnmpTreeConstructor
     this.tableOidIndexStack.push(1);
     this.snmpTreeSkeleton = new SnmpTreeSkeleton(prefix);
 
-    this.mc = new MibConstructor(mibName, rootName, "enterprises", 15001,
-        mibOutputStream);
+    this.mc = new MibConstructor(mibName, rootName, parentName,
+        prefix[prefix.length - 1], mibOutputStream);
     this.descend(obj, obj.getClass(), null);
     this.mc.finish();
   }

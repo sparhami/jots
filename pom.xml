@@ -3,9 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sppad</groupId>
 	<artifactId>Jots</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>Jots</name>
-	<description>Java Objects to Snmp</description>
+	<description>Java Objects to Snmp - Creates SNMP interfaces at runtime using Java objects</description>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -40,4 +39,5 @@
 			<version>2.1.0_1</version>
 		</dependency>
 	</dependencies>
+	<version>0.1.0</version>
 </project>
