@@ -52,7 +52,7 @@ public class SnmpEnumLookupFieldTest
 
     final SnmpEnumLookupField testField = new SnmpEnumLookupField(null, field,
         tc, null);
-    final String value = (String) testField.get();
+    final String value = (String) testField.getValue();
     assertThat(value, is(tc.testEnum.toString()));
   }
 
@@ -71,7 +71,7 @@ public class SnmpEnumLookupFieldTest
         tc, method);
     testField.doSet(TestClass.TestEnum.BAR.toString());
 
-    final String value = (String) testField.get();
+    final String value = (String) testField.getValue();
     assertThat(value, is(TestClass.TestEnum.BAR.toString()));
   }
 

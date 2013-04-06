@@ -22,7 +22,7 @@ public class SnmpPrimativeDoubleLookupField extends SnmpLookupField
   public Object doGet()
       throws IllegalAccessException
   {
-    return field.getDouble(object);
+    return field.getDouble(enclosingObject);
   }
 
   @Override

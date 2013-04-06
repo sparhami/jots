@@ -3,6 +3,7 @@ package com.sppad.snmp.constructor;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -12,7 +13,9 @@ import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.Variable;
 import org.snmp4j.smi.VariableBinding;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
 import com.sppad.datastructures.primative.IntStack;
 import com.sppad.snmp.exceptions.SnmpNoMoreEntriesException;
 import com.sppad.snmp.exceptions.SnmpNotWritableException;
@@ -26,8 +29,18 @@ import com.sppad.snmp.lookup.SnmpLookupField;
  * @author sepand
  * @see SnmpTreeConstructor
  */
-public class SnmpTree
+public class SnmpTree implements Iterable<VariableBinding>
 {
+  /** Maps a SnmpLookupField to a VariableBinding */
+  private static final Function<SnmpLookupField, VariableBinding> LOOKUP_FIELD_TO_VARBIND = new Function<SnmpLookupField, VariableBinding>()
+  {
+    @Override
+    public VariableBinding apply(final SnmpLookupField arg)
+    {
+      return createVarBind(arg.getOid(), arg.getValue());
+    }
+  };
+
   /** The last valid index */
   public final int lastIndex;
 
@@ -72,7 +85,7 @@ public class SnmpTree
   public VariableBinding get(final int index)
   {
     final SnmpLookupField field = getBackingField(index);
-    return createVarBind(field.getOid(), field.get());
+    return createVarBind(field.getOid(), field.getValue());
   }
 
   public VariableBinding get(final OID oid)
@@ -148,7 +161,20 @@ public class SnmpTree
       throw new SnmpNoMoreEntriesException(
           "There are no more values in this MIB");
 
-    return fieldArray[index].get();
+    return fieldArray[index].getValue();
+  }
+
+  /**
+   * Returns an iterator that allows iterating through the tree to get
+   * VariableBindings.
+   */
+  @Override
+  public Iterator<VariableBinding> iterator()
+  {
+    return FluentIterable //
+        .from(Arrays.asList(fieldArray)) //
+        .transform(LOOKUP_FIELD_TO_VARBIND) //
+        .iterator();
   }
 
   /**

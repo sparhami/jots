@@ -28,7 +28,7 @@ public class SnmpEnumLookupField extends SnmpLookupField
   public Object doGet()
       throws IllegalAccessException
   {
-    return field.get(object).toString();
+    return field.get(enclosingObject).toString();
   }
 
   @SuppressWarnings("unchecked")

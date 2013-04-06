@@ -22,7 +22,7 @@ public class SnmpPrimativeBooleanLookupField extends SnmpLookupField
   public Object doGet()
       throws IllegalAccessException
   {
-    return field.getBoolean(object);
+    return field.getBoolean(enclosingObject);
   }
 
   @Override

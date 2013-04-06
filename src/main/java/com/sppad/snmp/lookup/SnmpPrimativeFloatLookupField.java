@@ -22,7 +22,7 @@ public class SnmpPrimativeFloatLookupField extends SnmpLookupField
   public Object doGet()
       throws IllegalAccessException
   {
-    return field.getFloat(object);
+    return field.getFloat(enclosingObject);
   }
 
   @Override

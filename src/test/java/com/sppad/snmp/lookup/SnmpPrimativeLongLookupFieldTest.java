@@ -39,7 +39,7 @@ public class SnmpPrimativeLongLookupFieldTest
     final SnmpPrimativeLongLookupField testField = new SnmpPrimativeLongLookupField(
         null, f, obj, null);
 
-    assertThat((Long) testField.get(), is(20L));
+    assertThat((Long) testField.getValue(), is(20L));
   }
 
   @Test
@@ -56,7 +56,7 @@ public class SnmpPrimativeLongLookupFieldTest
 
     testField.doSet("42");
 
-    assertThat((Long) testField.get(), is(42L));
+    assertThat((Long) testField.getValue(), is(42L));
   }
 
   @Test(expected = SnmpBadValueException.class)

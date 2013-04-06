@@ -20,7 +20,7 @@ public class SnmpStringLookupField extends SnmpLookupField
   public Object doGet()
       throws IllegalAccessException
   {
-    return field.get(object);
+    return field.get(enclosingObject);
   }
 
   @Override

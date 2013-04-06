@@ -13,11 +13,11 @@ import com.sppad.snmp.exceptions.SnmpException;
 
 public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
 {
+  /** The object that corresponds to this OID instance */
+  final Object enclosingObject;
+
   /** The field object for this OID */
   final Field field;
-
-  /** The object that corresponds to this OID instance */
-  final Object object;
 
   /** The OID object for this field */
   final OID oid;
@@ -36,12 +36,12 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
   protected SnmpLookupField(
       final OID oid,
       final Field field,
-      final Object object,
+      final Object enclosingObject,
       final Method setter)
   {
     this.oid = oid;
     this.field = field;
-    this.object = object;
+    this.enclosingObject = enclosingObject;
     this.setter = setter;
     this.writable = checkIsWritable();
   }
@@ -55,38 +55,20 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
     return oid.compareTo(o.oid);
   }
 
-  /**
-   * Performs a get, implementation specific to the type of a field.
-   * 
-   * @return An object representing the value of this field when the method is
-   *         called.
-   */
-  public Object get()
-  {
-    try
-    {
-      return doGet();
-    }
-    catch (final IllegalAccessException e)
-    {
-      throw new SnmpException(e);
-    }
-  }
-
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Annotation getAnnotation(final Class annotationClass)
   {
     return field.getAnnotation(annotationClass);
   }
 
+  public Object getEnclosingObject()
+  {
+    return enclosingObject;
+  }
+
   public String getFieldName()
   {
     return field.getName();
-  }
-
-  public Object getObject()
-  {
-    return object;
   }
 
   /**
@@ -103,6 +85,24 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
   public Type getType()
   {
     return field.getType();
+  }
+
+  /**
+   * Performs a get, implementation specific to the type of a field.
+   * 
+   * @return An object representing the value of this field when the method is
+   *         called.
+   */
+  public Object getValue()
+  {
+    try
+    {
+      return doGet();
+    }
+    catch (final IllegalAccessException e)
+    {
+      throw new SnmpException(e);
+    }
   }
 
   /**
@@ -127,29 +127,14 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
     doSet(value);
   }
 
-  /**
-   * Checks to see if the field is 'settable', meaning it either as a set method
-   * and the field does not have an annotation to prevent it from being set.
-   * 
-   * @return True if this field is 'settable', false otherwise.
-   * @see SnmpNotSettable
-   */
-  protected boolean checkIsWritable()
-  {
-    if (field.getAnnotation(SnmpNotSettable.class) != null || setter == null)
-      return false;
-    else
-      return true;
-  }
-
   protected void setValue(final Object value)
   {
     try
     {
       if (setter != null)
-        setter.invoke(object, value);
+        setter.invoke(enclosingObject, value);
       else
-        field.set(object, value);
+        field.set(enclosingObject, value);
     }
     catch (SecurityException e)
     {
@@ -183,4 +168,19 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
    *          The value to set.
    */
   abstract void doSet(final String value);
+
+  /**
+   * Checks to see if the field is 'settable', meaning it either as a set method
+   * and the field does not have an annotation to prevent it from being set.
+   * 
+   * @return True if this field is 'settable', false otherwise.
+   * @see SnmpNotSettable
+   */
+  private boolean checkIsWritable()
+  {
+    if (field.getAnnotation(SnmpNotSettable.class) != null || setter == null)
+      return false;
+    else
+      return true;
+  }
 }

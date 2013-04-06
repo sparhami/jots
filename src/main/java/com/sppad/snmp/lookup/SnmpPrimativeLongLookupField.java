@@ -22,7 +22,7 @@ public class SnmpPrimativeLongLookupField extends SnmpLookupField
   public Object doGet()
       throws IllegalAccessException
   {
-    return field.getLong(object);
+    return field.getLong(enclosingObject);
   }
 
   @Override

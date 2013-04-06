@@ -22,7 +22,7 @@ public class SnmpPrimativeIntegerLookupField extends SnmpLookupField
   public Object doGet()
       throws IllegalAccessException
   {
-    return field.getInt(object);
+    return field.getInt(enclosingObject);
   }
 
   @Override
