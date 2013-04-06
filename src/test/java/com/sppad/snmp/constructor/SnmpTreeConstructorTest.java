@@ -89,8 +89,11 @@ public class SnmpTreeConstructorTest
   }
 
   @Test
-  public void testFlatObject() throws IllegalAccessException,
-      IllegalArgumentException, InvocationTargetException, IOException
+  public void testFlatObject()
+      throws IllegalAccessException,
+      IllegalArgumentException,
+      InvocationTargetException,
+      IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
         new int[] { 1 }, new FlatObject(), new ByteArrayOutputStream());
@@ -101,8 +104,11 @@ public class SnmpTreeConstructorTest
   }
 
   @Test
-  public void testIgnoreAnnotation() throws IllegalAccessException,
-      IllegalArgumentException, InvocationTargetException, IOException
+  public void testIgnoreAnnotation()
+      throws IllegalAccessException,
+      IllegalArgumentException,
+      InvocationTargetException,
+      IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
         new int[] { 1 }, new IgnoreAnnotationObject(),
@@ -113,8 +119,11 @@ public class SnmpTreeConstructorTest
   }
 
   @Test
-  public void testIncludeAnnotation() throws IllegalAccessException,
-      IllegalArgumentException, InvocationTargetException, IOException
+  public void testIncludeAnnotation()
+      throws IllegalAccessException,
+      IllegalArgumentException,
+      InvocationTargetException,
+      IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
         new int[] { 1 }, new IncludeStaticFieldObject(),
@@ -126,8 +135,11 @@ public class SnmpTreeConstructorTest
   }
 
   @Test
-  public void testListContainingObject() throws IllegalAccessException,
-      IllegalArgumentException, InvocationTargetException, IOException
+  public void testListContainingObject()
+      throws IllegalAccessException,
+      IllegalArgumentException,
+      InvocationTargetException,
+      IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
         new int[] { 1 }, new ListContainingObject(),
@@ -141,8 +153,11 @@ public class SnmpTreeConstructorTest
   }
 
   @Test
-  public void testMapContainingObject() throws IllegalAccessException,
-      IllegalArgumentException, InvocationTargetException, IOException
+  public void testMapContainingObject()
+      throws IllegalAccessException,
+      IllegalArgumentException,
+      InvocationTargetException,
+      IOException
   {
     final SnmpTree tree = SnmpTreeConstructor
         .createSnmpTree("test", "test", new int[] { 1 },
@@ -156,8 +171,11 @@ public class SnmpTreeConstructorTest
   }
 
   @Test
-  public void testNestedMapObject() throws IllegalAccessException,
-      IllegalArgumentException, InvocationTargetException, IOException
+  public void testNestedMapObject()
+      throws IllegalAccessException,
+      IllegalArgumentException,
+      InvocationTargetException,
+      IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
         new int[] { 1 }, new NestedMapObject(), new ByteArrayOutputStream());
@@ -174,8 +192,11 @@ public class SnmpTreeConstructorTest
   }
 
   @Test
-  public void testOneDeepObject() throws IllegalAccessException,
-      IllegalArgumentException, InvocationTargetException, IOException
+  public void testOneDeepObject()
+      throws IllegalAccessException,
+      IllegalArgumentException,
+      InvocationTargetException,
+      IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
         new int[] { 1 }, new OneDeepObject(), new ByteArrayOutputStream());
@@ -187,8 +208,11 @@ public class SnmpTreeConstructorTest
   }
 
   @Test
-  public void testStaticFieldObject() throws IllegalAccessException,
-      IllegalArgumentException, InvocationTargetException, IOException
+  public void testStaticFieldObject()
+      throws IllegalAccessException,
+      IllegalArgumentException,
+      InvocationTargetException,
+      IOException
   {
     final SnmpTree tree = SnmpTreeConstructor.createSnmpTree("test", "test",
         new int[] { 1 }, new StaticFieldObject(), new ByteArrayOutputStream());

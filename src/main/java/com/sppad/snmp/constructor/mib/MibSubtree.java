@@ -45,8 +45,11 @@ public class MibSubtree
     this.indexTypes = indexTypes;
   }
 
-  public void addEntry(final String parentName, final String name,
-      final int oid, final String description)
+  public void addEntry(
+      final String parentName,
+      final String name,
+      final int oid,
+      final String description)
   {
     entryPrintStream.println();
     entryPrintStream.println(name + "Entry  OBJECT-TYPE");
@@ -59,8 +62,12 @@ public class MibSubtree
     entryPrintStream.println(name + "EntryObj ::= SEQUENCE {");
   }
 
-  public void addItem(final String parentName, final String name,
-      final int oid, final Class<?> type, final String description,
+  public void addItem(
+      final String parentName,
+      final String name,
+      final int oid,
+      final Class<?> type,
+      final String description,
       final boolean isWritable)
   {
     addSequenceEntry(name);
@@ -79,7 +86,8 @@ public class MibSubtree
     itemPrintStream.println("\t::= { " + parentName + "Entry " + oid + " }");
   }
 
-  public ByteArrayOutputStream finish() throws IOException
+  public ByteArrayOutputStream finish()
+      throws IOException
   {
     itemByteStream.writeTo(entryPrintStream);
     return entryByteStream;

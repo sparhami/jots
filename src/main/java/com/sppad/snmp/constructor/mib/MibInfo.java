@@ -23,8 +23,11 @@ public class MibInfo
    *          Where in the parent tree the MIB resides
    * @return A String containing the header info.
    */
-  public static String createMibHeader(final String mibName,
-      final String rootName, final String description, final String parentTree,
+  public static String createMibHeader(
+      final String mibName,
+      final String rootName,
+      final String description,
+      final String parentTree,
       final int mibTreeOid)
   {
     try

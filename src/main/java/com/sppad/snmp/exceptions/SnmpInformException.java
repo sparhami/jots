@@ -6,7 +6,9 @@ public class SnmpInformException extends RuntimeException
 
   public final int index;
 
-  public SnmpInformException(final String message, final Throwable cause,
+  public SnmpInformException(
+      final String message,
+      final Throwable cause,
       final int index)
   {
     super(message, cause);

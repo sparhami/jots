@@ -9,14 +9,18 @@ import com.sppad.snmp.exceptions.SnmpBadValueException;
 
 public class SnmpPrimativeIntegerLookupField extends SnmpLookupField
 {
-  public SnmpPrimativeIntegerLookupField(final OID oid, final Field field,
-      final Object object, final Method setter)
+  public SnmpPrimativeIntegerLookupField(
+      final OID oid,
+      final Field field,
+      final Object object,
+      final Method setter)
   {
     super(oid, field, object, setter);
   }
 
   @Override
-  public Object doGet() throws IllegalAccessException
+  public Object doGet()
+      throws IllegalAccessException
   {
     return field.getInt(object);
   }

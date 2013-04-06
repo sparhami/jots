@@ -11,8 +11,8 @@ public class ObjUtils
    */
   public static String getRefInfo(final Object object)
   {
-    return object.getClass() + "@"
-        + Integer.toHexString(System.identityHashCode(object));
+    return object.getClass() + "@" +
+        Integer.toHexString(System.identityHashCode(object));
   }
 
 }

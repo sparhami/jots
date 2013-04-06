@@ -36,7 +36,8 @@ public class MapHandlerTest
   }
 
   @Test
-  public void testGetValueType_generic() throws SecurityException,
+  public void testGetValueType_generic()
+      throws SecurityException,
       NoSuchFieldException
   {
     final TestObjectTwo<TestSuperclass> obj = new TestObjectTwo<TestSuperclass>();
@@ -49,7 +50,8 @@ public class MapHandlerTest
   }
 
   @Test
-  public void testGetValueType_generic_parent() throws SecurityException,
+  public void testGetValueType_generic_parent()
+      throws SecurityException,
       NoSuchFieldException
   {
     final TestObjectTwo<TestSuperclass> obj = new TestObjectTwo<TestSuperclass>();
@@ -62,7 +64,8 @@ public class MapHandlerTest
   }
 
   @Test
-  public void testGetValueType_specified() throws SecurityException,
+  public void testGetValueType_specified()
+      throws SecurityException,
       NoSuchFieldException
   {
     final TestObjectOne obj = new TestObjectOne();

@@ -13,14 +13,18 @@ public class SnmpBooleanLookupField extends SnmpLookupField
 
   private static final String TRUE_STRING = "true";
 
-  public SnmpBooleanLookupField(final OID oid, final Field field,
-      final Object object, Method setter)
+  public SnmpBooleanLookupField(
+      final OID oid,
+      final Field field,
+      final Object object,
+      Method setter)
   {
     super(oid, field, object, setter);
   }
 
   @Override
-  public Object doGet() throws IllegalAccessException
+  public Object doGet()
+      throws IllegalAccessException
   {
     return field.get(object);
   }

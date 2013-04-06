@@ -8,7 +8,9 @@ public class JotsOID extends OID
 {
   private static final long serialVersionUID = 1588073102991378510L;
 
-  public JotsOID(final int[] prefix, final IntStack staticOid,
+  public JotsOID(
+      final int[] prefix,
+      final IntStack staticOid,
       final IntStack extension)
   {
     final int oidSize = staticOid.size();

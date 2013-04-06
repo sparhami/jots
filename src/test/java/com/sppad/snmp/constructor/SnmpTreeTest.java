@@ -49,7 +49,9 @@ public class SnmpTreeTest
   private static SnmpTree tree;
 
   @Before
-  public void setup() throws SecurityException, NoSuchFieldException,
+  public void setup()
+      throws SecurityException,
+      NoSuchFieldException,
       NoSuchMethodException
   {
     final int[] prefix = new int[] {};
@@ -82,8 +84,7 @@ public class SnmpTreeTest
     assertThat(boolVal, is("true"));
   }
 
-  @Test(
-    expected = SnmpOidNotFoundException.class)
+  @Test(expected = SnmpOidNotFoundException.class)
   public void testGet_noSuchOID()
   {
     tree.get(new OID(".2.1")).getOid().toString();
@@ -97,14 +98,16 @@ public class SnmpTreeTest
   }
 
   @Test
-  public void testGetNextIndex() throws SecurityException
+  public void testGetNextIndex()
+      throws SecurityException
   {
     final int index = tree.getNextIndex(new OID(".1.1"));
     assertThat(index, is(1));
   }
 
   @Test
-  public void testGetNextIndexRoot() throws SecurityException
+  public void testGetNextIndexRoot()
+      throws SecurityException
   {
     final int index = tree.getNextIndex(new OID(".1"));
     assertThat(index, is(0));
@@ -117,15 +120,16 @@ public class SnmpTreeTest
     assertThat(oid, is("1.1"));
   }
 
-  @Test(
-    expected = SnmpBadValueException.class)
-  public void testSetBoolean_primative_wrongType() throws SecurityException
+  @Test(expected = SnmpBadValueException.class)
+  public void testSetBoolean_primative_wrongType()
+      throws SecurityException
   {
     tree.set(new OID(".1.1"), "123asfa");
   }
 
   @Test
-  public void testSetFalse_object() throws SecurityException
+  public void testSetFalse_object()
+      throws SecurityException
   {
     tree.set(new OID(".1.2"), "false");
     final String boolVal = tree.get(new OID(".1.2")).getVariable().toString();
@@ -133,7 +137,8 @@ public class SnmpTreeTest
   }
 
   @Test
-  public void testSetFalse_primative() throws SecurityException
+  public void testSetFalse_primative()
+      throws SecurityException
   {
     tree.set(new OID(".1.1"), "false");
     final String boolVal = tree.get(new OID(".1.1")).getVariable().toString();
@@ -141,7 +146,8 @@ public class SnmpTreeTest
   }
 
   @Test
-  public void testSetInt_primative() throws SecurityException
+  public void testSetInt_primative()
+      throws SecurityException
   {
     tree.set(new OID(".1.3"), "123");
     final String intVal = tree.get(new OID(".1.3")).getVariable().toString();
@@ -149,7 +155,8 @@ public class SnmpTreeTest
   }
 
   @Test
-  public void testSetTrue_object() throws SecurityException
+  public void testSetTrue_object()
+      throws SecurityException
   {
     tree.set(new OID(".1.2"), "true");
     String boolVal = tree.get(new OID(".1.2")).getVariable().toString();
@@ -157,23 +164,26 @@ public class SnmpTreeTest
   }
 
   @Test
-  public void testSetTrue_primative() throws SecurityException
+  public void testSetTrue_primative()
+      throws SecurityException
   {
     tree.set(new OID(".1.1"), "true");
     final String boolVal = tree.get(new OID(".1.1")).getVariable().toString();
     assertThat(boolVal, is("true"));
   }
 
-  @Test(
-    expected = SnmpNotWritableException.class)
-  public void testSnmpNotSettable() throws SecurityException
+  @Test(expected = SnmpNotWritableException.class)
+  public void testSnmpNotSettable()
+      throws SecurityException
   {
     tree.set(new OID(".1.4"), "hello world");
   }
 
   @Test
-  public void testSnmpTreeMerge() throws SecurityException,
-      NoSuchFieldException, NoSuchMethodException
+  public void testSnmpTreeMerge()
+      throws SecurityException,
+      NoSuchFieldException,
+      NoSuchMethodException
   {
 
     final int[] prefix = new int[] {};

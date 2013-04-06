@@ -6,13 +6,17 @@ import java.util.List;
 
 public class MibTable extends MibSubtree
 {
-  public MibTable(final String parentName, final String name, final int oid,
-      final boolean isParentTable, final String description,
+  public MibTable(
+      final String parentName,
+      final String name,
+      final int oid,
+      final boolean isParentTable,
+      final String description,
       final List<String> indexTypes)
   {
     super(indexTypes);
-    final String mibParentName = parentName
-        + (isParentTable ? "Table" : "Entry");
+    final String mibParentName = parentName +
+        (isParentTable ? "Table" : "Entry");
 
     entryPrintStream.println();
     entryPrintStream.println(name + "Table  OBJECT-TYPE");
@@ -51,7 +55,8 @@ public class MibTable extends MibSubtree
   }
 
   @Override
-  public ByteArrayOutputStream finish() throws IOException
+  public ByteArrayOutputStream finish()
+      throws IOException
   {
     // Close the bracket from the SEQUENCE
     entryPrintStream.println("}");

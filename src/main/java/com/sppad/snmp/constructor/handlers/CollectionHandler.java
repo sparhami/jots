@@ -34,9 +34,13 @@ public class CollectionHandler implements ObjectHandler
   }
 
   @Override
-  public final void handle(final SnmpTreeConstructor descender,
-      final Object obj, final Field field) throws IllegalArgumentException,
-      IllegalAccessException, InvocationTargetException
+  public final void handle(
+      final SnmpTreeConstructor descender,
+      final Object obj,
+      final Field field)
+      throws IllegalArgumentException,
+      IllegalAccessException,
+      InvocationTargetException
   {
     final Collection<?> collection = (Collection<?>) obj;
 

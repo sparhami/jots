@@ -6,7 +6,8 @@ import java.io.IOException;
 public class MibEntry extends MibSubtree
 {
   @Override
-  public ByteArrayOutputStream finish() throws IOException
+  public ByteArrayOutputStream finish()
+      throws IOException
   {
     // Close the bracket from the SEQUENCE
     entryPrintStream.println("}");

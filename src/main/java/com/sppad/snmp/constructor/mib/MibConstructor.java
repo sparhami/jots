@@ -31,8 +31,12 @@ public class MibConstructor
 
   private final String rootName;
 
-  public MibConstructor(final String mibName, final String rootName,
-      final String parentTree, final int mibTree, final OutputStream os)
+  public MibConstructor(
+      final String mibName,
+      final String rootName,
+      final String parentTree,
+      final int mibTree,
+      final OutputStream os)
   {
     this.mibName = mibName;
     this.rootName = rootName;
@@ -46,7 +50,10 @@ public class MibConstructor
     entryMap.put(rootName, entry);
   }
 
-  public void addEntry(String parentName, final String name, final int oid,
+  public void addEntry(
+      String parentName,
+      final String name,
+      final int oid,
       final String description)
   {
     if (parentName == null || parentName.equals(""))
@@ -59,8 +66,13 @@ public class MibConstructor
   }
 
   @SuppressWarnings("unchecked")
-  public void addItem(String parentName, final String name, final int oid,
-      final Class<?> type, final String description, final boolean isWritable)
+  public void addItem(
+      String parentName,
+      final String name,
+      final int oid,
+      final Class<?> type,
+      final String description,
+      final boolean isWritable)
   {
     if (type.isEnum())
       addEnum((Class<? extends Enum<?>>) type);
@@ -72,8 +84,12 @@ public class MibConstructor
     entry.addItem(parentName, name, oid, type, description, isWritable);
   }
 
-  public void addTable(String parentName, final String name, final int oid,
-      final boolean isParentTable, final String description,
+  public void addTable(
+      String parentName,
+      final String name,
+      final int oid,
+      final boolean isParentTable,
+      final String description,
       final Class<?> keyType)
   {
     if (parentName == null || parentName.equals(""))
@@ -92,7 +108,8 @@ public class MibConstructor
     entryMap.put(name, entry);
   }
 
-  public void finish() throws IOException
+  public void finish()
+      throws IOException
   {
     ps.print(MibInfo.createMibHeader(mibName, rootName + "Entry", "",
         parentTree, mibTree));

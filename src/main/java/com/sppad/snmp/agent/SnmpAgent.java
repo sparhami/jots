@@ -57,7 +57,9 @@ public class SnmpAgent implements CommandResponder
    */
   private final ReentrantReadWriteLock updateLock = new ReentrantReadWriteLock();
 
-  public SnmpAgent(final SnmpTree tree, final InetSocketAddress address,
+  public SnmpAgent(
+      final SnmpTree tree,
+      final InetSocketAddress address,
       final Protocol proto) throws IOException
   {
     this.tree = tree;
@@ -102,7 +104,8 @@ public class SnmpAgent implements CommandResponder
     logger.info("Started SNMP agent on {}", address);
   }
 
-  public void close() throws IOException
+  public void close()
+      throws IOException
   {
     snmp.close();
     logger.info("Sopped SNMP agent on {}", transport);
@@ -302,7 +305,8 @@ public class SnmpAgent implements CommandResponder
    * @param response
    *          The response to add to.
    */
-  void processGetBulk(final CommandResponderEvent request,
+  void processGetBulk(
+      final CommandResponderEvent request,
       final CustomPDU response)
   {
     // nonRepeaters - how many OIDs to do get on before starting bulkgets
@@ -330,7 +334,8 @@ public class SnmpAgent implements CommandResponder
    * @param response
    *          The response to add to.
    */
-  void processGetNext(final CommandResponderEvent request,
+  void processGetNext(
+      final CommandResponderEvent request,
       final CustomPDU response)
   {
     for (final VariableBinding var : request.getPDU().getVariableBindings())
@@ -356,8 +361,10 @@ public class SnmpAgent implements CommandResponder
     }
   }
 
-  private void logError(final CommandResponderEvent request,
-      final CustomPDU response, final Throwable t)
+  private void logError(
+      final CommandResponderEvent request,
+      final CustomPDU response,
+      final Throwable t)
   {
     final String commandType = PDU.getTypeString(request.getPDU().getType());
     final int index = response.currentRequestPduIndex;

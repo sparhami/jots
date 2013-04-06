@@ -10,7 +10,10 @@ import com.sppad.snmp.annotations.SnmpTableIndex;
 
 public class ClassInfo
 {
+  /** The field that should be used for a table extension, if applicable */
   public final Field extensionField;
+
+  /** All the fields in the class and its super classes, except for Object */
   public final Collection<Field> fields;
 
   /**
@@ -55,7 +58,8 @@ public class ClassInfo
    * @param klassTwo
    * @return The least common superclass.
    */
-  public static Class<?> getLeastCommonSuperclass(final Class<?> klassOne,
+  public static Class<?> getLeastCommonSuperclass(
+      final Class<?> klassOne,
       final Class<?> klassTwo)
   {
     if (klassOne.isAssignableFrom(klassTwo))
@@ -114,7 +118,7 @@ public class ClassInfo
   public ClassInfo(final Class<?> klass)
   {
     Field extensionField = null;
-    for (final Field field : klass.getDeclaredFields())
+    for (Field field : klass.getDeclaredFields())
       if (field.isAnnotationPresent(SnmpTableIndex.class))
         extensionField = field;
 

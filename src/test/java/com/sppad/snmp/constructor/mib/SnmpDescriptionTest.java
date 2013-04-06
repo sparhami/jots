@@ -12,15 +12,15 @@ import com.sppad.snmp.annotations.BooleanInterfaceComment;
 public class SnmpDescriptionTest
 {
   @Test
-  public void testGetBooleanDescription_class() throws SecurityException,
+  public void testGetBooleanDescription_class()
+      throws SecurityException,
       NoSuchFieldException
   {
     final Object obj = new Object()
     {
-      @BooleanInterfaceComment(
-        synopsis = "This is something about the field",
-        trueSynopsis = "This is a true comment",
-        falseSynopsis = "This is a false comment")
+      @BooleanInterfaceComment(synopsis = "This is something about the field",
+                               trueSynopsis = "This is a true comment",
+                               falseSynopsis = "This is a false comment")
       public final Boolean testBoolean = true;
     };
 
@@ -35,15 +35,15 @@ public class SnmpDescriptionTest
   }
 
   @Test
-  public void testGetBooleanDescription_type() throws SecurityException,
+  public void testGetBooleanDescription_type()
+      throws SecurityException,
       NoSuchFieldException
   {
     final Object obj = new Object()
     {
-      @BooleanInterfaceComment(
-        synopsis = "This is something about the field",
-        trueSynopsis = "This is a true comment",
-        falseSynopsis = "This is a false comment")
+      @BooleanInterfaceComment(synopsis = "This is something about the field",
+                               trueSynopsis = "This is a true comment",
+                               falseSynopsis = "This is a false comment")
       public final boolean testBoolean = true;
     };
 

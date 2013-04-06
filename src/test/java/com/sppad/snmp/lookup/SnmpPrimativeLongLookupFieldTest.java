@@ -28,7 +28,9 @@ public class SnmpPrimativeLongLookupFieldTest
   }
 
   @Test
-  public void testGet() throws SecurityException, NoSuchFieldException
+  public void testGet()
+      throws SecurityException,
+      NoSuchFieldException
   {
     final Field f = TestClass.class.getDeclaredField("testLong");
     f.setAccessible(true);
@@ -41,7 +43,9 @@ public class SnmpPrimativeLongLookupFieldTest
   }
 
   @Test
-  public void testSet() throws SecurityException, NoSuchFieldException
+  public void testSet()
+      throws SecurityException,
+      NoSuchFieldException
   {
     final Field f = TestClass.class.getDeclaredField("testLong");
     f.setAccessible(true);
@@ -55,9 +59,10 @@ public class SnmpPrimativeLongLookupFieldTest
     assertThat((Long) testField.get(), is(42L));
   }
 
-  @Test(
-    expected = SnmpBadValueException.class)
-  public void testSet_badValue() throws SecurityException, NoSuchFieldException
+  @Test(expected = SnmpBadValueException.class)
+  public void testSet_badValue()
+      throws SecurityException,
+      NoSuchFieldException
   {
     final Field f = TestClass.class.getDeclaredField("testLong");
     f.setAccessible(true);

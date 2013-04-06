@@ -62,7 +62,8 @@ public class SnmpTree
    * @param snmpFields
    *          A sorted set of the SnmpLookupField objects that make up the tree.
    */
-  protected SnmpTree(final int[] prefix,
+  protected SnmpTree(
+      final int[] prefix,
       final SortedSet<SnmpLookupField> snmpFields)
   {
     this(prefix, snmpFields.toArray(new SnmpLookupField[snmpFields.size()]));
@@ -89,7 +90,8 @@ public class SnmpTree
    * 
    * @return The annotation if it exists, null otherwise.
    */
-  public Annotation getAnnotation(final int index,
+  public Annotation getAnnotation(
+      final int index,
       final Class<?> annotationClass)
   {
     return fieldArray[index].getAnnotation(annotationClass);

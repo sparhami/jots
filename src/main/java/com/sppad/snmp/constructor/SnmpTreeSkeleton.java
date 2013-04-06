@@ -32,7 +32,10 @@ public class SnmpTreeSkeleton
     this.prefix = prefix;
   }
 
-  public void add(final OID oid, final Field field, final Object object,
+  public void add(
+      final OID oid,
+      final Field field,
+      final Object object,
       final Method setter)
   {
     final SnmpLookupField lookupField = createLookupField(oid, field, object,
@@ -45,8 +48,11 @@ public class SnmpTreeSkeleton
     return new SnmpTree(prefix, sortSet);
   }
 
-  private SnmpLookupField createLookupField(final OID oid, final Field field,
-      final Object object, final Method setter)
+  private SnmpLookupField createLookupField(
+      final OID oid,
+      final Field field,
+      final Object object,
+      final Method setter)
   {
     final Class<?> fieldType = field.getType();
 

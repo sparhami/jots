@@ -30,7 +30,9 @@ public class SnmpEnumLookupFieldTest
   }
 
   @Test
-  public void testCreate() throws SecurityException, NoSuchFieldException
+  public void testCreate()
+      throws SecurityException,
+      NoSuchFieldException
   {
     final TestClass tc = new TestClass();
     final Field field = tc.getClass().getDeclaredField("testEnum");
@@ -41,7 +43,9 @@ public class SnmpEnumLookupFieldTest
   }
 
   @Test
-  public void testGet() throws SecurityException, NoSuchFieldException
+  public void testGet()
+      throws SecurityException,
+      NoSuchFieldException
   {
     final TestClass tc = new TestClass();
     final Field field = tc.getClass().getDeclaredField("testEnum");
@@ -53,7 +57,9 @@ public class SnmpEnumLookupFieldTest
   }
 
   @Test
-  public void testSet() throws SecurityException, NoSuchFieldException,
+  public void testSet()
+      throws SecurityException,
+      NoSuchFieldException,
       NoSuchMethodException
   {
     final TestClass tc = new TestClass();
@@ -69,10 +75,11 @@ public class SnmpEnumLookupFieldTest
     assertThat(value, is(TestClass.TestEnum.BAR.toString()));
   }
 
-  @Test(
-    expected = SnmpBadValueException.class)
-  public void testSet_badValue() throws SecurityException,
-      NoSuchFieldException, NoSuchMethodException
+  @Test(expected = SnmpBadValueException.class)
+  public void testSet_badValue()
+      throws SecurityException,
+      NoSuchFieldException,
+      NoSuchMethodException
   {
     final TestClass tc = new TestClass();
     final Field field = tc.getClass().getDeclaredField("testEnum");

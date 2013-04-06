@@ -33,8 +33,11 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
    * @param field
    * @param object
    */
-  protected SnmpLookupField(final OID oid, final Field field,
-      final Object object, final Method setter)
+  protected SnmpLookupField(
+      final OID oid,
+      final Field field,
+      final Object object,
+      final Method setter)
   {
     this.oid = oid;
     this.field = field;
@@ -169,7 +172,8 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
    *         called.
    * @throws IllegalAccessException
    */
-  abstract Object doGet() throws IllegalAccessException;
+  abstract Object doGet()
+      throws IllegalAccessException;
 
   /**
    * Performs a set, implementation specific to the type of a field. All

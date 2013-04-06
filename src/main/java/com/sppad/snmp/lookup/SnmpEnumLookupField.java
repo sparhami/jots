@@ -13,8 +13,11 @@ public class SnmpEnumLookupField extends SnmpLookupField
   private final Class<? extends Enum> enumClass;
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public SnmpEnumLookupField(final OID oid, final Field field,
-      final Object object, final Method setter)
+  public SnmpEnumLookupField(
+      final OID oid,
+      final Field field,
+      final Object object,
+      final Method setter)
   {
     super(oid, field, object, setter);
 
@@ -22,7 +25,8 @@ public class SnmpEnumLookupField extends SnmpLookupField
   }
 
   @Override
-  public Object doGet() throws IllegalAccessException
+  public Object doGet()
+      throws IllegalAccessException
   {
     return field.get(object).toString();
   }

@@ -9,14 +9,18 @@ import com.sppad.snmp.exceptions.SnmpBadValueException;
 
 public class SnmpDoubleLookupField extends SnmpLookupField
 {
-  public SnmpDoubleLookupField(final OID oid, final Field field,
-      final Object object, Method setter)
+  public SnmpDoubleLookupField(
+      final OID oid,
+      final Field field,
+      final Object object,
+      Method setter)
   {
     super(oid, field, object, setter);
   }
 
   @Override
-  public Object doGet() throws IllegalAccessException
+  public Object doGet()
+      throws IllegalAccessException
   {
     return field.get(object);
   }

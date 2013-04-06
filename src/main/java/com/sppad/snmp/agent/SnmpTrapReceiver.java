@@ -74,7 +74,8 @@ public abstract class SnmpTrapReceiver implements CommandResponder
     snmp.listen();
   }
 
-  public void close() throws IOException
+  public void close()
+      throws IOException
   {
     snmp.close();
   }

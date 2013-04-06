@@ -47,9 +47,13 @@ public class MapHandler implements ObjectHandler
   }
 
   @Override
-  public final void handle(final SnmpTreeConstructor descender,
-      final Object obj, final Field field) throws IllegalArgumentException,
-      IllegalAccessException, InvocationTargetException
+  public final void handle(
+      final SnmpTreeConstructor descender,
+      final Object obj,
+      final Field field)
+      throws IllegalArgumentException,
+      IllegalAccessException,
+      InvocationTargetException
   {
     final Map<?, ?> map = (Map<?, ?>) obj;
     final ParameterizedType pType = (ParameterizedType) field.getGenericType();
