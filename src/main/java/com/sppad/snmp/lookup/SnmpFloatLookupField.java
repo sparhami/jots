@@ -9,7 +9,8 @@ import com.sppad.snmp.exceptions.SnmpBadValueException;
 
 public class SnmpFloatLookupField extends SnmpLookupField
 {
-  public SnmpFloatLookupField(OID oid, Field field, Object object, Method setter)
+  public SnmpFloatLookupField(final OID oid, final Field field,
+      final Object object, final Method setter)
   {
     super(oid, field, object, setter);
   }
@@ -21,13 +22,13 @@ public class SnmpFloatLookupField extends SnmpLookupField
   }
 
   @Override
-  public void doSet(String value)
+  public void doSet(final String value)
   {
     try
     {
       setValue(Float.valueOf(value));
     }
-    catch (NumberFormatException e)
+    catch (final NumberFormatException e)
     {
       throw new SnmpBadValueException(value);
     }

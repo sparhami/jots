@@ -13,8 +13,8 @@ public class SnmpBooleanLookupField extends SnmpLookupField
 
   private static final String TRUE_STRING = "true";
 
-  public SnmpBooleanLookupField(OID oid, Field field, Object object,
-      Method setter)
+  public SnmpBooleanLookupField(final OID oid, final Field field,
+      final Object object, Method setter)
   {
     super(oid, field, object, setter);
   }
@@ -26,7 +26,7 @@ public class SnmpBooleanLookupField extends SnmpLookupField
   }
 
   @Override
-  public void doSet(String value)
+  public void doSet(final String value)
   {
     if (TRUE_STRING.equalsIgnoreCase(value))
       setValue(true);

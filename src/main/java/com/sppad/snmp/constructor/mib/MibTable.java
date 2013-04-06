@@ -6,11 +6,13 @@ import java.util.List;
 
 public class MibTable extends MibSubtree
 {
-  public MibTable(String parentName, String name, int oid,
-      boolean isParentTable, String description, List<String> indexTypes)
+  public MibTable(final String parentName, final String name, final int oid,
+      final boolean isParentTable, final String description,
+      final List<String> indexTypes)
   {
     super(indexTypes);
-    parentName += isParentTable ? "Table" : "Entry";
+    final String mibParentName = parentName
+        + (isParentTable ? "Table" : "Entry");
 
     entryPrintStream.println();
     entryPrintStream.println(name + "Table  OBJECT-TYPE");
@@ -20,7 +22,7 @@ public class MibTable extends MibSubtree
     entryPrintStream.println("\tDESCRIPTION");
     entryPrintStream.println("\t\t\"" + description + "\"");
 
-    entryPrintStream.println("\t::= { " + parentName + " " + oid + " }");
+    entryPrintStream.println("\t::= { " + mibParentName + " " + oid + " }");
 
     entryPrintStream.println();
     entryPrintStream.println(name + "Entry  OBJECT-TYPE");

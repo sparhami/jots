@@ -32,7 +32,7 @@ public class IntStack
    * @param initialCapacity
    *          The initial capacity of the stack.
    */
-  public IntStack(int initialCapacity)
+  public IntStack(final int initialCapacity)
   {
     backingArray = new int[initialCapacity];
   }
@@ -43,7 +43,7 @@ public class IntStack
    * @param srcStack
    *          The stack to copy the elements from.
    */
-  public IntStack(IntStack srcStack)
+  public IntStack(final IntStack srcStack)
   {
     backingArray = new int[srcStack.size()];
     topIndex = srcStack.size() - 1;
@@ -68,7 +68,7 @@ public class IntStack
    * @param length
    *          How many elements to copy
    */
-  public void copyFrom(int[] src, int srcPos, int length)
+  public void copyFrom(final int[] src, final int srcPos, final int length)
   {
     int currentSize = size();
     if (currentSize + length > backingArray.length)
@@ -84,7 +84,7 @@ public class IntStack
    * @param mintyStack
    *          The stack to copy elements from.
    */
-  public void copyFrom(IntStack intStack)
+  public void copyFrom(final IntStack intStack)
   {
     copyFrom(intStack.backingArray, 0, intStack.size());
   }
@@ -97,13 +97,13 @@ public class IntStack
    * @param destPos
    *          Where in the destination array to start copying to.
    */
-  public void copyTo(int[] dest, int destPos)
+  public void copyTo(final int[] dest, final int destPos)
   {
     System.arraycopy(backingArray, 0, dest, destPos, size());
   }
 
   @Override
-  public boolean equals(Object o)
+  public boolean equals(final Object o)
   {
     if (this == o)
       return true;
@@ -111,7 +111,7 @@ public class IntStack
     if (!(o instanceof IntStack))
       return false;
 
-    IntStack other = (IntStack) o;
+    final IntStack other = (IntStack) o;
     if (topIndex != other.topIndex)
       return false;
 
@@ -130,7 +130,7 @@ public class IntStack
    *          The index of the element to get.
    * @return The value at that index.
    */
-  public int get(int index)
+  public int get(final int index)
   {
     return backingArray[index];
   }
@@ -167,7 +167,7 @@ public class IntStack
    * @param value
    *          The value to add to the stack.
    */
-  public void push(int value)
+  public void push(final int value)
   {
     if (topIndex + 1 >= backingArray.length)
       increaseSize(backingArray.length + DEFAULT_INCREMENT_SIZE);
@@ -181,7 +181,7 @@ public class IntStack
    * @param count
    *          How many elements to remove.
    */
-  public void remove(int count)
+  public void remove(final int count)
   {
     topIndex -= count;
   }
@@ -208,7 +208,7 @@ public class IntStack
   @Override
   public String toString()
   {
-    StringBuilder builder = new StringBuilder("[");
+    final StringBuilder builder = new StringBuilder("[");
 
     for (int i = 0; i <= topIndex; i++)
       builder.append(" " + backingArray[i] + ",");
@@ -228,9 +228,9 @@ public class IntStack
    *          The new size for the backing array, should be larger than the
    *          current size.
    */
-  private void increaseSize(int newSize)
+  private void increaseSize(final int newSize)
   {
-    int[] newBackingArray = new int[newSize];
+    final int[] newBackingArray = new int[newSize];
     System.arraycopy(backingArray, 0, newBackingArray, 0, backingArray.length);
     backingArray = newBackingArray;
   }

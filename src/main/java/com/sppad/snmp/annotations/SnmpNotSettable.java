@@ -1,6 +1,7 @@
 package com.sppad.snmp.annotations;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Marks the field as not being settable from SNMP.

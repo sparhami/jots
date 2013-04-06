@@ -4,7 +4,7 @@ public class SnmpWrongTypeException extends SnmpException
 {
   private static final long serialVersionUID = 1L;
 
-  public SnmpWrongTypeException(String string)
+  public SnmpWrongTypeException(final String string)
   {
     super(string);
   }

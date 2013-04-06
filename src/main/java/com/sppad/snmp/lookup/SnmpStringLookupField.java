@@ -7,8 +7,8 @@ import org.snmp4j.smi.OID;
 
 public class SnmpStringLookupField extends SnmpLookupField
 {
-  public SnmpStringLookupField(OID oid, Field field, Object object,
-      Method setter)
+  public SnmpStringLookupField(final OID oid, final Field field,
+      final Object object, final Method setter)
   {
     super(oid, field, object, setter);
   }
@@ -20,7 +20,7 @@ public class SnmpStringLookupField extends SnmpLookupField
   }
 
   @Override
-  public void doSet(String value)
+  public void doSet(final String value)
   {
     setValue(value);
   }

@@ -23,9 +23,9 @@ public class CollectionHandler implements ObjectHandler
    * @return
    */
   @SuppressWarnings("unchecked")
-  public Class<?> getValueType(Field field, Collection<?> collection)
+  public Class<?> getValueType(final Field field, final Collection<?> collection)
   {
-    ParameterizedType pType = (ParameterizedType) field.getGenericType();
+    final ParameterizedType pType = (ParameterizedType) field.getGenericType();
     if (pType.getActualTypeArguments()[0] instanceof Class<?>)
       return (Class<?>) pType.getActualTypeArguments()[0];
     else
@@ -34,27 +34,26 @@ public class CollectionHandler implements ObjectHandler
   }
 
   @Override
-  public final void handle(SnmpTreeConstructor descender, Object obj,
-      Field field) throws IllegalArgumentException, IllegalAccessException,
-      InvocationTargetException
+  public final void handle(final SnmpTreeConstructor descender,
+      final Object obj, final Field field) throws IllegalArgumentException,
+      IllegalAccessException, InvocationTargetException
   {
-    Collection<?> collection = (Collection<?>) obj;
+    final Collection<?> collection = (Collection<?>) obj;
 
     descender.onCollectionEnter(obj, field, Object.class);
 
-    Class<?> valueType = getValueType(field, collection);
+    final Class<?> valueType = getValueType(field, collection);
 
     // note that index starts at 1, since .0 by convention indicates a
     // terminal OID and not a table entry
     int index = 1;
     for (final Object item : collection)
     {
-      if (item != null)
-      {
-        descender.onNextCollectionValue(item, index++);
+      if (item == null)
+        continue;
 
-        descender.descend(item, valueType, field);
-      }
+      descender.onNextCollectionValue(item, index++);
+      descender.descend(item, valueType, field);
     }
 
     descender.onCollectionExit(obj, field);

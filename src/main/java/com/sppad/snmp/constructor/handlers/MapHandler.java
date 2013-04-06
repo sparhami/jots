@@ -35,10 +35,10 @@ public class MapHandler implements ObjectHandler
    * @return
    */
   @SuppressWarnings("unchecked")
-  public static Class<?> getValueType(Field field, Map<?, ?> map)
+  public static Class<?> getValueType(final Field field, final Map<?, ?> map)
   {
 
-    ParameterizedType pType = (ParameterizedType) field.getGenericType();
+    final ParameterizedType pType = (ParameterizedType) field.getGenericType();
     if (pType.getActualTypeArguments()[1] instanceof Class<?>)
       return (Class<?>) pType.getActualTypeArguments()[1];
     else
@@ -47,30 +47,29 @@ public class MapHandler implements ObjectHandler
   }
 
   @Override
-  public final void handle(SnmpTreeConstructor descender, Object obj,
-      Field field) throws IllegalArgumentException, IllegalAccessException,
-      InvocationTargetException
+  public final void handle(final SnmpTreeConstructor descender,
+      final Object obj, final Field field) throws IllegalArgumentException,
+      IllegalAccessException, InvocationTargetException
   {
-    Map<?, ?> map = (Map<?, ?>) obj;
-    ParameterizedType pType = (ParameterizedType) field.getGenericType();
+    final Map<?, ?> map = (Map<?, ?>) obj;
+    final ParameterizedType pType = (ParameterizedType) field.getGenericType();
 
     // find the key type for the map, if it can be found
     Class<?> keyType = Object.class;
     if (pType.getActualTypeArguments()[0] instanceof Class<?>)
       keyType = (Class<?>) pType.getActualTypeArguments()[0];
 
-    Class<?> valueType = getValueType(field, map);
+    final Class<?> valueType = getValueType(field, map);
 
     descender.onCollectionEnter(obj, field, keyType);
 
     for (final Map.Entry<?, ?> entry : map.entrySet())
     {
-      if (entry.getValue() != null)
-      {
-        descender.onNextCollectionValue(entry.getValue(), entry.getKey());
+      if (entry.getValue() == null)
+        continue;
 
-        descender.descend(entry.getValue(), valueType, field);
-      }
+      descender.onNextCollectionValue(entry.getValue(), entry.getKey());
+      descender.descend(entry.getValue(), valueType, field);
     }
 
     descender.onCollectionExit(obj, field);

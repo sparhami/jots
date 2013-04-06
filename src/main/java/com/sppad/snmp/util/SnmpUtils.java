@@ -1,12 +1,7 @@
 package com.sppad.snmp.util;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
-
-import com.sppad.snmp.annotations.SnmpIgnore;
-import com.sppad.snmp.annotations.SnmpInclude;
 
 public class SnmpUtils
 {
@@ -34,11 +29,11 @@ public class SnmpUtils
    *          The string to form the SNMP extension for
    * @return An int array representing the explicit string index
    */
-  public static int[] getExplicitString(String string)
+  public static int[] getExplicitString(final String string)
   {
-    int length = string.length();
+    final int length = string.length();
 
-    int[] oidInts = new int[length + 1];
+    final int[] oidInts = new int[length + 1];
     oidInts[0] = length;
 
     for (int i = 0; i < length; i++)
@@ -58,11 +53,11 @@ public class SnmpUtils
    *          The name of the field to get the setter name for
    * @return A string representing the setter name.
    */
-  public static String getSetterName(String fieldName)
+  public static String getSetterName(final String fieldName)
   {
-    char firstLetter = fieldName.charAt(0);
+    final char firstLetter = fieldName.charAt(0);
 
-    StringBuilder setMethodName = new StringBuilder("set");
+    final StringBuilder setMethodName = new StringBuilder("set");
     setMethodName.append(fieldName);
     setMethodName.setCharAt(3, Character.toUpperCase(firstLetter));
 
@@ -78,7 +73,7 @@ public class SnmpUtils
    *          An object to serve as a table row index
    * @return An int array representing the table extension
    */
-  public static int[] getSnmpExtension(Object obj)
+  public static int[] getSnmpExtension(final Object obj)
   {
     if (obj instanceof Number)
       return new int[] { ((Number) obj).intValue() };
@@ -92,7 +87,7 @@ public class SnmpUtils
    * 
    * @return True if the class is a built-in class, false otherwise
    */
-  public static boolean isBuiltin(Class<?> klass)
+  public static boolean isBuiltin(final Class<?> klass)
   {
     return builtinClasses.contains(klass);
   }
@@ -100,7 +95,7 @@ public class SnmpUtils
   /**
    * @return True if the class is a primitive (e.g. int), false otherwise
    */
-  public static boolean isPrimitive(Class<?> klass)
+  public static boolean isPrimitive(final Class<?> klass)
   {
     return klass.isPrimitive();
   }
@@ -109,7 +104,7 @@ public class SnmpUtils
    * @return True if the class is a primitive/primitive wrapper, a String or an
    *         enum, false otherwise
    */
-  public static boolean isSimple(Class<?> klass)
+  public static boolean isSimple(final Class<?> klass)
   {
     return isBuiltin(klass) || isPrimitive(klass) || klass.isEnum();
   }

@@ -4,7 +4,7 @@ public class SnmpNotWritableException extends SnmpException
 {
   private static final long serialVersionUID = 1L;
 
-  public SnmpNotWritableException(String string)
+  public SnmpNotWritableException(final String string)
   {
     super(string);
   }

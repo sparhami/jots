@@ -26,21 +26,21 @@ public class ClassInfo
    *          The base Class to use for the object.
    * @return The list of fields that should be descended into.
    */
-  public static Collection<Field> getFields(Class<?> baseClass)
+  public static Collection<Field> getFields(final Class<?> baseClass)
   {
-    Collection<Field> fields = new ArrayList<Field>();
+    final Collection<Field> fields = new ArrayList<Field>();
     Class<?> currentClass = baseClass;
 
     // reverse the order so superclass fields come first
-    Deque<Class<?>> classStack = new LinkedList<Class<?>>();
+    final Deque<Class<?>> classStack = new LinkedList<Class<?>>();
     while (currentClass != Object.class)
     {
       classStack.push(currentClass);
       currentClass = currentClass.getSuperclass();
     }
 
-    for (Class<?> klass : classStack)
-      for (Field field : klass.getDeclaredFields())
+    for (final Class<?> klass : classStack)
+      for (final Field field : klass.getDeclaredFields())
         fields.add(field);
 
     return fields;
@@ -55,8 +55,8 @@ public class ClassInfo
    * @param klassTwo
    * @return The least common superclass.
    */
-  public static Class<?> getLeastCommonSuperclass(Class<?> klassOne,
-      Class<?> klassTwo)
+  public static Class<?> getLeastCommonSuperclass(final Class<?> klassOne,
+      final Class<?> klassTwo)
   {
     if (klassOne.isAssignableFrom(klassTwo))
       return klassOne;
@@ -75,13 +75,14 @@ public class ClassInfo
    * @param classList
    * @return The least common superclass.
    */
-  public static Class<?> getLeastCommonSuperclass(Collection<Class<?>> classList)
+  public static Class<?> getLeastCommonSuperclass(
+      final Collection<Class<?>> classList)
   {
     if (classList.size() == 0)
       return Object.class;
 
     Class<?> parentClass = classList.iterator().next();
-    for (Class<?> klass : classList)
+    for (final Class<?> klass : classList)
       if (klass != parentClass)
         parentClass = getLeastCommonSuperclass(klass, parentClass);
 
@@ -97,23 +98,23 @@ public class ClassInfo
    * @return The least common superclass.
    */
   public static Class<?> getLeastCommonSuperclassForObjects(
-      Collection<Object> objectList)
+      final Collection<Object> objectList)
   {
     if (objectList.size() == 0)
       return Object.class;
 
     Class<?> parentClass = objectList.iterator().next().getClass();
-    for (Object obj : objectList)
+    for (final Object obj : objectList)
       if (obj.getClass() != parentClass)
         parentClass = getLeastCommonSuperclass(obj.getClass(), parentClass);
 
     return parentClass;
   }
 
-  public ClassInfo(Class<?> klass)
+  public ClassInfo(final Class<?> klass)
   {
     Field extensionField = null;
-    for (Field field : klass.getDeclaredFields())
+    for (final Field field : klass.getDeclaredFields())
       if (field.isAnnotationPresent(SnmpTableIndex.class))
         extensionField = field;
 

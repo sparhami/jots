@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface MapInterfaceComment
 {
-  String type = "Map";
+  final String type = "Map";
 
   String synopsis();
 }

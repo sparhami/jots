@@ -7,7 +7,8 @@ import com.sppad.snmp.constructor.SnmpTreeConstructor;
 public class NullHandler implements ObjectHandler
 {
   @Override
-  public void handle(SnmpTreeConstructor descender, Object obj, Field field)
+  public void handle(final SnmpTreeConstructor descender, final Object obj,
+      final Field field)
   {
   }
 }

@@ -39,7 +39,7 @@ public class CustomPDU extends PDU
    * @param maxPduLength
    *          The max length for the PDU response.
    */
-  public CustomPDU(int maxPduLength)
+  public CustomPDU(final int maxPduLength)
   {
     this.maxPduLength = maxPduLength;
   }
@@ -52,7 +52,7 @@ public class CustomPDU extends PDU
    *          The VariableBinding to add the the PDU
    */
   @Override
-  public void add(VariableBinding vb)
+  public void add(final VariableBinding vb)
   {
     length += vb.getBERLength();
     if (length + OVERHEAD_BUFFER > maxPduLength)

@@ -2,7 +2,6 @@ package com.sppad.snmp.constructor.mib;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -14,26 +13,26 @@ import java.util.Set;
 
 public class MibConstructor
 {
-  private ByteArrayOutputStream createMibStream = new ByteArrayOutputStream();
+  private final ByteArrayOutputStream createMibStream = new ByteArrayOutputStream();
 
-  private Map<String, MibSubtree> entryMap = new LinkedHashMap<String, MibSubtree>();
+  private final Map<String, MibSubtree> entryMap = new LinkedHashMap<String, MibSubtree>();
 
   private final Set<Class<? extends Enum<?>>> enumSyntaxSet = new HashSet<Class<? extends Enum<?>>>();
 
-  private OutputStream outstream;
-
-  private final PrintStream ps;
-
   private final String mibName;
-
-  private final String rootName;
-
-  private final String parentTree;
 
   private final int mibTree;
 
-  public MibConstructor(String mibName, String rootName, String parentTree,
-      int mibTree, OutputStream os)
+  private final OutputStream outstream;
+
+  private final String parentTree;
+
+  private final PrintStream ps;
+
+  private final String rootName;
+
+  public MibConstructor(final String mibName, final String rootName,
+      final String parentTree, final int mibTree, final OutputStream os)
   {
     this.mibName = mibName;
     this.rootName = rootName;
@@ -47,21 +46,21 @@ public class MibConstructor
     entryMap.put(rootName, entry);
   }
 
-  public void addEntry(String parentName, String name, int oid,
-      String description)
+  public void addEntry(String parentName, final String name, final int oid,
+      final String description)
   {
     if (parentName == null || parentName.equals(""))
       parentName = rootName;
 
-    MibEntry entry = new MibEntry();
+    final MibEntry entry = new MibEntry();
     entryMap.put(name, entry);
 
     entry.addEntry(parentName, name, oid, description);
   }
 
   @SuppressWarnings("unchecked")
-  public void addItem(String parentName, String name, int oid, Class<?> type,
-      String description, boolean isWritable)
+  public void addItem(String parentName, final String name, final int oid,
+      final Class<?> type, final String description, final boolean isWritable)
   {
     if (type.isEnum())
       addEnum((Class<? extends Enum<?>>) type);
@@ -69,24 +68,26 @@ public class MibConstructor
     if (parentName == null || parentName.equals(""))
       parentName = rootName;
 
-    MibSubtree entry = entryMap.get(parentName);
+    final MibSubtree entry = entryMap.get(parentName);
     entry.addItem(parentName, name, oid, type, description, isWritable);
   }
 
-  public void addTable(String parentName, String name, int oid,
-      boolean isParentTable, String description, Class<?> keyType)
+  public void addTable(String parentName, final String name, final int oid,
+      final boolean isParentTable, final String description,
+      final Class<?> keyType)
   {
     if (parentName == null || parentName.equals(""))
       parentName = rootName;
 
-    MibSubtree parentEntry = entryMap.get(parentName);
-    List<String> indexTypes = new ArrayList<String>(parentEntry.indexTypes);
+    final MibSubtree parentEntry = entryMap.get(parentName);
+    final List<String> indexTypes = new ArrayList<String>(
+        parentEntry.indexTypes);
 
-    String indexType = (keyType == String.class) ? "IndexString"
+    final String indexType = (keyType == String.class) ? "IndexString"
         : "IndexInteger";
     indexTypes.add(indexType);
 
-    MibSubtree entry = new MibTable(parentName, name, oid, isParentTable,
+    final MibSubtree entry = new MibTable(parentName, name, oid, isParentTable,
         description, indexTypes);
     entryMap.put(name, entry);
   }
@@ -96,7 +97,7 @@ public class MibConstructor
     ps.print(MibInfo.createMibHeader(mibName, rootName + "Entry", "",
         parentTree, mibTree));
 
-    for (MibSubtree entry : entryMap.values())
+    for (final MibSubtree entry : entryMap.values())
       entry.finish().writeTo(ps);
 
     ps.println("\nEND");
@@ -105,18 +106,18 @@ public class MibConstructor
     outstream.close();
   }
 
-  private void addEnum(Class<? extends Enum<?>> enumClass)
+  private void addEnum(final Class<? extends Enum<?>> enumClass)
   {
     if (enumSyntaxSet.contains(enumClass))
       return;
 
     enumSyntaxSet.add(enumClass);
 
-    StringBuilder builder = new StringBuilder();
+    final StringBuilder builder = new StringBuilder();
 
     builder.append(enumClass.getSimpleName() + " ::= TEXTUAL-CONVENTION\n");
     builder.append("\tSYNTAX      OCTET STRING {");
-    for (Enum<?> enumElement : enumClass.getEnumConstants())
+    for (final Enum<?> enumElement : enumClass.getEnumConstants())
       builder.append(" \"" + enumElement.name() + "\",");
 
     builder.deleteCharAt(builder.lastIndexOf(","));

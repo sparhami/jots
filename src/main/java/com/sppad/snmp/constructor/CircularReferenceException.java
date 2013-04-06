@@ -5,7 +5,7 @@ public class CircularReferenceException extends RuntimeException
 
   private static final long serialVersionUID = 1L;
 
-  public CircularReferenceException(String string)
+  public CircularReferenceException(final String string)
   {
     super(string);
   }

@@ -4,12 +4,12 @@ public class SnmpException extends RuntimeException
 {
   private static final long serialVersionUID = 1L;
 
-  public SnmpException(String string)
+  public SnmpException(final String string)
   {
     super(string);
   }
 
-  public SnmpException(Throwable t)
+  public SnmpException(final Throwable t)
   {
     super(t);
   }

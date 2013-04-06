@@ -33,7 +33,8 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
    * @param field
    * @param object
    */
-  protected SnmpLookupField(OID oid, Field field, Object object, Method setter)
+  protected SnmpLookupField(final OID oid, final Field field,
+      final Object object, final Method setter)
   {
     this.oid = oid;
     this.field = field;
@@ -46,7 +47,7 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
    * Compares the OID of this field to the given field.
    */
   @Override
-  public int compareTo(SnmpLookupField o)
+  public int compareTo(final SnmpLookupField o)
   {
     return oid.compareTo(o.oid);
   }
@@ -63,14 +64,14 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
     {
       return doGet();
     }
-    catch (IllegalAccessException e)
+    catch (final IllegalAccessException e)
     {
       throw new SnmpException(e);
     }
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public Annotation getAnnotation(Class annotationClass)
+  public Annotation getAnnotation(final Class annotationClass)
   {
     return field.getAnnotation(annotationClass);
   }
@@ -138,7 +139,7 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
       return true;
   }
 
-  protected void setValue(Object value)
+  protected void setValue(final Object value)
   {
     try
     {
@@ -177,5 +178,5 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
    * @param value
    *          The value to set.
    */
-  abstract void doSet(String value);
+  abstract void doSet(final String value);
 }

@@ -2,6 +2,7 @@ package com.sppad.snmp.constructor.mib;
 
 import java.io.IOException;
 import java.net.URL;
+
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
@@ -22,15 +23,16 @@ public class MibInfo
    *          Where in the parent tree the MIB resides
    * @return A String containing the header info.
    */
-  public static String createMibHeader(String mibName, String rootName,
-      String description, String parentTree, int mibTreeOid)
+  public static String createMibHeader(final String mibName,
+      final String rootName, final String description, final String parentTree,
+      final int mibTreeOid)
   {
     try
     {
-      URL typesUrl = MibInfo.class.getResource("/jotsMibTypes.txt");
-      URL importsUrl = MibInfo.class.getResource("/jotsMibImports.txt");
+      final URL typesUrl = MibInfo.class.getResource("/jotsMibTypes.txt");
+      final URL importsUrl = MibInfo.class.getResource("/jotsMibImports.txt");
 
-      StringBuilder header = new StringBuilder();
+      final StringBuilder header = new StringBuilder();
       header.append(Resources.toString(typesUrl, Charsets.UTF_8));
       header.append("\n\n");
       header.append(mibName + " DEFINITIONS ::= BEGIN\n");

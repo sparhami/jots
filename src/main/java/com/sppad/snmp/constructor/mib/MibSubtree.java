@@ -21,31 +21,7 @@ public class MibSubtree
 
   protected final PrintStream itemPrintStream = new PrintStream(itemByteStream);
 
-  public MibSubtree(List<String> indexTypes)
-  {
-    this.indexTypes = indexTypes;
-  }
-
-  public MibSubtree()
-  {
-    this.indexTypes = Collections.emptyList();
-  }
-
-  public void addEntry(String parentName, String name, int oid,
-      String description)
-  {
-    entryPrintStream.println();
-    entryPrintStream.println(name + "Entry  OBJECT-TYPE");
-    entryPrintStream.println("\tSYNTAX\t\t" + name + "EntryObj");
-    entryPrintStream.println("\tMAX-ACCESS\tnot-accessible");
-    entryPrintStream.println("\tSTATUS\t\tcurrent");
-    entryPrintStream.println("\t::= { " + parentName + "Entry " + oid + " }");
-
-    entryPrintStream.println();
-    entryPrintStream.println(name + "EntryObj ::= SEQUENCE {");
-  }
-
-  private static final String getSyntax(Class<?> type)
+  private static final String getSyntax(final Class<?> type)
   {
     if (type == Integer.class || type == Integer.TYPE)
       return "Integer32";
@@ -59,13 +35,38 @@ public class MibSubtree
     return "OCTET STRING (SIZE(0..65535))";
   }
 
-  public void addItem(String parentName, String name, int oid, Class<?> type,
-      String description, boolean isWritable)
+  public MibSubtree()
+  {
+    this.indexTypes = Collections.emptyList();
+  }
+
+  public MibSubtree(final List<String> indexTypes)
+  {
+    this.indexTypes = indexTypes;
+  }
+
+  public void addEntry(final String parentName, final String name,
+      final int oid, final String description)
+  {
+    entryPrintStream.println();
+    entryPrintStream.println(name + "Entry  OBJECT-TYPE");
+    entryPrintStream.println("\tSYNTAX\t\t" + name + "EntryObj");
+    entryPrintStream.println("\tMAX-ACCESS\tnot-accessible");
+    entryPrintStream.println("\tSTATUS\t\tcurrent");
+    entryPrintStream.println("\t::= { " + parentName + "Entry " + oid + " }");
+
+    entryPrintStream.println();
+    entryPrintStream.println(name + "EntryObj ::= SEQUENCE {");
+  }
+
+  public void addItem(final String parentName, final String name,
+      final int oid, final Class<?> type, final String description,
+      final boolean isWritable)
   {
     addSequenceEntry(name);
 
-    String typeName = getSyntax(type);
-    String maxAccess = isWritable ? "read-write" : "read-only";
+    final String typeName = getSyntax(type);
+    final String maxAccess = isWritable ? "read-write" : "read-only";
 
     itemPrintStream.println();
     itemPrintStream.println(name + " OBJECT-TYPE");
@@ -78,15 +79,15 @@ public class MibSubtree
     itemPrintStream.println("\t::= { " + parentName + "Entry " + oid + " }");
   }
 
-  protected void addSequenceEntry(String name)
-  {
-    entryPrintStream.print(String.format("\t%1$-" + paddingSize + "s", name));
-    entryPrintStream.println("\tOCTET STRING,");
-  }
-
   public ByteArrayOutputStream finish() throws IOException
   {
     itemByteStream.writeTo(entryPrintStream);
     return entryByteStream;
+  }
+
+  protected void addSequenceEntry(final String name)
+  {
+    entryPrintStream.print(String.format("\t%1$-" + paddingSize + "s", name));
+    entryPrintStream.println("\tOCTET STRING,");
   }
 }

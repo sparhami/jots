@@ -1,13 +1,13 @@
 package com.sppad.snmp.lookup;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.lang.reflect.Field;
 
 import org.junit.Test;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 
 import com.sppad.snmp.exceptions.SnmpBadValueException;
-import com.sppad.snmp.lookup.SnmpPrimativeLongLookupField;
 
 public class SnmpPrimativeLongLookupFieldTest
 {
@@ -30,11 +30,11 @@ public class SnmpPrimativeLongLookupFieldTest
   @Test
   public void testGet() throws SecurityException, NoSuchFieldException
   {
-    Field f = TestClass.class.getDeclaredField("testLong");
+    final Field f = TestClass.class.getDeclaredField("testLong");
     f.setAccessible(true);
-    Object obj = new TestClass();
+    final Object obj = new TestClass();
 
-    SnmpPrimativeLongLookupField testField = new SnmpPrimativeLongLookupField(
+    final SnmpPrimativeLongLookupField testField = new SnmpPrimativeLongLookupField(
         null, f, obj, null);
 
     assertThat((Long) testField.get(), is(20L));
@@ -43,11 +43,11 @@ public class SnmpPrimativeLongLookupFieldTest
   @Test
   public void testSet() throws SecurityException, NoSuchFieldException
   {
-    Field f = TestClass.class.getDeclaredField("testLong");
+    final Field f = TestClass.class.getDeclaredField("testLong");
     f.setAccessible(true);
-    Object obj = new TestClass();
+    final Object obj = new TestClass();
 
-    SnmpPrimativeLongLookupField testField = new SnmpPrimativeLongLookupField(
+    final SnmpPrimativeLongLookupField testField = new SnmpPrimativeLongLookupField(
         null, f, obj, null);
 
     testField.doSet("42");
@@ -59,11 +59,11 @@ public class SnmpPrimativeLongLookupFieldTest
     expected = SnmpBadValueException.class)
   public void testSet_badValue() throws SecurityException, NoSuchFieldException
   {
-    Field f = TestClass.class.getDeclaredField("testLong");
+    final Field f = TestClass.class.getDeclaredField("testLong");
     f.setAccessible(true);
-    Object obj = new TestClass();
+    final Object obj = new TestClass();
 
-    SnmpPrimativeLongLookupField testField = new SnmpPrimativeLongLookupField(
+    final SnmpPrimativeLongLookupField testField = new SnmpPrimativeLongLookupField(
         null, f, obj, null);
 
     testField.doSet("bad!");

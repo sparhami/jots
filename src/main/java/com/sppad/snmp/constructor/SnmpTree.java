@@ -38,9 +38,9 @@ public class SnmpTree
   private final int[] prefix;
 
   /** Creates a VariableBinding object for returning OID, value pairs */
-  public static VariableBinding createVarBind(OID oid, Object object)
+  public static VariableBinding createVarBind(final OID oid, final Object object)
   {
-    Variable variable;
+    final Variable variable;
     if (object instanceof Integer)
       variable = new Integer32((Integer) object);
     else
@@ -49,7 +49,7 @@ public class SnmpTree
     return new VariableBinding(oid, variable);
   }
 
-  protected SnmpTree(int[] prefix, SnmpLookupField[] fieldArray)
+  protected SnmpTree(final int[] prefix, final SnmpLookupField[] fieldArray)
   {
     this.prefix = prefix;
     this.lastIndex = fieldArray.length - 1;
@@ -62,18 +62,19 @@ public class SnmpTree
    * @param snmpFields
    *          A sorted set of the SnmpLookupField objects that make up the tree.
    */
-  protected SnmpTree(int[] prefix, SortedSet<SnmpLookupField> snmpFields)
+  protected SnmpTree(final int[] prefix,
+      final SortedSet<SnmpLookupField> snmpFields)
   {
     this(prefix, snmpFields.toArray(new SnmpLookupField[snmpFields.size()]));
   }
 
-  public VariableBinding get(int index)
+  public VariableBinding get(final int index)
   {
-    SnmpLookupField field = getBackingField(index);
+    final SnmpLookupField field = getBackingField(index);
     return createVarBind(field.getOid(), field.get());
   }
 
-  public VariableBinding get(OID oid)
+  public VariableBinding get(final OID oid)
   {
     return createVarBind(oid, getValue(getIndex(oid)));
   }
@@ -88,12 +89,13 @@ public class SnmpTree
    * 
    * @return The annotation if it exists, null otherwise.
    */
-  public Annotation getAnnotation(int index, Class<?> annotationClass)
+  public Annotation getAnnotation(final int index,
+      final Class<?> annotationClass)
   {
     return fieldArray[index].getAnnotation(annotationClass);
   }
 
-  public SnmpLookupField getBackingField(int index)
+  public SnmpLookupField getBackingField(final int index)
   {
     Preconditions.checkArgument(index >= 0, "Index cannot be negative");
 
@@ -110,16 +112,16 @@ public class SnmpTree
    * @param oid
    * @return
    */
-  public VariableBinding getNext(OID oid)
+  public VariableBinding getNext(final OID oid)
   {
     return get(getNextIndex(oid));
   }
 
-  public int getNextIndex(OID oid)
+  public int getNextIndex(final OID oid)
   {
     Preconditions.checkNotNull(oid);
 
-    int index = Math.abs(getIndex(oid) + 1);
+    final int index = Math.abs(getIndex(oid) + 1);
     if (index > lastIndex)
       throw new SnmpPastEndOfTreeException(
           "There are no more values in this MIB");
@@ -135,7 +137,7 @@ public class SnmpTree
     return Arrays.copyOf(prefix, prefix.length);
   }
 
-  public Object getValue(int index)
+  public Object getValue(final int index)
   {
 
     if (index < 0)
@@ -155,11 +157,12 @@ public class SnmpTree
    *          The tree to merge in
    * @return An SnmpTree with fields from both the current object and tree
    */
-  public SnmpTree mergeSnmpTrees(SnmpTree other)
+  public SnmpTree mergeSnmpTrees(final SnmpTree other)
   {
     Preconditions.checkNotNull(other, "argument must not be null");
 
-    List<SnmpLookupField> fields = new ArrayList<>(this.lastIndex);
+    final List<SnmpLookupField> fields = new ArrayList<SnmpLookupField>(
+        this.lastIndex);
 
     int thisIndex = 0; // index in this
     int otherIndex = 0; // index in other
@@ -168,7 +171,7 @@ public class SnmpTree
     {
       SnmpLookupField thisField = this.fieldArray[thisIndex];
       SnmpLookupField otherField = other.fieldArray[otherIndex];
-  
+
       // Ties go to the field from other
       int cmp = otherField.compareTo(thisField);
       fields.add(cmp <= 0 ? otherField : thisField);
@@ -196,7 +199,7 @@ public class SnmpTree
    * @param oid
    * @param value
    */
-  public void set(OID oid, String value)
+  public void set(final OID oid, final String value)
   {
     set(oid, value, true);
   }
@@ -212,7 +215,7 @@ public class SnmpTree
    *          Whether or not to check of the field is writable or force setting
    *          the value
    */
-  public void set(OID oid, String value, boolean checkWritable)
+  public void set(final OID oid, final String value, final boolean checkWritable)
   {
     Preconditions.checkNotNull(oid);
 
@@ -230,10 +233,10 @@ public class SnmpTree
    * @param prefixTwo
    * @return An int array with the common prefix
    */
-  private int[] findCommonPrefix(int[] prefixOne, int[] prefixTwo)
+  private int[] findCommonPrefix(final int[] prefixOne, final int[] prefixTwo)
   {
-    int minPrefixLength = Math.min(prefixOne.length, prefixTwo.length);
-    IntStack prefix = new IntStack(minPrefixLength);
+    final int minPrefixLength = Math.min(prefixOne.length, prefixTwo.length);
+    final IntStack prefix = new IntStack(minPrefixLength);
 
     // add all the OID parts that are the same
     for (int i = 0; i < minPrefixLength; i++)
@@ -263,7 +266,7 @@ public class SnmpTree
 
     while (low <= high)
     {
-      int mid = (low + high) >>> 1;
+      final int mid = (low + high) >>> 1;
 
       int compare = fieldArray[mid].getOid().compareTo(oid);
       if (compare < 0)
@@ -287,7 +290,7 @@ public class SnmpTree
    */
   private SnmpLookupField getLookupField(OID oid)
   {
-    int index = getIndex(oid);
+    final int index = getIndex(oid);
     if (index < 0)
       throw new SnmpOidNotFoundException("Oid not in table");
 

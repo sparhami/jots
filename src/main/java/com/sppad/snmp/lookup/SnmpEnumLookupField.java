@@ -13,7 +13,8 @@ public class SnmpEnumLookupField extends SnmpLookupField
   private final Class<? extends Enum> enumClass;
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public SnmpEnumLookupField(OID oid, Field field, Object object, Method setter)
+  public SnmpEnumLookupField(final OID oid, final Field field,
+      final Object object, final Method setter)
   {
     super(oid, field, object, setter);
 
@@ -28,7 +29,7 @@ public class SnmpEnumLookupField extends SnmpLookupField
 
   @SuppressWarnings("unchecked")
   @Override
-  public void doSet(String value)
+  public void doSet(final String value)
   {
     try
     {

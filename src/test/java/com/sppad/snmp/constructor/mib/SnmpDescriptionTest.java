@@ -1,13 +1,13 @@
 package com.sppad.snmp.constructor.mib;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.lang.reflect.Field;
 
 import org.junit.Test;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 
 import com.sppad.snmp.annotations.BooleanInterfaceComment;
-import com.sppad.snmp.constructor.mib.SnmpDescription;
 
 public class SnmpDescriptionTest
 {
@@ -15,22 +15,21 @@ public class SnmpDescriptionTest
   public void testGetBooleanDescription_class() throws SecurityException,
       NoSuchFieldException
   {
-    Object obj = new Object()
+    final Object obj = new Object()
     {
-      @SuppressWarnings("unused")
       @BooleanInterfaceComment(
         synopsis = "This is something about the field",
         trueSynopsis = "This is a true comment",
         falseSynopsis = "This is a false comment")
-      public Boolean testBoolean = true;
+      public final Boolean testBoolean = true;
     };
 
-    String expectedResult = "This is something about the field";
-    expectedResult += "\n\t\t 'true'  -> This is a true comment";
-    expectedResult += "\n\t\t 'false' -> This is a false comment";
+    final String expectedResult = "This is something about the field"
+        + "\n\t\t 'true'  -> This is a true comment"
+        + "\n\t\t 'false' -> This is a false comment";
 
-    Field testField = obj.getClass().getDeclaredField("testBoolean");
-    String actualResult = SnmpDescription.getDescription(testField);
+    final Field testField = obj.getClass().getDeclaredField("testBoolean");
+    final String actualResult = SnmpDescription.getDescription(testField);
 
     assertThat(actualResult, is(expectedResult));
   }
@@ -39,22 +38,21 @@ public class SnmpDescriptionTest
   public void testGetBooleanDescription_type() throws SecurityException,
       NoSuchFieldException
   {
-    Object obj = new Object()
+    final Object obj = new Object()
     {
-      @SuppressWarnings("unused")
       @BooleanInterfaceComment(
         synopsis = "This is something about the field",
         trueSynopsis = "This is a true comment",
         falseSynopsis = "This is a false comment")
-      public boolean testBoolean = true;
+      public final boolean testBoolean = true;
     };
 
-    String expectedResult = "This is something about the field";
-    expectedResult += "\n\t\t 'true'  -> This is a true comment";
-    expectedResult += "\n\t\t 'false' -> This is a false comment";
+    final String expectedResult = "This is something about the field"
+        + "\n\t\t 'true'  -> This is a true comment"
+        + "\n\t\t 'false' -> This is a false comment";
 
-    Field testField = obj.getClass().getDeclaredField("testBoolean");
-    String actualResult = SnmpDescription.getDescription(testField);
+    final Field testField = obj.getClass().getDeclaredField("testBoolean");
+    final String actualResult = SnmpDescription.getDescription(testField);
 
     assertThat(actualResult, is(expectedResult));
   }

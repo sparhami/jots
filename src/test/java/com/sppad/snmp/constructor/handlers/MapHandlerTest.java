@@ -1,14 +1,12 @@
 package com.sppad.snmp.constructor.handlers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-
-import com.sppad.snmp.constructor.handlers.MapHandler;
 
 public class MapHandlerTest
 {
@@ -41,12 +39,12 @@ public class MapHandlerTest
   public void testGetValueType_generic() throws SecurityException,
       NoSuchFieldException
   {
-    TestObjectTwo<TestSuperclass> obj = new TestObjectTwo<TestSuperclass>();
+    final TestObjectTwo<TestSuperclass> obj = new TestObjectTwo<TestSuperclass>();
     obj.testMap.put("one", new TestSubclassTwo());
     obj.testMap.put("two", new TestSubclassTwo());
 
-    Field f = obj.getClass().getDeclaredField("testMap");
-    Class<?> klass = MapHandler.getValueType(f, obj.testMap);
+    final Field f = obj.getClass().getDeclaredField("testMap");
+    final Class<?> klass = MapHandler.getValueType(f, obj.testMap);
     assertEquals(TestSubclassTwo.class, klass);
   }
 
@@ -54,12 +52,12 @@ public class MapHandlerTest
   public void testGetValueType_generic_parent() throws SecurityException,
       NoSuchFieldException
   {
-    TestObjectTwo<TestSuperclass> obj = new TestObjectTwo<TestSuperclass>();
+    final TestObjectTwo<TestSuperclass> obj = new TestObjectTwo<TestSuperclass>();
     obj.testMap.put("one", new TestSubclassTwo());
     obj.testMap.put("two", new TestSubclassOne());
 
-    Field f = obj.getClass().getDeclaredField("testMap");
-    Class<?> klass = MapHandler.getValueType(f, obj.testMap);
+    final Field f = obj.getClass().getDeclaredField("testMap");
+    final Class<?> klass = MapHandler.getValueType(f, obj.testMap);
     assertEquals(TestSuperclass.class, klass);
   }
 
@@ -67,12 +65,12 @@ public class MapHandlerTest
   public void testGetValueType_specified() throws SecurityException,
       NoSuchFieldException
   {
-    TestObjectOne obj = new TestObjectOne();
+    final TestObjectOne obj = new TestObjectOne();
     obj.testMap.put("one", new TestSubclassTwo());
     obj.testMap.put("two", new TestSubclassTwo());
 
-    Field f = TestObjectOne.class.getDeclaredField("testMap");
-    Class<?> klass = MapHandler.getValueType(f, obj.testMap);
+    final Field f = TestObjectOne.class.getDeclaredField("testMap");
+    final Class<?> klass = MapHandler.getValueType(f, obj.testMap);
     assertEquals(TestSuperclass.class, klass);
   }
 }

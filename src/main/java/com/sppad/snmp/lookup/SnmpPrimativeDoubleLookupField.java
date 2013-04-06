@@ -9,8 +9,8 @@ import com.sppad.snmp.exceptions.SnmpBadValueException;
 
 public class SnmpPrimativeDoubleLookupField extends SnmpLookupField
 {
-  public SnmpPrimativeDoubleLookupField(OID oid, Field field, Object object,
-      Method setter)
+  public SnmpPrimativeDoubleLookupField(final OID oid, final Field field,
+      final Object object, final Method setter)
   {
     super(oid, field, object, setter);
   }
@@ -22,13 +22,13 @@ public class SnmpPrimativeDoubleLookupField extends SnmpLookupField
   }
 
   @Override
-  public void doSet(String value)
+  public void doSet(final String value)
   {
     try
     {
       setValue(Double.parseDouble(value));
     }
-    catch (NumberFormatException e)
+    catch (final NumberFormatException e)
     {
       throw new SnmpBadValueException(value);
     }

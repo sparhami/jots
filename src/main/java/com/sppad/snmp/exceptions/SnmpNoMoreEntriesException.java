@@ -4,7 +4,7 @@ public class SnmpNoMoreEntriesException extends SnmpException
 {
   private static final long serialVersionUID = 1L;
 
-  public SnmpNoMoreEntriesException(String string)
+  public SnmpNoMoreEntriesException(final String string)
   {
     super(string);
   }

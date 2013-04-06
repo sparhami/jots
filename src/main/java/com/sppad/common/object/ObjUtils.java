@@ -9,7 +9,7 @@ public class ObjUtils
    *          The object to get the information for.
    * @return A String containing the class name and the object hashcode.
    */
-  public static String getRefInfo(Object object)
+  public static String getRefInfo(final Object object)
   {
     return object.getClass() + "@"
         + Integer.toHexString(System.identityHashCode(object));

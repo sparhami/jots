@@ -27,21 +27,28 @@ public class SnmpTreeSkeleton
 
   private final SortedSet<SnmpLookupField> sortSet = new TreeSet<SnmpLookupField>();
 
-  public SnmpTreeSkeleton(int[] prefix)
+  public SnmpTreeSkeleton(final int[] prefix)
   {
     this.prefix = prefix;
   }
 
-  public void add(OID oid, Field field, Object object, Method setter)
+  public void add(final OID oid, final Field field, final Object object,
+      final Method setter)
   {
-    SnmpLookupField lookupField = createLookupField(oid, field, object, setter);
+    final SnmpLookupField lookupField = createLookupField(oid, field, object,
+        setter);
     sortSet.add(lookupField);
   }
 
-  private SnmpLookupField createLookupField(OID oid, Field field,
-      Object object, Method setter)
+  public SnmpTree finishTreeConstruction()
   {
-    Class<?> fieldType = field.getType();
+    return new SnmpTree(prefix, sortSet);
+  }
+
+  private SnmpLookupField createLookupField(final OID oid, final Field field,
+      final Object object, final Method setter)
+  {
+    final Class<?> fieldType = field.getType();
 
     // Tried a map / factory pattern here for looking up, but performance
     // was significantly worse. May need to revisit this in the future.
@@ -62,30 +69,25 @@ public class SnmpTreeSkeleton
 
     if (fieldType == Long.class)
       return new SnmpLongLookupField(oid, field, object, setter);
-    
+
     if (fieldType == Float.TYPE)
       return new SnmpPrimativeFloatLookupField(oid, field, object, setter);
-    
+
     if (fieldType == Float.class)
-      return  new SnmpFloatLookupField(oid, field, object, setter);
+      return new SnmpFloatLookupField(oid, field, object, setter);
 
     if (fieldType == Double.TYPE)
       return new SnmpPrimativeDoubleLookupField(oid, field, object, setter);
-    
+
     if (fieldType == Double.class)
-      return  new SnmpDoubleLookupField(oid, field, object, setter);
-    
+      return new SnmpDoubleLookupField(oid, field, object, setter);
+
     if (fieldType == String.class)
       return new SnmpStringLookupField(oid, field, object, setter);
-    
+
     if (fieldType.isEnum())
       return new SnmpEnumLookupField(oid, field, object, setter);
-    
-    throw new RuntimeException("Class not supported: " + fieldType);
-  }
 
-  public SnmpTree finishTreeConstruction()
-  {
-    return new SnmpTree(prefix, sortSet);
+    throw new RuntimeException("Class not supported: " + fieldType);
   }
 }

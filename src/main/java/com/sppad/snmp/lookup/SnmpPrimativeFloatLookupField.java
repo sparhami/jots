@@ -9,8 +9,8 @@ import com.sppad.snmp.exceptions.SnmpBadValueException;
 
 public class SnmpPrimativeFloatLookupField extends SnmpLookupField
 {
-  public SnmpPrimativeFloatLookupField(OID oid, Field field, Object object,
-      Method setter)
+  public SnmpPrimativeFloatLookupField(final OID oid, final Field field,
+      final Object object, final Method setter)
   {
     super(oid, field, object, setter);
   }
@@ -22,7 +22,7 @@ public class SnmpPrimativeFloatLookupField extends SnmpLookupField
   }
 
   @Override
-  public void doSet(String value)
+  public void doSet(final String value)
   {
     try
     {

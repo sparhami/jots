@@ -1,13 +1,11 @@
 package com.sppad.snmp.constructor;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Test;
-
-import com.sppad.snmp.constructor.ClassInfo;
-
-import static org.junit.Assert.*;
 
 public class ClassInfoTest
 {
@@ -37,7 +35,7 @@ public class ClassInfoTest
   @Test
   public void testGetLeastCommonSuperclass_list()
   {
-    List<Class<?>> testList = new LinkedList<Class<?>>();
+    final List<Class<?>> testList = new LinkedList<Class<?>>();
     testList.add(testThree.class);
     testList.add(testTwo.class);
     testList.add(testThree.class);

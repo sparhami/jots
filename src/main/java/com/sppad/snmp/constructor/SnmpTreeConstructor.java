@@ -99,7 +99,7 @@ public class SnmpTreeConstructor
     final String snmpName;
     final boolean tableType;
 
-    public FieldInfo(Field field)
+    public FieldInfo(final Field field)
     {
       SnmpName snmpNameObj = field.getAnnotation(SnmpName.class);
 
@@ -135,12 +135,12 @@ public class SnmpTreeConstructor
      *          A field to check if it should be included or not
      * @return True if it should be included, false otherwise
      */
-    private boolean checkIfShouldSkip(Field field)
+    private boolean checkIfShouldSkip(final Field field)
     {
-      int modifiers = field.getModifiers();
+      final int modifiers = field.getModifiers();
 
-      boolean include = field.getAnnotation(SnmpInclude.class) != null;
-      boolean ignore = field.getAnnotation(SnmpIgnore.class) != null;
+      final boolean include = field.getAnnotation(SnmpInclude.class) != null;
+      final boolean ignore = field.getAnnotation(SnmpIgnore.class) != null;
 
       if (include)
         return true;
@@ -158,12 +158,12 @@ public class SnmpTreeConstructor
   }
 
   /** Gets / caches class info for a particular class */
-  private LoadingCache<Class<?>, ClassInfo> classInfoCache = CacheBuilder
+  private final LoadingCache<Class<?>, ClassInfo> classInfoCache = CacheBuilder
       .newBuilder().maximumSize(1000)
       .build(new CacheLoader<Class<?>, ClassInfo>()
       {
         @Override
-        public ClassInfo load(Class<?> key)
+        public ClassInfo load(final Class<?> key)
         {
           return new ClassInfo(key);
         }
@@ -176,11 +176,11 @@ public class SnmpTreeConstructor
   private final DefaultHandler defaultHandler = new DefaultHandler();
 
   /** Gets / caches class info for a particular field */
-  private LoadingCache<Field, FieldInfo> fieldInfoCache = CacheBuilder
+  private final LoadingCache<Field, FieldInfo> fieldInfoCache = CacheBuilder
       .newBuilder().maximumSize(1000).build(new CacheLoader<Field, FieldInfo>()
       {
         @Override
-        public FieldInfo load(Field key)
+        public FieldInfo load(final Field key)
         {
           return new FieldInfo(key);
         }
@@ -202,12 +202,13 @@ public class SnmpTreeConstructor
   private final NullHandler nullHandler = new NullHandler();
 
   /** Gets / caches the handler for a given class */
-  private LoadingCache<Class<?>, ObjectHandler> objectHandlerCache = CacheBuilder
+  private final LoadingCache<Class<?>, ObjectHandler> objectHandlerCache = CacheBuilder
       .newBuilder().maximumSize(1000)
       .build(new CacheLoader<Class<?>, ObjectHandler>()
       {
-        public Class<?> getFirstHandledClass(Class<?> klass)
+        public Class<?> getFirstHandledClass(final Class<?> klass)
         {
+
           // check if the class is already handled
           if (handlers.containsKey(klass))
             return klass;
@@ -218,16 +219,17 @@ public class SnmpTreeConstructor
               return interfaceClass;
 
           // next, need to check all super classes
-          while ((klass = klass.getSuperclass()) != null)
-            if (handlers.containsKey(klass))
-              return klass;
+          Class<?> currentClass = klass;
+          while ((currentClass = currentClass.getSuperclass()) != null)
+            if (handlers.containsKey(currentClass))
+              return currentClass;
 
           // nothing matches, just handle it as an object
           return Object.class;
         }
 
         @Override
-        public ObjectHandler load(Class<?> key)
+        public ObjectHandler load(final Class<?> key)
         {
           return handlers.get(getFirstHandledClass(key));
         }
@@ -283,34 +285,34 @@ public class SnmpTreeConstructor
    * 
    * @see SnmpTree
    */
-  public static SnmpTree createSnmpTree(int[] prefix, Object obj)
+  public static SnmpTree createSnmpTree(final int[] prefix, final Object obj)
       throws IllegalAccessException, IllegalArgumentException,
       InvocationTargetException
   {
-    SnmpTreeConstructor stc = new SnmpTreeConstructor(prefix, obj);
+    final SnmpTreeConstructor stc = new SnmpTreeConstructor(prefix, obj);
     return stc.snmpTreeSkeleton.finishTreeConstruction();
   }
 
-  public static SnmpTree createSnmpTree(String mibName, String rootName,
-      int[] prefix, Object obj, OutputStream mibOutputStream)
-      throws IllegalAccessException, IllegalArgumentException,
-      InvocationTargetException, IOException
+  public static SnmpTree createSnmpTree(final String mibName,
+      final String rootName, final int[] prefix, final Object obj,
+      final OutputStream mibOutputStream) throws IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException, IOException
   {
     Preconditions.checkNotNull(mibOutputStream);
 
-    SnmpTreeConstructor stc = new SnmpTreeConstructor(mibName, rootName,
+    final SnmpTreeConstructor stc = new SnmpTreeConstructor(mibName, rootName,
         prefix, obj, mibOutputStream);
     return stc.snmpTreeSkeleton.finishTreeConstruction();
   }
 
-  private static Method getSetterMethod(Field field, Class<?> klass)
+  private static Method getSetterMethod(final Field field, final Class<?> klass)
   {
     try
     {
       if (field.getAnnotation(SnmpNotSettable.class) != null)
         return null;
 
-      String setterName = SnmpUtils.getSetterName(field.getName());
+      final String setterName = SnmpUtils.getSetterName(field.getName());
       Class<?> currentClass = klass;
       while (currentClass != Object.class)
       {
@@ -355,7 +357,7 @@ public class SnmpTreeConstructor
    * @throws IllegalAccessException
    * @throws IllegalArgumentException
    */
-  private SnmpTreeConstructor(int[] prefix, Object obj)
+  private SnmpTreeConstructor(final int[] prefix, final Object obj)
       throws IllegalArgumentException, IllegalAccessException,
       InvocationTargetException
   {
@@ -370,8 +372,8 @@ public class SnmpTreeConstructor
 
   }
 
-  private SnmpTreeConstructor(String mibName, String rootName, int[] prefix,
-      Object obj, OutputStream mibOutputStream)
+  private SnmpTreeConstructor(final String mibName, final String rootName,
+      final int[] prefix, final Object obj, final OutputStream mibOutputStream)
       throws IllegalArgumentException, IllegalAccessException,
       InvocationTargetException, IOException
   {
@@ -388,9 +390,9 @@ public class SnmpTreeConstructor
     this.mc.finish();
   }
 
-  public void descend(Object obj, Class<?> baseClass, Field field)
-      throws IllegalArgumentException, IllegalAccessException,
-      InvocationTargetException
+  public void descend(final Object obj, final Class<?> baseClass,
+      final Field field) throws IllegalArgumentException,
+      IllegalAccessException, InvocationTargetException
   {
     if (obj == null)
     {
@@ -410,7 +412,7 @@ public class SnmpTreeConstructor
       checkForCircularReference(obj);
       onEnter(obj, field);
 
-      Collection<Field> objectFields = getClassInfo(baseClass).fields;
+      final Collection<Field> objectFields = getClassInfo(baseClass).fields;
       for (final Field objectField : objectFields)
         descendIntoField(obj, objectField);
 
@@ -418,9 +420,10 @@ public class SnmpTreeConstructor
     }
   }
 
-  public void onCollectionEnter(Object obj, Field field, Class<?> keyType)
+  public void onCollectionEnter(final Object obj, final Field field,
+      final Class<?> keyType)
   {
-    FieldInfo info = getFieldInfo(field);
+    final FieldInfo info = getFieldInfo(field);
 
     nameStack.push(info.snmpName);
     tableOidIndexStack.push(oidStack.size());
@@ -436,9 +439,9 @@ public class SnmpTreeConstructor
     oidExtLenStack.push(1);
   }
 
-  public void onCollectionExit(Object obj, Field field)
+  public void onCollectionExit(final Object obj, final Field field)
   {
-    FieldInfo info = getFieldInfo(field);
+    final FieldInfo info = getFieldInfo(field);
 
     int count = oidExtLenStack.pop();
     oidExtStack.remove(count);
@@ -452,7 +455,8 @@ public class SnmpTreeConstructor
     nameStack.pop();
   }
 
-  public void onNextCollectionValue(Object obj, Object collectionIndex)
+  public void onNextCollectionValue(final Object obj,
+      final Object collectionIndex)
   {
     // remove extension by removing all ints for that extension
     // the oidExtLenStack lets us know how many entries to remove
@@ -465,27 +469,27 @@ public class SnmpTreeConstructor
       extensionObject = collectionIndex;
 
     // add the extension (dynamic oid part) to the extension stack
-    int[] extension = SnmpUtils.getSnmpExtension(extensionObject);
+    final int[] extension = SnmpUtils.getSnmpExtension(extensionObject);
     oidExtLenStack.push(extension.length);
     oidExtStack.copyFrom(extension, 0, extension.length);
   }
 
-  protected String buildStringPath(Deque<String> names, boolean includeLast)
+  protected String buildStringPath(final Deque<String> names,
+      final boolean includeLast)
   {
     final Iterator<String> nameIter = names.descendingIterator();
-
-    StringBuilder builder = new StringBuilder();
+    final StringBuilder builder = new StringBuilder();
 
     while (nameIter.hasNext())
     {
-      String nextName = nameIter.next();
+      final String nextName = nameIter.next();
       if (!includeLast && !nameIter.hasNext())
         break;
 
-      int lastNameStartIndex = builder.length();
+      final int lastNameStartIndex = builder.length();
       builder.append(nextName);
 
-      char firstLetter = Character.toUpperCase(builder
+      final char firstLetter = Character.toUpperCase(builder
           .charAt(lastNameStartIndex));
       builder.setCharAt(lastNameStartIndex, firstLetter);
     }
@@ -493,7 +497,7 @@ public class SnmpTreeConstructor
     return builder.toString();
   }
 
-  protected void descendIntoField(Object obj, Field field)
+  protected void descendIntoField(final Object obj, final Field field)
       throws IllegalArgumentException, IllegalAccessException,
       InvocationTargetException
   {
@@ -504,7 +508,7 @@ public class SnmpTreeConstructor
 
     onNextField(obj, field);
 
-    Object nextObject = field.get(obj);
+    final Object nextObject = field.get(obj);
     if (nextObject == null)
       nullHandler.handle(this, obj, field);
     else if (!getFieldInfo(field).simple)
@@ -519,8 +523,8 @@ public class SnmpTreeConstructor
    */
   protected String getObjectHandleStack()
   {
-    StringBuilder stackBuilder = new StringBuilder();
-    for (Object stackObject : objectHandleStack.values())
+    final StringBuilder stackBuilder = new StringBuilder();
+    for (final Object stackObject : objectHandleStack.values())
     {
       stackBuilder.append("\n    ");
       stackBuilder.append(ObjUtils.getRefInfo(stackObject));
@@ -529,25 +533,25 @@ public class SnmpTreeConstructor
     return stackBuilder.toString();
   }
 
-  protected Object getSnmpIndex(Object obj)
+  protected Object getSnmpIndex(final Object obj)
   {
 
     try
     {
-      ClassInfo info = getClassInfo(obj.getClass());
-      Field extensionField = info.extensionField;
+      final ClassInfo info = getClassInfo(obj.getClass());
+      final Field extensionField = info.extensionField;
       if (info.extensionField != null)
       {
         extensionField.setAccessible(true);
         return extensionField.get(obj);
       }
     }
-    catch (IllegalArgumentException e)
+    catch (final IllegalArgumentException e)
     {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    catch (IllegalAccessException e)
+    catch (final IllegalAccessException e)
     {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -556,40 +560,32 @@ public class SnmpTreeConstructor
     return null;
   }
 
-  protected boolean isTableType(Class<?> klass)
+  protected boolean isTableType(final Class<?> klass)
   {
     return getHandler(klass) != defaultHandler;
   }
 
-  protected void onEnter(Object obj, Field field)
+  protected void onEnter(final Object obj, final Field field)
   {
     if (field != null && !getFieldInfo(field).tableType)
-    {
       nameStack.push(field.getName());
-      // if (createMib)
-      // inTableNameStackStack.peek().push(field.getName());
-    }
 
     objectHandleStack.push(obj);
     oidStack.push(0);
   }
 
-  protected void onExit(Object obj, Field field)
+  protected void onExit(final Object obj, final Field field)
   {
     oidStack.pop();
     objectHandleStack.pop();
 
     if (field != null && !getFieldInfo(field).tableType)
-    {
-      // if (createMib)
-      // inTableNameStackStack.peek().pop();
       nameStack.pop();
-    }
   }
 
-  protected void onNextField(Object obj, Field field)
+  protected void onNextField(final Object obj, final Field field)
   {
-    FieldInfo info = getFieldInfo(field);
+    final FieldInfo info = getFieldInfo(field);
     nameStack.push(info.snmpName);
 
     // increment current oid by one if not a table
@@ -606,18 +602,18 @@ public class SnmpTreeConstructor
     nameStack.pop();
   }
 
-  protected void postModifiyOidForTable(FieldInfo info)
+  protected void postModifiyOidForTable(final FieldInfo info)
   {
-    String parent = tableNameStack.peek();
-    String name = parent + "." + nameStack.peek();
+    final String parent = tableNameStack.peek();
+    final String name = parent + "." + nameStack.peek();
     oidStack.clear();
     oidStack.copyFrom(savedOidStackMap.get(name));
   }
 
-  protected void preModifiyOidForTable(FieldInfo info)
+  protected void preModifiyOidForTable(final FieldInfo info)
   {
-    String parent = tableNameStack.peek();
-    String name = parent + "." + nameStack.peek();
+    final String parent = tableNameStack.peek();
+    final String name = parent + "." + nameStack.peek();
 
     // TODO - this shouldn't be based off name, but rather OID?
     Integer oid = subTableOidModMap.get(name);
@@ -634,25 +630,25 @@ public class SnmpTreeConstructor
       savedOidStackMap.put(name, new IntStack(oidStack));
     }
 
-    int index = tableOidIndexStack.get(tableOidIndexStack.size() - 2);
-    int count = oidStack.size() - index + 1;
+    final int index = tableOidIndexStack.get(tableOidIndexStack.size() - 2);
+    final int count = oidStack.size() - index + 1;
 
     oidStack.remove(count);
     oidStack.push(oid);
   }
 
-  private void addToMib(FieldInfo info, Class<?> keyType,
-      Class<?> enclosingClass)
+  private void addToMib(final FieldInfo info, final Class<?> keyType,
+      final Class<?> enclosingClass)
   {
     if (!info.oidVisitedMap.contains(oidStack))
     {
-      int oid = oidStack.peek();
+      final int oid = oidStack.peek();
       // check greater than 1 because the current table is in the name
       // stack
-      boolean inTable = (tableNameStack.size() > 1);
+      final boolean inTable = (tableNameStack.size() > 1);
 
-      String name = buildStringPath(nameStack, true);
-      String parent = buildStringPath(nameStack, false);
+      final String name = buildStringPath(nameStack, true);
+      final String parent = buildStringPath(nameStack, false);
 
       if (info.tableType)
         mc.addTable(parent, name, oid, inTable, "", keyType);
@@ -666,9 +662,9 @@ public class SnmpTreeConstructor
     }
   }
 
-  private void addToSnmpTable(Object obj, FieldInfo info)
+  private void addToSnmpTable(final Object obj, final FieldInfo info)
   {
-    OID oid = new JotsOID(prefix, oidStack, oidExtStack);
+    final OID oid = new JotsOID(prefix, oidStack, oidExtStack);
     snmpTreeSkeleton.add(oid, info.field, obj, info.setter);
   }
 
@@ -681,21 +677,21 @@ public class SnmpTreeConstructor
    * @throws CircularReferenceException
    *           if a circular reference is encountered.
    */
-  private void checkForCircularReference(Object obj)
+  private void checkForCircularReference(final Object obj)
   {
     // check for circular reference: if the stack has the current object,
     // then we visited it on the way down
     if (objectHandleStack.contains(obj))
     {
-      String exceptionString = "Cannot handle circular references. Can make fields with circular references transient to skip.";
-      exceptionString += "\nOn object: " + ObjUtils.getRefInfo(obj);
-      exceptionString += "\nStack:" + getObjectHandleStack();
+      final String exceptionString = "Cannot handle circular references. Can make fields with circular references transient to skip."
+          + ("\nOn object: " + ObjUtils.getRefInfo(obj))
+          + ("\nStack:" + getObjectHandleStack());
 
       throw new CircularReferenceException(exceptionString);
     }
   }
 
-  private ClassInfo getClassInfo(Class<?> klass)
+  private ClassInfo getClassInfo(final Class<?> klass)
   {
     try
     {
@@ -707,7 +703,7 @@ public class SnmpTreeConstructor
     }
   }
 
-  private FieldInfo getFieldInfo(Field field)
+  private FieldInfo getFieldInfo(final Field field)
   {
     try
     {
@@ -720,7 +716,7 @@ public class SnmpTreeConstructor
   }
 
   // For some reason, performance is much better when using this function
-  private ObjectHandler getHandler(Class<?> klass)
+  private ObjectHandler getHandler(final Class<?> klass)
   {
     try
     {

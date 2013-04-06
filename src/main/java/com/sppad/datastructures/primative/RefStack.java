@@ -4,7 +4,8 @@ package com.sppad.datastructures.primative;
  * A stack of Objects. Unlike LinkedList or Stack, contains uses == rather than
  * the equals method.
  * 
- * @param <T> The type of the objects stored in the stack
+ * @param <T>
+ *          The type of the objects stored in the stack
  */
 public class RefStack<T>
 {
@@ -20,7 +21,7 @@ public class RefStack<T>
   }
 
   @SuppressWarnings("unchecked")
-  public RefStack(int initialCapacity)
+  public RefStack(final int initialCapacity)
   {
     backingArray = (T[]) new Object[initialCapacity];
   }
@@ -30,17 +31,17 @@ public class RefStack<T>
     topIndex = -1;
   }
 
-  public boolean contains(T object)
+  public boolean contains(final T object)
   {
-    for (int i = 0; i < topIndex; i++)
-      if (backingArray[i] == object)
+    for (final T element : backingArray)
+      if (element == object)
         return true;
 
     return false;
   }
 
   @Override
-  public boolean equals(Object o)
+  public boolean equals(final Object o)
   {
     if (this == o)
       return true;
@@ -49,7 +50,7 @@ public class RefStack<T>
       return false;
 
     @SuppressWarnings("unchecked")
-    RefStack<T> other = (RefStack<T>) o;
+    final RefStack<T> other = (RefStack<T>) o;
 
     if (topIndex != other.topIndex)
       return false;
@@ -61,7 +62,7 @@ public class RefStack<T>
     return true;
   }
 
-  public T get(int index)
+  public T get(final int index)
   {
     return backingArray[index];
   }
@@ -86,7 +87,7 @@ public class RefStack<T>
     return backingArray[topIndex--];
   }
 
-  public void push(T value)
+  public void push(final T value)
   {
     if (topIndex + 1 >= backingArray.length)
       increaseSize(backingArray.length + incrementSize);
@@ -94,12 +95,12 @@ public class RefStack<T>
     backingArray[++topIndex] = value;
   }
 
-  public void remove(int count)
+  public void remove(final int count)
   {
     topIndex -= count;
   }
 
-  public void set(int index, T value)
+  public void set(final int index, final T value)
   {
     backingArray[index] = value;
   }
@@ -112,12 +113,10 @@ public class RefStack<T>
   @Override
   public String toString()
   {
-    StringBuilder builder = new StringBuilder("[");
+    final StringBuilder builder = new StringBuilder("[");
 
     for (int i = 0; i <= topIndex; i++)
-    {
       builder.append(" " + backingArray[i] + ",");
-    }
 
     builder.setCharAt(builder.length() - 1, ' ');
     builder.append("]");
@@ -132,7 +131,7 @@ public class RefStack<T>
   @SuppressWarnings("unchecked")
   private void increaseSize(int newSize)
   {
-    T[] newBackingArray = (T[]) new Object[newSize];
+    final T[] newBackingArray = (T[]) new Object[newSize];
     System.arraycopy(backingArray, 0, newBackingArray, 0, backingArray.length);
     backingArray = newBackingArray;
   }

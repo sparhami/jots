@@ -5,17 +5,17 @@ import java.net.InetSocketAddress;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snmp4j.*;
-import org.snmp4j.security.AuthSHA;
-import org.snmp4j.security.PrivAES128;
-import org.snmp4j.security.SecurityModels;
-import org.snmp4j.security.SecurityProtocols;
-import org.snmp4j.security.USM;
-import org.snmp4j.security.UsmUser;
-import org.snmp4j.smi.*;
+import org.snmp4j.CommandResponder;
+import org.snmp4j.CommandResponderEvent;
+import org.snmp4j.MessageException;
+import org.snmp4j.PDU;
+import org.snmp4j.Snmp;
+import org.snmp4j.TransportMapping;
+import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.smi.TcpAddress;
+import org.snmp4j.smi.UdpAddress;
 import org.snmp4j.transport.DefaultTcpTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
-import org.snmp4j.mp.SnmpConstants;
 
 import com.sppad.snmp.agent.SnmpAgent.Protocol;
 import com.sppad.snmp.exceptions.SnmpInformException;
@@ -33,7 +33,7 @@ public abstract class SnmpTrapReceiver implements CommandResponder
   /** TransportMapping used for sending / receiving data */
   private final TransportMapping<?> transport;
 
-  public SnmpTrapReceiver(InetSocketAddress address, Protocol proto)
+  public SnmpTrapReceiver(final InetSocketAddress address, final Protocol proto)
       throws IOException
   {
     if (proto == Protocol.udp)
@@ -79,15 +79,15 @@ public abstract class SnmpTrapReceiver implements CommandResponder
     snmp.close();
   }
 
-  public void processInform(CommandResponderEvent request)
+  public void processInform(final CommandResponderEvent request)
   {
-    PDU response = new PDU();
+    final PDU response = new PDU();
 
     try
     {
       processTrap(request);
     }
-    catch (SnmpInformException e)
+    catch (final SnmpInformException e)
     {
       response.setErrorStatus(PDU.badValue);
       response.setErrorIndex(e.index);
@@ -104,18 +104,18 @@ public abstract class SnmpTrapReceiver implements CommandResponder
           request.getSecurityName(), request.getSecurityLevel(), response,
           request.getMaxSizeResponsePDU(), request.getStateReference(), null);
     }
-    catch (MessageException e)
+    catch (final MessageException e)
     {
       logger.error("Exception sending inform response: ", e);
     }
   }
 
   @Override
-  public void processPdu(CommandResponderEvent request)
+  public void processPdu(final CommandResponderEvent request)
   {
     logger.debug("Received trap: {}", request.getPDU());
 
-    PDU command = request.getPDU();
+    final PDU command = request.getPDU();
 
     try
     {
@@ -132,7 +132,7 @@ public abstract class SnmpTrapReceiver implements CommandResponder
               PDU.getTypeString(command.getType())));
       }
     }
-    catch (Exception e)
+    catch (final Exception e)
     {
       logError(request, e);
     }
@@ -140,11 +140,11 @@ public abstract class SnmpTrapReceiver implements CommandResponder
     request.setProcessed(true);
   }
 
-  protected abstract void processTrap(CommandResponderEvent request);
+  protected abstract void processTrap(final CommandResponderEvent request);
 
-  private void logError(CommandResponderEvent request, Throwable t)
+  private void logError(final CommandResponderEvent request, final Throwable t)
   {
-    String commandType = PDU.getTypeString(request.getPDU().getType());
+    final String commandType = PDU.getTypeString(request.getPDU().getType());
 
     logger.error("Exception while handling {} {} : {}", new Object[] {
         commandType, request.getPDU(), t.getMessage() });

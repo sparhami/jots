@@ -8,9 +8,9 @@ import com.sppad.snmp.annotations.IntegerInterfaceComment;
 
 public class SnmpDescription
 {
-  public static String getDescription(Field field)
+  public static String getDescription(final Field field)
   {
-    Type type = field.getType();
+    final Type type = field.getType();
 
     if (type.equals(Boolean.class) || type.equals(Boolean.TYPE))
       return getBooleanDescription(field);
@@ -21,15 +21,15 @@ public class SnmpDescription
     return null;
   }
 
-  private static String getBooleanDescription(Field field)
+  private static String getBooleanDescription(final Field field)
   {
-    String descriptionString;
+    final String descriptionString;
 
     BooleanInterfaceComment comment = field
         .getAnnotation(BooleanInterfaceComment.class);
     if (comment != null)
     {
-      StringBuilder description = new StringBuilder();
+      final StringBuilder description = new StringBuilder();
       description.append(comment.synopsis());
       description.append("\n\t\t 'true'  -> ");
       description.append(comment.trueSynopsis());
@@ -48,13 +48,13 @@ public class SnmpDescription
 
   private static String getIntegerDescription(Field field)
   {
-    String descriptionString;
+    final String descriptionString;
 
     IntegerInterfaceComment comment = field
         .getAnnotation(IntegerInterfaceComment.class);
     if (comment != null)
     {
-      StringBuilder description = new StringBuilder();
+      final StringBuilder description = new StringBuilder();
       description.append(comment.synopsis());
       description.append("\n\t\t 'min value'  -> ");
       description.append(comment.minValue());
