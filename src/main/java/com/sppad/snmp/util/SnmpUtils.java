@@ -3,6 +3,8 @@ package com.sppad.snmp.util;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.sppad.datastructures.primative.IntStack;
+
 public class SnmpUtils
 {
   private static final Set<Class<?>> builtinClasses = new HashSet<Class<?>>();
@@ -17,6 +19,30 @@ public class SnmpUtils
     builtinClasses.add(Double.class);
     builtinClasses.add(Character.class);
     builtinClasses.add(String.class);
+  }
+
+  /**
+   * Finds the common prefix OID for the two given prefixes.
+   * 
+   * @param prefixOne
+   * @param prefixTwo
+   * @return An int array with the common prefix
+   */
+  public static int[] findCommonPrefix(
+      final int[] prefixOne,
+      final int[] prefixTwo)
+  {
+    final int minPrefixLength = Math.min(prefixOne.length, prefixTwo.length);
+    final IntStack prefix = new IntStack(minPrefixLength);
+
+    // add all the OID parts that are the same
+    for (int i = 0; i < minPrefixLength; i++)
+      if (prefixOne[i] != prefixTwo[i])
+        break;
+      else
+        prefix.push(prefixOne[i]);
+
+    return prefix.toArray();
   }
 
   /**

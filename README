@@ -113,13 +113,19 @@ FooStatus OBJECT-TYPE
 
 3.1 OID lookups
 
-When supplying an OID for a SNMP get/set, the field first needs to be looked up in the tree. This is done by peforming a binary search across all the fields in the tree, giving it a complexity of O(log n).
+When supplying an OID for a SNMP get/set, the field first needs to be looked up in the tree. This is done by peforming a binary search across all the fields in the tree, giving it a complexity of O(log n). OIDs for gets/sets are cached by a controllable cache size for each SnmpTree.
 
-3.2 Gets
+3.2 Get Methods
+
+3.2.1 Get
 
 When an OID is requested, the value from the field corresponding to that OID is returned directly. That is, the corresponding getter, if any, is not used.
 
-3.3 Sets
+3.2.2 Getnext / Walk
+
+Use of snmpwalk is highly discouraged due to poor performance in comparison to bulkwalk. Since a single walk could easily invalidate the entire cache for the SnmpTree, the OID lookups for getNext are not cached.
+
+3.3 Set Methods
 
 For fields with a setter method, that method is used when peforming sets. Setters are single argument methods with the argument being the same type as the field. The name of the setter must be "set" followed by the name of the field, with the first letter capitalized. For example, a field named "count" would have a setter called "setCount".
 
