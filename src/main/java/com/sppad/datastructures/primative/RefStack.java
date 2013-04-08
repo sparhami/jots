@@ -110,19 +110,6 @@ public class RefStack<T>
     return topIndex + 1;
   }
 
-  @Override
-  public String toString()
-  {
-    final StringBuilder builder = new StringBuilder("[");
-
-    for (int i = 0; i <= topIndex; i++)
-      builder.append(" " + backingArray[i] + ",");
-
-    builder.setCharAt(builder.length() - 1, ' ');
-    builder.append("]");
-    return builder.toString();
-  }
-
   public T[] values()
   {
     return backingArray;

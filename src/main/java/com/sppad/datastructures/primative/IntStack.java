@@ -203,24 +203,6 @@ public class IntStack
   }
 
   /**
-   * @return A string representing the contents of the stack.
-   */
-  @Override
-  public String toString()
-  {
-    final StringBuilder builder = new StringBuilder("[");
-
-    for (int i = 0; i <= topIndex; i++)
-      builder.append(" " + backingArray[i] + ",");
-
-    // Remove the last comma
-    builder.setCharAt(builder.length() - 1, ' ');
-    builder.append("]");
-
-    return builder.toString();
-  }
-
-  /**
    * Increases the size of the backing array for the stack by the specified
    * amount.
    * 
