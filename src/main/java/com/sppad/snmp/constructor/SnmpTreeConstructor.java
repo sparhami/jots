@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import org.snmp4j.smi.OID;
 
@@ -111,7 +110,7 @@ public class SnmpTreeConstructor
       this.simple = SnmpUtils.isSimple(field.getType());
       this.snmpName = (snmpNameObj != null) ? snmpNameObj.value() : field
           .getName();
-      this.tableType = isTableType(field.getType());
+      this.tableType = getHandler(field.getType()) != defaultHandler;
     }
 
     public boolean isWritable()
@@ -190,7 +189,7 @@ public class SnmpTreeConstructor
   private final Map<Type, ObjectHandler> handlers = new HashMap<Type, ObjectHandler>();
 
   /** Used for constructing a MIB, if requested */
-  private MibConstructor mc;
+  private MibConstructor mibConstructor;
 
   /** Used for building the MIB name for the current oid */
   private final Deque<String> nameStack = new ArrayDeque<String>();
@@ -275,19 +274,17 @@ public class SnmpTreeConstructor
    * @param obj
    *          The object to base the tree off of
    * @return The constructed SnmpTree
-   * @throws IllegalAccessException
-   * @throws IllegalArgumentException
    * @throws InvocationTargetException
+   * @throws IOException
    * 
    * @see SnmpTree
    */
   public static SnmpTree createSnmpTree(final int[] prefix, final Object obj)
       throws IllegalAccessException,
-      IllegalArgumentException,
-      InvocationTargetException
+      InvocationTargetException,
+      IOException
   {
-    final SnmpTreeConstructor stc = new SnmpTreeConstructor(prefix, obj);
-    return stc.snmpTreeSkeleton.finishTreeConstruction();
+    return createSnmpTree(prefix, obj, null);
   }
 
   public static SnmpTree createSnmpTree(
@@ -299,15 +296,53 @@ public class SnmpTreeConstructor
       final OutputStream mibOutputStream)
 
       throws IllegalAccessException,
-      IllegalArgumentException,
       InvocationTargetException,
       IOException
   {
     Preconditions.checkNotNull(mibOutputStream);
 
-    final SnmpTreeConstructor stc = new SnmpTreeConstructor(mibName, rootName,
-        parentName, prefix, obj, mibOutputStream);
-    return stc.snmpTreeSkeleton.finishTreeConstruction();
+    final MibConstructor mc = new MibConstructor(mibName, rootName, parentName,
+        prefix[prefix.length - 1], mibOutputStream);
+
+    return createSnmpTree(prefix, obj, mc);
+  }
+
+  protected static String buildStringPath(
+      final Deque<String> names,
+      final boolean includeLast)
+  {
+    final Iterator<String> nameIter = names.descendingIterator();
+    final StringBuilder builder = new StringBuilder();
+
+    while (nameIter.hasNext())
+    {
+      final String nextName = nameIter.next();
+      if (!includeLast && !nameIter.hasNext())
+        break;
+
+      final int lastNameStartIndex = builder.length();
+      builder.append(nextName);
+
+      final char firstLetter = Character.toUpperCase(builder
+          .charAt(lastNameStartIndex));
+      builder.setCharAt(lastNameStartIndex, firstLetter);
+    }
+
+    return builder.toString();
+  }
+
+  private static SnmpTree createSnmpTree(
+      final int[] prefix,
+      final Object obj,
+      MibConstructor mibConstructor)
+      throws IllegalAccessException,
+      InvocationTargetException,
+      IOException
+  {
+    final SnmpTreeConstructor stc = new SnmpTreeConstructor(prefix, null);
+    stc.descend(obj, obj.getClass(), null);
+
+    return stc.finish();
   }
 
   private static Method getSetterMethod(final Field field, final Class<?> klass)
@@ -355,53 +390,16 @@ public class SnmpTreeConstructor
     handlers.put(Object.class, defaultHandler);
   }
 
-  /**
-   * Private constructor to force using {@link #createSnmpTree(int[], Object)}
-   * 
-   * @throws InvocationTargetException
-   * @throws IllegalAccessException
-   * @throws IllegalArgumentException
-   */
-  private SnmpTreeConstructor(final int[] prefix, final Object obj)
-      throws IllegalArgumentException,
-      IllegalAccessException,
-      InvocationTargetException
-  {
-    this.createMib = false;
-
-    this.prefix = prefix;
-    this.oidStack.push(1);
-    this.tableOidIndexStack.push(1);
-    this.snmpTreeSkeleton = new SnmpTreeSkeleton(prefix);
-
-    this.descend(obj, obj.getClass(), null);
-
-  }
-
   private SnmpTreeConstructor(
-      final String mibName,
-      final String rootName,
-      final String parentName,
       final int[] prefix,
-      final Object obj,
-      final OutputStream mibOutputStream)
-
-      throws IllegalArgumentException,
-      IllegalAccessException,
-      InvocationTargetException,
-      IOException
+      final MibConstructor mibConsructor)
   {
-    this.createMib = true;
-
     this.prefix = prefix;
     this.oidStack.push(1);
     this.tableOidIndexStack.push(1);
     this.snmpTreeSkeleton = new SnmpTreeSkeleton(prefix);
-
-    this.mc = new MibConstructor(mibName, rootName, parentName,
-        prefix[prefix.length - 1], mibOutputStream);
-    this.descend(obj, obj.getClass(), null);
-    this.mc.finish();
+    this.mibConstructor = mibConsructor;
+    this.createMib = mibConsructor != null;
   }
 
   public void descend(
@@ -422,7 +420,7 @@ public class SnmpTreeConstructor
     {
       // prevent reference to outer class from causing a loop
     }
-    else if (isTableType(obj.getClass()))
+    else if (getFieldInfo(field).tableType)
     {
       getHandler(obj.getClass()).handle(this, obj, field);
     }
@@ -496,30 +494,6 @@ public class SnmpTreeConstructor
     oidExtStack.copyFrom(extension, 0, extension.length);
   }
 
-  protected String buildStringPath(
-      final Deque<String> names,
-      final boolean includeLast)
-  {
-    final Iterator<String> nameIter = names.descendingIterator();
-    final StringBuilder builder = new StringBuilder();
-
-    while (nameIter.hasNext())
-    {
-      final String nextName = nameIter.next();
-      if (!includeLast && !nameIter.hasNext())
-        break;
-
-      final int lastNameStartIndex = builder.length();
-      builder.append(nextName);
-
-      final char firstLetter = Character.toUpperCase(builder
-          .charAt(lastNameStartIndex));
-      builder.setCharAt(lastNameStartIndex, firstLetter);
-    }
-
-    return builder.toString();
-  }
-
   protected void descendIntoField(final Object obj, final Field field)
       throws IllegalArgumentException,
       IllegalAccessException,
@@ -584,11 +558,6 @@ public class SnmpTreeConstructor
     return null;
   }
 
-  protected boolean isTableType(final Class<?> klass)
-  {
-    return getHandler(klass) != defaultHandler;
-  }
-
   protected void onEnter(final Object obj, final Field field)
   {
     if (field != null && !getFieldInfo(field).tableType)
@@ -621,7 +590,7 @@ public class SnmpTreeConstructor
       addToMib(info, null, obj.getClass());
 
     if (info.simple)
-      addToSnmpTable(obj, info);
+      addToTree(obj, info);
 
     nameStack.pop();
   }
@@ -677,18 +646,18 @@ public class SnmpTreeConstructor
       final String parent = buildStringPath(nameStack, false);
 
       if (info.tableType)
-        mc.addTable(parent, name, oid, inTable, "", keyType);
+        mibConstructor.addTable(parent, name, oid, inTable, "", keyType);
       else if (info.simple)
-        mc.addItem(parent, name, oid, info.field.getType(), info.description,
-            info.isWritable());
+        mibConstructor.addItem(parent, name, oid, info.field.getType(),
+            info.description, info.isWritable());
       else
-        mc.addEntry(parent, name, oid, "");
+        mibConstructor.addEntry(parent, name, oid, "");
 
       info.oidVisitedMap.add(new IntStack(oidStack));
     }
   }
 
-  private void addToSnmpTable(final Object obj, final FieldInfo info)
+  private void addToTree(final Object obj, final FieldInfo info)
   {
     final OID oid = new JotsOID(prefix, oidStack, oidExtStack);
     snmpTreeSkeleton.add(oid, info.field, obj, info.setter);
@@ -705,52 +674,31 @@ public class SnmpTreeConstructor
    */
   private void checkForCircularReference(final Object obj)
   {
-    // check for circular reference: if the stack has the current object,
-    // then we visited it on the way down
     if (objectHandleStack.contains(obj))
-    {
-      final String exceptionString = "Cannot handle circular references. Can make fields with circular references transient to skip." +
-          ("\nOn object: " + ObjUtils.getRefInfo(obj)) +
-          ("\nStack:" + getObjectHandleStack());
+      throw new CircularReferenceException("Cannot currently handle circular references");
+  }
 
-      throw new CircularReferenceException(exceptionString);
-    }
+  private SnmpTree finish()
+      throws IOException
+  {
+    if (createMib)
+      mibConstructor.finish();
+
+    return snmpTreeSkeleton.finishTreeConstruction();
   }
 
   private ClassInfo getClassInfo(final Class<?> klass)
   {
-    try
-    {
-      return classInfoCache.get(klass);
-    }
-    catch (ExecutionException e)
-    {
-      throw new RuntimeException(e);
-    }
+    return classInfoCache.getUnchecked(klass);
   }
 
   private FieldInfo getFieldInfo(final Field field)
   {
-    try
-    {
-      return fieldInfoCache.get(field);
-    }
-    catch (ExecutionException e)
-    {
-      throw new RuntimeException(e);
-    }
+    return fieldInfoCache.getUnchecked(field);
   }
 
-  // For some reason, performance is much better when using this function
   private ObjectHandler getHandler(final Class<?> klass)
   {
-    try
-    {
-      return objectHandlerCache.get(klass);
-    }
-    catch (ExecutionException e)
-    {
-      throw new RuntimeException(e);
-    }
+    return objectHandlerCache.getUnchecked(klass);
   }
 }
