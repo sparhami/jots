@@ -110,7 +110,7 @@ public class SnmpTreeConstructor
       this.simple = SnmpUtils.isSimple(field.getType());
       this.snmpName = (snmpNameObj != null) ? snmpNameObj.value() : field
           .getName();
-      this.tableType = getHandler(field.getType()) != defaultHandler;
+      this.tableType = isTableType(field.getType());
     }
 
     public boolean isWritable()
@@ -153,6 +153,11 @@ public class SnmpTreeConstructor
 
       return false;
     }
+  }
+
+  protected boolean isTableType(final Class<?> klass)
+  {
+    return getHandler(klass) != defaultHandler;
   }
 
   private final LoadingCache<Class<?>, ClassInfo> classInfoCache = CacheBuilder
@@ -339,7 +344,7 @@ public class SnmpTreeConstructor
       InvocationTargetException,
       IOException
   {
-    final SnmpTreeConstructor stc = new SnmpTreeConstructor(prefix, null);
+    final SnmpTreeConstructor stc = new SnmpTreeConstructor(prefix, mibConstructor);
     stc.descend(obj, obj.getClass(), null);
 
     return stc.finish();
@@ -415,12 +420,14 @@ public class SnmpTreeConstructor
     {
       nullHandler.handle(this, obj, field);
     }
+    // Do not follow reference to outer classes
     else if (obj.getClass().isAnonymousClass() &&
         objectHandleStack.contains(obj))
     {
-      // prevent reference to outer class from causing a loop
+
     }
-    else if (getFieldInfo(field).tableType)
+    // Handler nested Collections, e.g. Map<K, Map<L, V>>
+    else if (isTableType(obj.getClass()))
     {
       getHandler(obj.getClass()).handle(this, obj, field);
     }
@@ -675,7 +682,8 @@ public class SnmpTreeConstructor
   private void checkForCircularReference(final Object obj)
   {
     if (objectHandleStack.contains(obj))
-      throw new CircularReferenceException("Cannot currently handle circular references");
+      throw new CircularReferenceException(
+          "Cannot currently handle circular references");
   }
 
   private SnmpTree finish()
