@@ -2,12 +2,31 @@ package com.sppad.construction;
 
 import java.lang.reflect.Field;
 
-public class Constructor
+public class Constructor implements INodeVisitor
 {
+  private static void addChild(final TableNode node)
+  {
+    final Node child = new TableEntryNode(node.field, node.entryClass, node);
+
+    child.parent.addChild(child);
+    child.snmpParent.addSnmpChild(child);
+  }
+
+  private static void addChildren(final InnerNode node)
+  {
+    for (final Field field : node.fields)
+    {
+      final Node child = createNode(field, node);
+
+      child.parent.addChild(child);
+      child.snmpParent.addSnmpChild(child);
+    }
+  }
+
   public static RootNode create(final Class<?> cls)
   {
     final RootNode root = new RootNode(cls);
-    Constructor.createSubtree(root);
+    root.accept(new Constructor());
 
     return root;
   }
@@ -22,32 +41,63 @@ public class Constructor
       return new EntryNode(field, parent);
   }
 
-  private static void createSubtree(final InnerNode node)
+  @Override
+  public void visitEnter(EntryNode node)
   {
-    if (node instanceof TableNode)
-    {
-      final TableNode table = (TableNode) node;
+    addChildren(node);
+  }
 
-      final TableEntryNode child = new TableEntryNode(table.field,
-          table.entryClass, table);
+  @Override
+  public void visitEnter(LeafNode node)
+  {
 
-      child.parent.addChild(child);
-      child.snmpParent.addSnmpChild(child);
+  }
 
-      createSubtree(child);
-    }
-    else
-    {
-      for (final Field field : node.fields)
-      {
-        final Node child = createNode(field, node);
+  @Override
+  public void visitEnter(RootNode node)
+  {
+    addChildren(node);
+  }
 
-        child.parent.addChild(child);
-        child.snmpParent.addSnmpChild(child);
+  @Override
+  public void visitEnter(TableEntryNode node)
+  {
+    addChildren(node);
+  }
 
-        if (child instanceof InnerNode)
-          createSubtree((InnerNode) child);
-      }
-    }
+  @Override
+  public void visitEnter(TableNode node)
+  {
+    addChild(node);
+  }
+
+  @Override
+  public void visitExit(EntryNode node)
+  {
+
+  }
+
+  @Override
+  public void visitExit(LeafNode node)
+  {
+
+  }
+
+  @Override
+  public void visitExit(RootNode node)
+  {
+
+  }
+
+  @Override
+  public void visitExit(TableEntryNode node)
+  {
+
+  }
+
+  @Override
+  public void visitExit(TableNode node)
+  {
+
   }
 }

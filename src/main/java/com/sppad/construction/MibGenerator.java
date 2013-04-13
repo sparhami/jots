@@ -1,6 +1,5 @@
 package com.sppad.construction;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.snmp4j.smi.OID;
