@@ -5,13 +5,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import com.sppad.jots.annotations.Jots;
-import com.sppad.jots.util.SnmpUtils;
+import com.sppad.jots.util.Utils;
 
 abstract class Node
 {
   static boolean isLeaf(Class<?> cls)
   {
-    return SnmpUtils.isSimple(cls);
+    return Utils.isSimple(cls);
   }
 
   static boolean isCollection(Field field)

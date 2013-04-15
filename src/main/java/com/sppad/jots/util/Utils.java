@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.sppad.jots.datastructures.primative.IntStack;
 
-public class SnmpUtils
+public class Utils
 {
   private static final Set<Class<?>> builtinClasses = new HashSet<Class<?>>();
 
@@ -69,6 +69,19 @@ public class SnmpUtils
   }
 
   /**
+   * Gets the object hashcode information.
+   * 
+   * @param object
+   *          The object to get the information for.
+   * @return A String containing the class name and the object hashcode.
+   */
+  public static String getRefInfo(final Object object)
+  {
+    return object.getClass() + "@" +
+        Integer.toHexString(System.identityHashCode(object));
+  }
+
+  /**
    * Constructs the setter name for the given fieldName. This is done by adding
    * the prefix "set" and capitalizing the first letter of the given field name.
    * <p>
@@ -125,7 +138,7 @@ public class SnmpUtils
   {
     return klass.isPrimitive();
   }
-
+  
   /**
    * @return True if the class is a primitive/primitive wrapper, a String or an
    *         enum, false otherwise

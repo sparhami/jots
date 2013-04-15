@@ -58,7 +58,7 @@ public class ConstructorTest
   @Test
   public void testCreate()
   {
-    Node node = Constructor.construct(TestObject.class);
+    Node node = Constructor.createTree(TestObject.class);
     
     MibGenerator generator = new MibGenerator(new int[] { } );
     node.accept(generator);

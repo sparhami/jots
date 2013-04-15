@@ -26,7 +26,7 @@ import com.sppad.jots.exceptions.SnmpNotWritableException;
 import com.sppad.jots.exceptions.SnmpOidNotFoundException;
 import com.sppad.jots.exceptions.SnmpPastEndOfTreeException;
 import com.sppad.jots.lookup.SnmpLookupField;
-import com.sppad.jots.util.SnmpUtils;
+import com.sppad.jots.util.Utils;
 
 /**
  * 
@@ -221,7 +221,7 @@ public class SnmpTree implements Iterable<VariableBinding>
     for (int i = thisIndex; i <= this.lastIndex; i++)
       fields.add(this.fieldArray[i]);
 
-    int[] prefix = SnmpUtils.findCommonPrefix(this.prefix, other.prefix);
+    int[] prefix = Utils.findCommonPrefix(this.prefix, other.prefix);
     SnmpLookupField[] fieldArray = fields.toArray(new SnmpLookupField[fields
         .size()]);
     int cacherSize = Math.max(this.indexCacheSize, other.indexCacheSize);

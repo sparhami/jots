@@ -38,8 +38,7 @@ import com.sppad.jots.constructor.mib.MibConstructor;
 import com.sppad.jots.constructor.mib.SnmpDescription;
 import com.sppad.jots.datastructures.primative.IntStack;
 import com.sppad.jots.datastructures.primative.RefStack;
-import com.sppad.jots.object.ObjUtils;
-import com.sppad.jots.util.SnmpUtils;
+import com.sppad.jots.util.Utils;
 
 /**
  * 
@@ -106,7 +105,7 @@ public class SnmpTreeConstructor
       this.field = field;
       this.setter = getSetterMethod(field, field.getDeclaringClass());
       this.shouldSkip = checkIfShouldSkip(field);
-      this.simple = SnmpUtils.isSimple(field.getType());
+      this.simple = Utils.isSimple(field.getType());
       this.snmpName = (snmpNameObj != null) ? snmpNameObj.value() : field
           .getName();
       this.tableType = isTableType(field.getType());
@@ -126,7 +125,7 @@ public class SnmpTreeConstructor
      * <li>If the field is transient
      * <li>If the field is reference to an outer class
      * <li>If the field is final
-     * <li>If the field simple, see: {@link SnmpUtils#isSimple(Class)}
+     * <li>If the field simple, see: {@link Utils#isSimple(Class)}
      * </ul>
      * 
      * @param field
@@ -147,7 +146,7 @@ public class SnmpTreeConstructor
           Modifier.isTransient(modifiers) || field.getName().equals("this$0"))
         return false;
 
-      if (Modifier.isFinal(modifiers) || SnmpUtils.isSimple(field.getType()))
+      if (Modifier.isFinal(modifiers) || Utils.isSimple(field.getType()))
         return true;
 
       return false;
@@ -356,7 +355,7 @@ public class SnmpTreeConstructor
       if (field.getAnnotation(SnmpNotSettable.class) != null)
         return null;
 
-      final String setterName = SnmpUtils.getSetterName(field.getName());
+      final String setterName = Utils.getSetterName(field.getName());
       Class<?> currentClass = klass;
       while (currentClass != Object.class)
       {
@@ -495,7 +494,7 @@ public class SnmpTreeConstructor
       extensionObject = collectionIndex;
 
     // add the extension (dynamic oid part) to the extension stack
-    final int[] extension = SnmpUtils.getSnmpExtension(extensionObject);
+    final int[] extension = Utils.getSnmpExtension(extensionObject);
     oidExtLenStack.push(extension.length);
     oidExtStack.copyFrom(extension, 0, extension.length);
   }
@@ -531,7 +530,7 @@ public class SnmpTreeConstructor
     for (final Object stackObject : objectHandleStack.values())
     {
       stackBuilder.append("\n    ");
-      stackBuilder.append(ObjUtils.getRefInfo(stackObject));
+      stackBuilder.append(Utils.getRefInfo(stackObject));
     }
 
     return stackBuilder.toString();

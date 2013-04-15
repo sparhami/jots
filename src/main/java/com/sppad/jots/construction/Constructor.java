@@ -9,8 +9,60 @@ import com.sppad.jots.log.Messages;
 
 public class Constructor
 {
-  private static class NodeVisitor implements INodeVisitor
+  private static class SubtreeCreatingVisitor implements INodeVisitor
   {
+    private static void addChild(final TableNode parent)
+    {
+      final Node child = new TableEntryNode(parent.field, parent.entryClass,
+          parent);
+
+      child.parent.addChild(child);
+      child.snmpParent.addSnmpChild(child);
+    }
+
+    private static void addChildren(final InnerNode parent)
+    {
+      for (final Field field : parent.fields)
+      {
+        final Node child = createNode(field, parent);
+
+        if (child == null)
+          continue;
+
+        child.parent.addChild(child);
+        child.snmpParent.addSnmpChild(child);
+      }
+    }
+    
+    private static Node createNode(final Field field, final Node parent)
+    {
+      final Node node;
+
+      boolean leaf = Node.isLeaf(field.getType());
+      boolean collection = Node.isCollection(field);
+      boolean annotation = Node.hasCollectionAnnotation(field);
+
+      if (collection && !annotation)
+      {
+        logger.warn(COLLECTION_NO_ANNOTATION, parent.klass, field.getName());
+
+        node = null;
+      }
+      else if (collection)
+      {
+        node = new TableNode(field, parent);
+      }
+      else if (leaf)
+      {
+        node = new LeafNode(field, parent);
+      }
+      else
+      {
+        node = new EntryNode(field, parent);
+      }
+
+      return node;
+    }
 
     @Override
     public void visitEnter(EntryNode node)
@@ -73,70 +125,22 @@ public class Constructor
     }
   }
 
+  private static final String COLLECTION_NO_ANNOTATION = Messages
+      .getString("COLLECTION_NO_ANNOTATION");
+
   private static final Logger logger = LoggerFactory
       .getLogger(Constructor.class);
 
-  private static void addChild(final TableNode parent)
-  {
-    final Node child = new TableEntryNode(parent.field, parent.entryClass,
-        parent);
-
-    child.parent.addChild(child);
-    child.snmpParent.addSnmpChild(child);
-  }
-
-  private static void addChildren(final InnerNode parent)
-  {
-    for (final Field field : parent.fields)
-    {
-      final Node child = createNode(field, parent);
-
-      if (child == null)
-        continue;
-
-      child.parent.addChild(child);
-      child.snmpParent.addSnmpChild(child);
-    }
-  }
-
-  public static Node construct(final Class<?> cls)
+  public static Node createTree(final Class<?> cls)
   {
     final Node root = new RootNode(cls);
-    root.accept(new NodeVisitor());
+    root.accept(new SubtreeCreatingVisitor());
 
     return root;
   }
 
-  private static final String COLLECTION_NO_ANNOTATION = Messages
-      .getString("COLLECTION_NO_ANNOTATION");
-
-  private static Node createNode(final Field field, final Node parent)
+  private Constructor()
   {
-    final Node node;
 
-    boolean leaf = Node.isLeaf(field.getType());
-    boolean collection = Node.isCollection(field);
-    boolean annotation = Node.hasCollectionAnnotation(field);
-
-    if (collection && !annotation)
-    {
-      logger.warn(COLLECTION_NO_ANNOTATION, parent.klass, field.getName());
-
-      node = null;
-    }
-    else if (collection)
-    {
-      node = new TableNode(field, parent);
-    }
-    else if (leaf)
-    {
-      node = new LeafNode(field, parent);
-    }
-    else
-    {
-      node = new EntryNode(field, parent);
-    }
-
-    return node;
   }
 }
