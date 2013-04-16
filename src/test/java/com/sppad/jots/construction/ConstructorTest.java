@@ -2,6 +2,7 @@ package com.sppad.jots.construction;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
@@ -10,6 +11,7 @@ import com.google.common.base.Function;
 import com.sppad.jots.construction.Constructor;
 import com.sppad.jots.construction.MibGenerator;
 import com.sppad.jots.construction.Node;
+import com.sppad.jots.datastructures.primative.IntStack;
 import com.sppad.jots.annotations.Jots;
 
 public class ConstructorTest
@@ -22,7 +24,6 @@ public class ConstructorTest
     }
   };
 
-  
   @SuppressWarnings("unused")
   private class ParentClass
   {
@@ -45,7 +46,7 @@ public class ConstructorTest
   {
     public int number;
   }
-  
+
   @SuppressWarnings("unused")
   private class CollectionObject
   {
@@ -53,15 +54,14 @@ public class ConstructorTest
     public Collection<NestedObject> nestedTable;
     public float floatingPoint;
   }
-  
-  
+
   @Test
   public void testCreate()
   {
     Node node = Constructor.createTree(TestObject.class);
-    
-    MibGenerator generator = new MibGenerator(new int[] { } );
-    node.accept(generator);
+    Map<Node, IntStack> staticOidMap = OidGenerator.getStaticOidParts(node);
+
+    MibGenerator.createMib(new int[] {}, node, staticOidMap);
   }
 
 }

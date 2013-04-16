@@ -25,4 +25,19 @@ public class JotsOID extends OID
 
     this.setValue(oidArray);
   }
+
+  public JotsOID(final int[] prefix, final IntStack staticOid)
+  {
+    final int oidSize = staticOid.size();
+    final int size = prefix.length + oidSize + 1;
+
+    final int[] oidArray = new int[size];
+
+    System.arraycopy(prefix, 0, oidArray, 0, prefix.length);
+    staticOid.copyTo(oidArray, prefix.length);
+
+    oidArray[prefix.length + oidSize] = 0;
+
+    this.setValue(oidArray);
+  }
 }

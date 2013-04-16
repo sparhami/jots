@@ -25,7 +25,7 @@ public class IntStack
   {
     this(DEFAULT_STACK_SIZE);
   }
-
+  
   /**
    * Creates an empty stack.
    * 
