@@ -1,93 +1,108 @@
 package com.sppad.jots.construction;
 
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Map;
+
 import org.snmp4j.smi.OID;
 
-import com.sppad.jots.datastructures.primative.IntStack;
 import com.sppad.jots.JotsOID;
+import com.sppad.jots.datastructures.primative.IntStack;
 
-public class TreeConstructor implements INodeVisitor
+public class TreeConstructor
 {
-  private final IntStack extStack = new IntStack();
-  private final IntStack oidStack = new IntStack();
+  private final IntStack extensionStack = new IntStack();
+  private final Map<Node, IntStack> staticOidMap;
+  private final int[] prefix = new int[0];
   
-  private final int[] prefix;
-
-  public TreeConstructor(final int[] prefix) {
-    this.prefix = prefix;
-  }
-  
-  private void printOid()
+  private TreeConstructor(Map<Node, IntStack> staticOidMap)
   {
-    final OID oid = new JotsOID(prefix, oidStack, extStack);
-
-    System.out.println(oid);
-  }
-  
-  @Override
-  public void visitEnter(final EntryNode node)
-  {
-    oidStack.push(oidStack.pop() + 1);
-    oidStack.push(0);
+    this.staticOidMap = staticOidMap;
   }
 
-  @Override
-  public void visitEnter(final LeafNode node)
+  public static void create(
+      Map<Node, IntStack> staticOidMap,
+      Node node,
+      Object obj)
   {
-    oidStack.push(oidStack.pop() + 1);
+    TreeConstructor tc = new TreeConstructor(staticOidMap);
 
-    if (!node.inTable)
-      oidStack.push(0);
+    tc.descend(node, obj);
   }
 
-  @Override
-  public void visitEnter(final RootNode node)
+  private void descend(Node node, Object obj)
   {
-    oidStack.push(1);
-    oidStack.push(0);
+    if (node instanceof LeafNode)
+    {
+      String value = obj.toString();
+
+      IntStack staticOid = staticOidMap.get(node);
+      OID oid = new JotsOID(prefix, staticOid, extensionStack);
+
+      System.out.println(oid + " " + value);
+    }
+    else
+    {
+      for (Node child : node.nodes)
+      {
+        if (child instanceof TableNode)
+        {
+          handleCollection((TableNode) child, obj);
+        }
+        else
+        {
+          handleObject(child, obj);
+        }
+      }
+    }
   }
 
-  @Override
-  public void visitEnter(final TableEntryNode node)
+  private void handleObject(Node node, Object obj)
   {
-    oidStack.push(oidStack.pop() + 1);
-    oidStack.push(0);
+    try
+    {
+      Field field = node.field;
+      field.setAccessible(true);
+
+      Object next = field.get(obj);
+
+      descend(node, next);
+    }
+    catch (IllegalArgumentException | IllegalAccessException e)
+    {
+      e.printStackTrace();
+    }
   }
 
-  @Override
-  public void visitEnter(final TableNode node)
+  private void handleCollection(TableNode node, Object obj)
   {
-    oidStack.push(oidStack.pop() + 1);
-    oidStack.push(0);
-  }
+    try
+    {
+      Node child = node.snmpNodes.iterator().next();
+      assert(child instanceof TableEntryNode);
 
-  @Override
-  public void visitExit(final EntryNode node)
-  {
-    oidStack.pop();
-  }
+      Field field = node.field;
+      field.setAccessible(true);
 
-  @Override
-  public void visitExit(final LeafNode node)
-  {
-    if (!node.inTable)
-      oidStack.pop();
-  }
+      Collection<?> collection = (Collection<?>) field.get(obj);
 
-  @Override
-  public void visitExit(final RootNode node)
-  {
-    oidStack.pop();
-  }
+      int index = 1;
+      extensionStack.push(0);
+      
+      for (Object next : collection)
+      {
+        extensionStack.pop();
+        extensionStack.push(index++);
+        descend(child, next);
+      }
+      
+      extensionStack.pop();
 
-  @Override
-  public void visitExit(final TableEntryNode node)
-  {
-    oidStack.pop();
-  }
+    }
+    catch (IllegalArgumentException | IllegalAccessException e)
+    {
+      e.printStackTrace();
+    }
 
-  @Override
-  public void visitExit(final TableNode node)
-  {
-    oidStack.pop();
   }
 }

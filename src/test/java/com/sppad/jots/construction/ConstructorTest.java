@@ -8,6 +8,8 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.sppad.jots.construction.Constructor;
 import com.sppad.jots.construction.MibGenerator;
 import com.sppad.jots.construction.Node;
@@ -27,7 +29,7 @@ public class ConstructorTest
   @SuppressWarnings("unused")
   private class ParentClass
   {
-    public String name;
+    public String name = "foobar";
   }
 
   @SuppressWarnings("unused")
@@ -36,9 +38,10 @@ public class ConstructorTest
     public boolean bool;
 
     @Jots(cls = CollectionObject.class)
-    public Set<CollectionObject> collection;
-    public Set<CollectionObject> nonAnnotatedCollection;
-    public NestedObject obj;
+    public Set<CollectionObject> collection = Sets.newHashSet(
+        new CollectionObject(), new CollectionObject(), new CollectionObject());
+    public Set<CollectionObject> nonAnnotatedCollection = Sets.newHashSet();;
+    public NestedObject obj = new NestedObject();
   }
 
   @SuppressWarnings("unused")
@@ -51,7 +54,7 @@ public class ConstructorTest
   private class CollectionObject
   {
     @Jots(cls = NestedObject.class)
-    public Collection<NestedObject> nestedTable;
+    public Collection<NestedObject> nestedTable = Lists.newArrayList();
     public float floatingPoint;
   }
 
@@ -62,6 +65,8 @@ public class ConstructorTest
     Map<Node, IntStack> staticOidMap = OidGenerator.getStaticOidParts(node);
 
     MibGenerator.createMib(new int[] {}, node, staticOidMap);
+
+    TreeConstructor.create(staticOidMap, node, new TestObject());
   }
 
 }
