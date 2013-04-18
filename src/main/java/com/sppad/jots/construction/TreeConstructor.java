@@ -7,6 +7,7 @@ import java.util.Map;
 import org.snmp4j.smi.OID;
 
 import com.sppad.jots.JotsOID;
+import com.sppad.jots.constructor.SnmpTree;
 import com.sppad.jots.datastructures.primative.IntStack;
 
 public class TreeConstructor
@@ -14,10 +15,21 @@ public class TreeConstructor
   private final IntStack extensionStack = new IntStack();
   private final Map<Node, IntStack> staticOidMap;
   private final int[] prefix = new int[0];
-  
+
   private TreeConstructor(Map<Node, IntStack> staticOidMap)
   {
     this.staticOidMap = staticOidMap;
+  }
+
+  public static SnmpTree create(Object obj, TreeBuilder treeBuilder)
+  {
+    Node node = NodeTreeConstructor.createTree(obj.getClass(),
+        treeBuilder.getInclusionStrategy());
+    Map<Node, IntStack> staticOidMap = OidGenerator.getStaticOidParts(node);
+
+    create(staticOidMap, node, obj);
+
+    return null;
   }
 
   public static void create(
@@ -39,7 +51,7 @@ public class TreeConstructor
       IntStack staticOid = staticOidMap.get(node);
       OID oid = new JotsOID(prefix, staticOid, extensionStack);
 
-      System.out.println(oid + " " + value);
+      //System.out.println(oid + " " + value);
     }
     else
     {
@@ -79,7 +91,7 @@ public class TreeConstructor
     try
     {
       Node child = node.snmpNodes.iterator().next();
-      assert(child instanceof TableEntryNode);
+      assert (child instanceof TableEntryNode);
 
       Field field = node.field;
       field.setAccessible(true);
@@ -88,14 +100,14 @@ public class TreeConstructor
 
       int index = 1;
       extensionStack.push(0);
-      
+
       for (Object next : collection)
       {
         extensionStack.pop();
         extensionStack.push(index++);
         descend(child, next);
       }
-      
+
       extensionStack.pop();
 
     }

@@ -1,8 +1,10 @@
-package com.sppad.jots.builder;
+package com.sppad.jots.construction;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+
+import com.sppad.jots.constructor.SnmpTree;
 
 public class TreeBuilder
 {
@@ -13,9 +15,7 @@ public class TreeBuilder
     return new TreeBuilder(obj);
   }
 
-  private ExclusionStrategy exclude = null;
-
-  private InclusionStrategy include = null;
+  private InclusionStrategy inclusionStrategy = null;
 
   private final Object obj;
 
@@ -30,55 +30,43 @@ public class TreeBuilder
     this.obj = obj;
   }
 
-  public void build()
+  public SnmpTree build()
   {
-    // TODO - create tree
+    return TreeConstructor.create(obj, this);
   }
 
-  public TreeBuilder exclusionStrategy(final ExclusionStrategy exclusionStrategy)
+  InclusionStrategy getInclusionStrategy()
   {
-    checkState(exclusionStrategy == null, "ExclusionStrategy was already set");
-    this.exclude = checkNotNull(exclusionStrategy);
-
-    return this;
+    return firstNonNull(inclusionStrategy, new SimpleInclusionStrategy());
   }
 
-  public ExclusionStrategy getExclusionStrategy()
-  {
-    return firstNonNull(exclude, ExclusionStrategy.TRANSIENT_AND_ANNOTATED);
-  }
-
-  public InclusionStrategy getInclusionStrategy()
-  {
-    return firstNonNull(include, InclusionStrategy.FINAL_AND_ANNOTATED);
-  }
-
-  public String getParentName()
+  String getParentName()
   {
     return firstNonNull(parentName, "Unknown");
   }
 
-  public int[] getPrefix()
+  int[] getPrefix()
   {
     return firstNonNull(prefix, NO_PREFIX);
   }
 
-  public SetStrategy getSetStrategy()
+  SetStrategy getSetStrategy()
   {
     return firstNonNull(setStrategy, SetStrategy.SETTERS_AND_ANNOTATED);
   }
 
-  public TreeBuilder inclusionStrategy(final InclusionStrategy inclusionStrategy)
+  public TreeBuilder inclusionStrategy(final InclusionStrategy strategy)
   {
-    checkState(inclusionStrategy == null, "InclusionStrategy was already set");
-    this.include = checkNotNull(inclusionStrategy);
+    checkState(this.inclusionStrategy == null,
+        "InclusionStrategy was already set");
+    this.inclusionStrategy = checkNotNull(strategy);
 
     return this;
   }
 
   public TreeBuilder parentName(final String parentName)
   {
-    checkState(parentName == null, "ParentName was already set");
+    checkState(this.parentName == null, "ParentName was already set");
     this.parentName = checkNotNull(parentName);
 
     return this;
@@ -86,7 +74,7 @@ public class TreeBuilder
 
   public TreeBuilder prefix(final int[] prefix)
   {
-    checkState(prefix == null, "Prefix was already set");
+    checkState(this.prefix == null, "Prefix was already set");
     this.prefix = checkNotNull(prefix);
 
     return this;
@@ -94,7 +82,7 @@ public class TreeBuilder
 
   public TreeBuilder setStrategy(final SetStrategy setStrategy)
   {
-    checkState(setStrategy == null, "SetStrategy was already set");
+    checkState(this.setStrategy == null, "SetStrategy was already set");
     this.setStrategy = checkNotNull(setStrategy);
 
     return this;

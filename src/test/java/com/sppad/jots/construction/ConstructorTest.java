@@ -2,7 +2,6 @@ package com.sppad.jots.construction;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
@@ -10,10 +9,6 @@ import org.junit.Test;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.sppad.jots.construction.Constructor;
-import com.sppad.jots.construction.MibGenerator;
-import com.sppad.jots.construction.Node;
-import com.sppad.jots.datastructures.primative.IntStack;
 import com.sppad.jots.annotations.Jots;
 
 public class ConstructorTest
@@ -38,10 +33,11 @@ public class ConstructorTest
     public boolean bool;
 
     @Jots(cls = CollectionObject.class)
-    public Set<CollectionObject> collection = Sets.newHashSet(
+    public final Set<CollectionObject> collection = Sets.newHashSet(
         new CollectionObject(), new CollectionObject(), new CollectionObject());
-    public Set<CollectionObject> nonAnnotatedCollection = Sets.newHashSet();;
-    public NestedObject obj = new NestedObject();
+    public final Set<CollectionObject> nonAnnotatedCollection = Sets
+        .newHashSet();;
+    public final NestedObject obj = new NestedObject();
   }
 
   @SuppressWarnings("unused")
@@ -54,19 +50,23 @@ public class ConstructorTest
   private class CollectionObject
   {
     @Jots(cls = NestedObject.class)
-    public Collection<NestedObject> nestedTable = Lists.newArrayList();
+    public final Collection<NestedObject> nestedTable = Lists.newArrayList();
     public float floatingPoint;
   }
 
   @Test
   public void testCreate()
   {
-    Node node = Constructor.createTree(TestObject.class);
-    Map<Node, IntStack> staticOidMap = OidGenerator.getStaticOidParts(node);
+    // Node node = NodeTreeConstructor.createTree(TestObject.class);
+    // Map<Node, IntStack> staticOidMap = OidGenerator.getStaticOidParts(node);
+    //
+    // MibGenerator.createMib(new int[] {}, node, staticOidMap);
+    //
+    // TreeConstructor.create(staticOidMap, node, new TestObject());
 
-    MibGenerator.createMib(new int[] {}, node, staticOidMap);
+    final Object obj = new TestObject();
 
-    TreeConstructor.create(staticOidMap, node, new TestObject());
+    TreeBuilder.from(obj).build();
   }
 
 }
