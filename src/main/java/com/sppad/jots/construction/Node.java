@@ -3,23 +3,25 @@ package com.sppad.jots.construction;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Map;
 
 import com.sppad.jots.annotations.Jots;
 import com.sppad.jots.util.FieldUtils;
 
 abstract class Node
 {
-  static boolean isLeaf(Class<?> cls)
+  static boolean isLeaf(final Class<?> cls)
   {
     return FieldUtils.isSimple(cls);
   }
 
-  static boolean isCollection(Field field)
+  static boolean isTable(final Class<?> cls)
   {
-    return Collection.class.isAssignableFrom(field.getType());
+    return Collection.class.isAssignableFrom(cls) ||
+        Map.class.isAssignableFrom(cls);
   }
 
-  static boolean hasCollectionAnnotation(Field field)
+  static boolean hasCollectionAnnotation(final Field field)
   {
     return field.getAnnotation(Jots.class) != null;
   }

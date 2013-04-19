@@ -98,7 +98,14 @@ class TreeConstructor
       Field field = node.field;
       field.setAccessible(true);
 
-      Collection<?> collection = (Collection<?>) field.get(obj);
+      Object tableObject = field.get(obj);
+
+      Collection<?> collection;
+
+      if (tableObject instanceof Map)
+        collection = ((Map<?, ?>) tableObject).values();
+      else
+        collection = (Collection<?>) tableObject;
 
       int index = 1;
       extensionStack.push(0);

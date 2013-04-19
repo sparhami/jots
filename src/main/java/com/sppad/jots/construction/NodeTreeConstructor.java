@@ -62,7 +62,7 @@ public class NodeTreeConstructor implements INodeVisitor
   {
     final Node node;
 
-    if (Node.isCollection(field))
+    if (Node.isTable(field.getType()))
     {
       node = new TableNode(field, parent);
     }
@@ -81,7 +81,7 @@ public class NodeTreeConstructor implements INodeVisitor
   private boolean include(final Field field)
   {
     final boolean leaf = Node.isLeaf(field.getType());
-    final boolean collection = Node.isCollection(field);
+    final boolean collection = Node.isTable(field.getType());
     final boolean typeAnnotation = Node.hasCollectionAnnotation(field);
 
     if (collection && !typeAnnotation)
