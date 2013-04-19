@@ -1,88 +1,90 @@
 package com.sppad.jots.construction;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.snmp4j.smi.OID;
 
 import com.sppad.jots.JotsOID;
 import com.sppad.jots.constructor.SnmpTree;
 import com.sppad.jots.datastructures.primative.IntStack;
+import com.sppad.jots.lookup.SnmpBooleanLookupField;
+import com.sppad.jots.lookup.SnmpDoubleLookupField;
+import com.sppad.jots.lookup.SnmpEnumLookupField;
+import com.sppad.jots.lookup.SnmpFloatLookupField;
+import com.sppad.jots.lookup.SnmpIntegerLookupField;
+import com.sppad.jots.lookup.SnmpLongLookupField;
+import com.sppad.jots.lookup.SnmpLookupField;
+import com.sppad.jots.lookup.SnmpPrimativeBooleanLookupField;
+import com.sppad.jots.lookup.SnmpPrimativeDoubleLookupField;
+import com.sppad.jots.lookup.SnmpPrimativeFloatLookupField;
+import com.sppad.jots.lookup.SnmpPrimativeIntegerLookupField;
+import com.sppad.jots.lookup.SnmpPrimativeLongLookupField;
+import com.sppad.jots.lookup.SnmpStringLookupField;
+import com.sppad.jots.util.FieldUtils;
 
-public class TreeConstructor
+class TreeConstructor
 {
-  private final IntStack extensionStack = new IntStack();
-  private final Map<Node, IntStack> staticOidMap;
-  private final int[] prefix = new int[0];
-
-  private TreeConstructor(Map<Node, IntStack> staticOidMap)
-  {
-    this.staticOidMap = staticOidMap;
-  }
-
   public static SnmpTree create(Object obj, TreeBuilder treeBuilder)
   {
     Node node = NodeTreeConstructor.createTree(obj.getClass(),
         treeBuilder.getInclusionStrategy());
     Map<Node, IntStack> staticOidMap = OidGenerator.getStaticOidParts(node);
 
-    create(staticOidMap, node, obj);
+    TreeConstructor tc = new TreeConstructor(treeBuilder.getPrefix(),
+        staticOidMap);
+    tc.descend(node, obj);
 
-    return null;
+    return new SnmpTree(tc.prefix, tc.sortSet);
   }
 
-  public static void create(
-      Map<Node, IntStack> staticOidMap,
-      Node node,
-      Object obj)
-  {
-    TreeConstructor tc = new TreeConstructor(staticOidMap);
+  private final IntStack extensionStack = new IntStack();
 
-    tc.descend(node, obj);
+  private final int[] prefix;
+
+  private final SortedSet<SnmpLookupField> sortSet = new TreeSet<SnmpLookupField>();
+
+  private final Map<Node, IntStack> staticOidMap;
+
+  private TreeConstructor(int[] prefix, Map<Node, IntStack> staticOidMap)
+  {
+    this.prefix = prefix;
+    this.staticOidMap = staticOidMap;
+  }
+
+  private void add(
+      final OID oid,
+      final Field field,
+      final Object object,
+      final Method setter)
+  {
+    sortSet.add(SnmpLookupField.create(oid, field, object, setter));
+  }
+
+  private void createEntry(LeafNode node, Object obj)
+  {
+    IntStack staticOid = staticOidMap.get(node);
+    OID oid = new JotsOID(prefix, staticOid, extensionStack);
+
+    add(oid, node.field, obj, FieldUtils.getSetterForField(node.field));
   }
 
   private void descend(Node node, Object obj)
   {
-    if (node instanceof LeafNode)
+    for (Node child : node.nodes)
     {
-      String value = obj.toString();
-
-      IntStack staticOid = staticOidMap.get(node);
-      OID oid = new JotsOID(prefix, staticOid, extensionStack);
-
-      //System.out.println(oid + " " + value);
-    }
-    else
-    {
-      for (Node child : node.nodes)
+      if (child instanceof TableNode)
       {
-        if (child instanceof TableNode)
-        {
-          handleCollection((TableNode) child, obj);
-        }
-        else
-        {
-          handleObject(child, obj);
-        }
+        handleCollection((TableNode) child, obj);
       }
-    }
-  }
-
-  private void handleObject(Node node, Object obj)
-  {
-    try
-    {
-      Field field = node.field;
-      field.setAccessible(true);
-
-      Object next = field.get(obj);
-
-      descend(node, next);
-    }
-    catch (IllegalArgumentException | IllegalAccessException e)
-    {
-      e.printStackTrace();
+      else
+      {
+        handleObject(child, obj);
+      }
     }
   }
 
@@ -105,6 +107,7 @@ public class TreeConstructor
       {
         extensionStack.pop();
         extensionStack.push(index++);
+
         descend(child, next);
       }
 
@@ -116,5 +119,27 @@ public class TreeConstructor
       e.printStackTrace();
     }
 
+  }
+
+  private void handleObject(Node node, Object obj)
+  {
+    try
+    {
+      Field field = node.field;
+      field.setAccessible(true);
+
+      if (node instanceof LeafNode)
+      {
+        createEntry((LeafNode) node, obj);
+      }
+      else
+      {
+        descend(node, field.get(obj));
+      }
+    }
+    catch (IllegalArgumentException | IllegalAccessException e)
+    {
+      e.printStackTrace();
+    }
   }
 }

@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Predicate;
 import com.sppad.jots.log.Messages;
 
 public class NodeTreeConstructor implements INodeVisitor
@@ -16,7 +17,7 @@ public class NodeTreeConstructor implements INodeVisitor
 
   public static Node createTree(
       final Class<?> cls,
-      final InclusionStrategy inclusionStrategy)
+      final Predicate<Field> inclusionStrategy)
   {
     final Node root = new RootNode(cls);
     final NodeTreeConstructor constructor = new NodeTreeConstructor(
@@ -27,9 +28,9 @@ public class NodeTreeConstructor implements INodeVisitor
     return root;
   }
 
-  private final InclusionStrategy inclusionStrategy;
+  private final Predicate<Field> inclusionStrategy;
 
-  private NodeTreeConstructor(final InclusionStrategy inclusionStrategy)
+  private NodeTreeConstructor(final Predicate<Field> inclusionStrategy)
   {
     this.inclusionStrategy = inclusionStrategy;
   }
@@ -91,7 +92,7 @@ public class NodeTreeConstructor implements INodeVisitor
     }
     else
     {
-      return leaf || inclusionStrategy.include(field);
+      return leaf || inclusionStrategy.apply(field);
     }
   }
 

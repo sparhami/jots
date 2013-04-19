@@ -5,11 +5,13 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.junit.Test;
+import org.snmp4j.smi.VariableBinding;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.sppad.jots.annotations.Jots;
+import com.sppad.jots.constructor.SnmpTree;
 
 public class ConstructorTest
 {
@@ -66,7 +68,12 @@ public class ConstructorTest
 
     final Object obj = new TestObject();
 
-    TreeBuilder.from(obj).build();
+    SnmpTree tree = TreeBuilder.from(obj).prefix(new int[] { 1, 3, 6, 1, 4, 1, 100 }).build();
+    
+    for(VariableBinding vb : tree)
+    {
+      System.out.println(vb.toString());
+    }
   }
 
 }

@@ -13,6 +13,55 @@ import com.sppad.jots.exceptions.SnmpException;
 
 public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
 {
+  public static SnmpLookupField create(
+      final OID oid,
+      final Field field,
+      final Object object,
+      final Method setter)
+  {
+    final Class<?> fieldType = field.getType();
+
+    // Tried a map / factory pattern here for looking up, but performance
+    // was significantly worse. May need to revisit this in the future.
+    if (fieldType == Boolean.TYPE)
+      return new SnmpPrimativeBooleanLookupField(oid, field, object, setter);
+
+    if (fieldType == Boolean.class)
+      return new SnmpBooleanLookupField(oid, field, object, setter);
+
+    if (fieldType == Integer.TYPE)
+      return new SnmpPrimativeIntegerLookupField(oid, field, object, setter);
+
+    if (fieldType == Integer.class)
+      return new SnmpIntegerLookupField(oid, field, object, setter);
+
+    if (fieldType == Long.TYPE)
+      return new SnmpPrimativeLongLookupField(oid, field, object, setter);
+
+    if (fieldType == Long.class)
+      return new SnmpLongLookupField(oid, field, object, setter);
+
+    if (fieldType == Float.TYPE)
+      return new SnmpPrimativeFloatLookupField(oid, field, object, setter);
+
+    if (fieldType == Float.class)
+      return new SnmpFloatLookupField(oid, field, object, setter);
+
+    if (fieldType == Double.TYPE)
+      return new SnmpPrimativeDoubleLookupField(oid, field, object, setter);
+
+    if (fieldType == Double.class)
+      return new SnmpDoubleLookupField(oid, field, object, setter);
+
+    if (fieldType == String.class)
+      return new SnmpStringLookupField(oid, field, object, setter);
+
+    if (fieldType.isEnum())
+      return new SnmpEnumLookupField(oid, field, object, setter);
+
+    throw new RuntimeException("Class not supported: " + fieldType);
+  }
+
   /** The object that corresponds to this OID instance */
   final Object enclosingObject;
 
@@ -33,7 +82,7 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
    * @param field
    * @param object
    */
-  protected SnmpLookupField(
+  SnmpLookupField(
       final OID oid,
       final Field field,
       final Object enclosingObject,
@@ -47,6 +96,21 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
   }
 
   /**
+   * Checks to see if the field is 'settable', meaning it either as a set method
+   * and the field does not have an annotation to prevent it from being set.
+   * 
+   * @return True if this field is 'settable', false otherwise.
+   * @see SnmpNotSettable
+   */
+  private boolean checkIsWritable()
+  {
+    if (field.getAnnotation(SnmpNotSettable.class) != null || setter == null)
+      return false;
+    else
+      return true;
+  }
+
+  /**
    * Compares the OID of this field to the given field.
    */
   @Override
@@ -54,6 +118,25 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
   {
     return oid.compareTo(o.oid);
   }
+
+  /**
+   * Performs a get, implementation specific to the type of a field.
+   * 
+   * @return An object representing the value of this field when the method is
+   *         called.
+   * @throws IllegalAccessException
+   */
+  abstract Object doGet()
+      throws IllegalAccessException;
+
+  /**
+   * Performs a set, implementation specific to the type of a field. All
+   * validation of data should be done by the implementing class.
+   * 
+   * @param value
+   *          The value to set.
+   */
+  abstract void doSet(final String value);
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Annotation getAnnotation(final Class annotationClass)
@@ -127,7 +210,7 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
     doSet(value);
   }
 
-  protected void setValue(final Object value)
+  void setValue(final Object value)
   {
     try
     {
@@ -150,37 +233,4 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
     }
   }
 
-  /**
-   * Performs a get, implementation specific to the type of a field.
-   * 
-   * @return An object representing the value of this field when the method is
-   *         called.
-   * @throws IllegalAccessException
-   */
-  abstract Object doGet()
-      throws IllegalAccessException;
-
-  /**
-   * Performs a set, implementation specific to the type of a field. All
-   * validation of data should be done by the implementing class.
-   * 
-   * @param value
-   *          The value to set.
-   */
-  abstract void doSet(final String value);
-
-  /**
-   * Checks to see if the field is 'settable', meaning it either as a set method
-   * and the field does not have an annotation to prevent it from being set.
-   * 
-   * @return True if this field is 'settable', false otherwise.
-   * @see SnmpNotSettable
-   */
-  private boolean checkIsWritable()
-  {
-    if (field.getAnnotation(SnmpNotSettable.class) != null || setter == null)
-      return false;
-    else
-      return true;
-  }
 }

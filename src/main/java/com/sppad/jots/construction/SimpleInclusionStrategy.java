@@ -10,9 +10,24 @@ import java.lang.reflect.Modifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Predicate;
 import com.sppad.jots.log.Messages;
 
-public class SimpleInclusionStrategy implements InclusionStrategy
+/**
+ * A basic strategy for determining what fields to include in a generated
+ * SnmpTree. Uses annotations to include / exclude fields and whether the field
+ * is static/transient/final. The order is as follows:
+ * 
+ * <ul>
+ * <li> Include if annotated with {@link SnmpInclude}
+ * <li> Exclude if annotated with {@link SnmpExclude}
+ * <li> Exclude if the field is static
+ * <li> Exclude if the field is transient
+ * <li> Exclude if the field is not final
+ * <li> Include
+ * <ul>
+ */
+public class SimpleInclusionStrategy implements Predicate<Field>
 {
   /**
    * Marks that a field should always be included when generating an SnmpTree.
@@ -41,7 +56,7 @@ public class SimpleInclusionStrategy implements InclusionStrategy
       .getLogger(SimpleInclusionStrategy.class);
 
   @Override
-  public boolean include(final Field field)
+  public boolean apply(final Field field)
   {
     final boolean includeAnnotation = field.getAnnotation(SnmpInclude.class) != null;
     final boolean excludeAnnotation = field.getAnnotation(SnmpExclude.class) != null;
@@ -81,5 +96,4 @@ public class SimpleInclusionStrategy implements InclusionStrategy
   {
     return false;
   }
-
 }
