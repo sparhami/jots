@@ -21,14 +21,4 @@ class TableEntryNode extends InnerNode
 
     visitor.visitExit(this);
   }
-
-  @Override
-  public Node getSnmpParentNode(Node parent)
-  {
-    for (; parent != null; parent = parent.parent)
-      if (!parent.inTable || (parent instanceof TableNode))
-        break;
-
-    return parent;
-  }
 }

@@ -26,4 +26,22 @@ class TableNode extends InnerNode
 
     visitor.visitExit(this);
   }
+
+  @Override
+  public Node getSnmpParentNode(Node parent)
+  {
+    do
+    {
+      // Note: the root node will always have inTable = false
+      if (!parent.inTable || (parent instanceof TableNode))
+      {
+        break;
+      }
+    }
+    while ((parent = parent.parent) != null);
+
+    assert (parent != null);
+
+    return parent;
+  }
 }

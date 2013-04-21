@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Predicate;
 import com.sppad.jots.log.Messages;
 
-public class NodeTreeConstructor implements INodeVisitor
+class NodeTreeConstructor
 {
   private static final String COLLECTION_NO_ANNOTATION = Messages
       .getString("COLLECTION_NO_ANNOTATION");
@@ -15,15 +15,15 @@ public class NodeTreeConstructor implements INodeVisitor
   private static final Logger logger = LoggerFactory
       .getLogger(NodeTreeConstructor.class);
 
-  public static Node createTree(
+  static Node createTree(
       final Class<?> cls,
       final Predicate<Field> inclusionStrategy)
   {
-    final Node root = new RootNode(cls);
+    final RootNode root = new RootNode(cls);
     final NodeTreeConstructor constructor = new NodeTreeConstructor(
         inclusionStrategy);
 
-    root.accept(constructor);
+    constructor.addChildren(root);
 
     return root;
   }
@@ -35,15 +35,6 @@ public class NodeTreeConstructor implements INodeVisitor
     this.inclusionStrategy = inclusionStrategy;
   }
 
-  private void addChild(final TableNode parent)
-  {
-    final Node child = new TableEntryNode(parent.field, parent.entryClass,
-        parent);
-
-    child.parent.addChild(child);
-    child.snmpParent.addSnmpChild(child);
-  }
-
   private void addChildren(final InnerNode parent)
   {
     for (final Field field : parent.fields)
@@ -51,31 +42,38 @@ public class NodeTreeConstructor implements INodeVisitor
       if (!include(field))
         continue;
 
-      final Node child = createNode(field, parent);
+      final Node child;
+      final Class<?> fieldType = field.getType();
+
+      if (Node.isTable(fieldType))
+      {
+        child = new TableNode(field, parent);
+        addTableChild((TableNode) child);
+      }
+      else if (Node.isLeaf(fieldType))
+      {
+        child = new LeafNode(field, parent);
+      }
+      else
+      {
+        child = new EntryNode(field, parent);
+        addChildren((EntryNode) child);
+      }
 
       child.parent.addChild(child);
       child.snmpParent.addSnmpChild(child);
     }
   }
 
-  private Node createNode(final Field field, final Node parent)
+  private void addTableChild(final TableNode parent)
   {
-    final Node node;
+    final TableEntryNode child = new TableEntryNode(parent.field,
+        parent.entryClass, parent);
 
-    if (Node.isTable(field.getType()))
-    {
-      node = new TableNode(field, parent);
-    }
-    else if (Node.isLeaf(field.getType()))
-    {
-      node = new LeafNode(field, parent);
-    }
-    else
-    {
-      node = new EntryNode(field, parent);
-    }
+    child.parent.addChild(child);
+    child.snmpParent.addSnmpChild(child);
 
-    return node;
+    addChildren(child);
   }
 
   private boolean include(final Field field)
@@ -95,65 +93,4 @@ public class NodeTreeConstructor implements INodeVisitor
       return leaf || inclusionStrategy.apply(field);
     }
   }
-
-  @Override
-  public void visitEnter(EntryNode node)
-  {
-    addChildren(node);
-  }
-
-  @Override
-  public void visitEnter(LeafNode node)
-  {
-
-  }
-
-  @Override
-  public void visitEnter(RootNode node)
-  {
-    addChildren(node);
-  }
-
-  @Override
-  public void visitEnter(TableEntryNode node)
-  {
-    addChildren(node);
-  }
-
-  @Override
-  public void visitEnter(TableNode node)
-  {
-    addChild(node);
-  }
-
-  @Override
-  public void visitExit(EntryNode node)
-  {
-
-  }
-
-  @Override
-  public void visitExit(LeafNode node)
-  {
-
-  }
-
-  @Override
-  public void visitExit(RootNode node)
-  {
-
-  }
-
-  @Override
-  public void visitExit(TableEntryNode node)
-  {
-
-  }
-
-  @Override
-  public void visitExit(TableNode node)
-  {
-
-  }
-
 }
