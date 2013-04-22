@@ -6,18 +6,14 @@ import com.sppad.jots.annotations.Jots;
 
 class TableNode extends InnerNode
 {
-  public final Class<?> entryClass;
-
-  public TableNode(final Field field, final Node parent)
+  TableNode(final Field field, final Node parent)
   {
-    super(field.getAnnotation(Jots.class).cls(), parent, true);
-
-    this.name = field.getName();
-    this.entryClass = field.getAnnotation(Jots.class).cls();
+    super(field.getAnnotation(Jots.class).cls(), parent, true, field.getName());
+    
     this.field = field;
   }
 
-  public void accept(final INodeVisitor visitor)
+  void accept(final INodeVisitor visitor)
   {
     visitor.visitEnter(this);
 
@@ -28,7 +24,7 @@ class TableNode extends InnerNode
   }
 
   @Override
-  public Node getSnmpParentNode(Node parent)
+  Node getSnmpParentNode(Node parent)
   {
     do
     {

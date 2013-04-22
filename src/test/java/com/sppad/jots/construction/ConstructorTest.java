@@ -10,8 +10,8 @@ import org.snmp4j.smi.VariableBinding;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.sppad.jots.SnmpTree;
 import com.sppad.jots.annotations.Jots;
-import com.sppad.jots.constructor.SnmpTree;
 
 public class ConstructorTest
 {

@@ -12,8 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.snmp4j.smi.OID;
 
+import com.sppad.jots.SnmpTree;
 import com.sppad.jots.annotations.SnmpNotSettable;
-import com.sppad.jots.constructor.SnmpTree;
 import com.sppad.jots.exceptions.SnmpBadValueException;
 import com.sppad.jots.exceptions.SnmpNotWritableException;
 import com.sppad.jots.exceptions.SnmpOidNotFoundException;

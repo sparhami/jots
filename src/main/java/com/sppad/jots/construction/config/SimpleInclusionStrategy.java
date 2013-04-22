@@ -1,4 +1,4 @@
-package com.sppad.jots.construction;
+package com.sppad.jots.construction.config;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

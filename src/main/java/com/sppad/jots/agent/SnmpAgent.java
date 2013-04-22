@@ -21,7 +21,7 @@ import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultTcpTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
-import com.sppad.jots.constructor.SnmpTree;
+import com.sppad.jots.SnmpTree;
 import com.sppad.jots.exceptions.SnmpBadValueException;
 import com.sppad.jots.exceptions.SnmpException;
 import com.sppad.jots.exceptions.SnmpNoMoreEntriesException;

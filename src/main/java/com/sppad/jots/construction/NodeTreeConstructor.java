@@ -1,10 +1,17 @@
 package com.sppad.jots.construction;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.sppad.jots.annotations.Jots;
 import com.sppad.jots.log.Messages;
 
 class NodeTreeConstructor
@@ -14,6 +21,14 @@ class NodeTreeConstructor
 
   private static final Logger logger = LoggerFactory
       .getLogger(NodeTreeConstructor.class);
+
+  private static final Predicate<Field> removeSynthetic = new Predicate<Field>()
+  {
+    public boolean apply(final Field field)
+    {
+      return !field.isSynthetic();
+    }
+  };
 
   static Node createTree(
       final Class<?> cls,
@@ -28,6 +43,16 @@ class NodeTreeConstructor
     return root;
   }
 
+  static Collection<Field> getFields(final Class<?> klass)
+  {
+    final List<Field> fields = new LinkedList<Field>();
+
+    for (Class<?> c = klass; c != Object.class; c = c.getSuperclass())
+      fields.addAll(0, Arrays.asList(c.getDeclaredFields()));
+
+    return Collections2.filter(fields, removeSynthetic);
+  }
+
   private final Predicate<Field> inclusionStrategy;
 
   private NodeTreeConstructor(final Predicate<Field> inclusionStrategy)
@@ -37,7 +62,7 @@ class NodeTreeConstructor
 
   private void addChildren(final InnerNode parent)
   {
-    for (final Field field : parent.fields)
+    for (final Field field : getFields(parent.klass))
     {
       if (!include(field))
         continue;
@@ -67,8 +92,9 @@ class NodeTreeConstructor
 
   private void addTableChild(final TableNode parent)
   {
-    final TableEntryNode child = new TableEntryNode(parent.field,
-        parent.entryClass, parent);
+    final Class<?> entryClass = parent.field.getAnnotation(Jots.class).cls();
+    final TableEntryNode child = new TableEntryNode(parent.field, entryClass,
+        parent);
 
     child.parent.addChild(child);
     child.snmpParent.addSnmpChild(child);

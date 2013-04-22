@@ -5,14 +5,32 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Map;
 
 import org.snmp4j.smi.OID;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import com.sppad.jots.annotations.SnmpNotSettable;
 import com.sppad.jots.exceptions.SnmpException;
 
-public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
+public class SnmpLookupField implements Comparable<SnmpLookupField>
 {
+  private static final Map<Class<?>, Function<String, Object>> converterLookupMap = ImmutableMap
+      .<Class<?>, Function<String, Object>> builder()
+      .put(Boolean.TYPE, ValueConverters.CONVERT_TO_BOOLEAN)
+      .put(Boolean.class, ValueConverters.CONVERT_TO_BOOLEAN)
+      .put(Integer.TYPE, ValueConverters.CONVERT_TO_INT)
+      .put(Integer.class, ValueConverters.CONVERT_TO_INT)
+      .put(Long.TYPE, ValueConverters.CONVERT_TO_LONG)
+      .put(Long.class, ValueConverters.CONVERT_TO_LONG)
+      .put(Float.TYPE, ValueConverters.CONVERT_TO_FLOAT)
+      .put(Float.class, ValueConverters.CONVERT_TO_FLOAT)
+      .put(Double.TYPE, ValueConverters.CONVERT_TO_DOUBLE)
+      .put(Double.class, ValueConverters.CONVERT_TO_DOUBLE)
+      .put(String.class, ValueConverters.CONVERT_TO_STRING).build();
+
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public static SnmpLookupField create(
       final OID oid,
       final Field field,
@@ -21,45 +39,16 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
   {
     final Class<?> fieldType = field.getType();
 
-    // Tried a map / factory pattern here for looking up, but performance
-    // was significantly worse. May need to revisit this in the future.
-    if (fieldType == Boolean.TYPE)
-      return new SnmpPrimativeBooleanLookupField(oid, field, object, setter);
+    final Function<String, Object> valueConverter = fieldType.isEnum() //
+    ? ValueConverters.enumConverter((Class<? extends Enum>) fieldType) //
+        : converterLookupMap.get(fieldType);
 
-    if (fieldType == Boolean.class)
-      return new SnmpBooleanLookupField(oid, field, object, setter);
+    if (valueConverter == null)
+    {
+      throw new RuntimeException("Class not supported: " + fieldType);
+    }
 
-    if (fieldType == Integer.TYPE)
-      return new SnmpPrimativeIntegerLookupField(oid, field, object, setter);
-
-    if (fieldType == Integer.class)
-      return new SnmpIntegerLookupField(oid, field, object, setter);
-
-    if (fieldType == Long.TYPE)
-      return new SnmpPrimativeLongLookupField(oid, field, object, setter);
-
-    if (fieldType == Long.class)
-      return new SnmpLongLookupField(oid, field, object, setter);
-
-    if (fieldType == Float.TYPE)
-      return new SnmpPrimativeFloatLookupField(oid, field, object, setter);
-
-    if (fieldType == Float.class)
-      return new SnmpFloatLookupField(oid, field, object, setter);
-
-    if (fieldType == Double.TYPE)
-      return new SnmpPrimativeDoubleLookupField(oid, field, object, setter);
-
-    if (fieldType == Double.class)
-      return new SnmpDoubleLookupField(oid, field, object, setter);
-
-    if (fieldType == String.class)
-      return new SnmpStringLookupField(oid, field, object, setter);
-
-    if (fieldType.isEnum())
-      return new SnmpEnumLookupField(oid, field, object, setter);
-
-    throw new RuntimeException("Class not supported: " + fieldType);
+    return new SnmpLookupField(oid, field, object, setter, valueConverter);
   }
 
   /** The object that corresponds to this OID instance */
@@ -71,9 +60,14 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
   /** The OID object for this field */
   final OID oid;
 
+  /** The method that should be used when performing a set */
   final Method setter;
 
+  /** Whether the field is writable or not */
   final boolean writable;
+
+  /** Used for converting a String value into an Object for setting on the field */
+  final Function<String, Object> valueConverter;
 
   /**
    * Constructs an snmpLookupField object.
@@ -86,13 +80,15 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
       final OID oid,
       final Field field,
       final Object enclosingObject,
-      final Method setter)
+      final Method setter,
+      final Function<String, Object> valueConverter)
   {
     this.oid = oid;
     this.field = field;
     this.enclosingObject = enclosingObject;
     this.setter = setter;
     this.writable = checkIsWritable();
+    this.valueConverter = valueConverter;
   }
 
   /**
@@ -118,25 +114,6 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
   {
     return oid.compareTo(o.oid);
   }
-
-  /**
-   * Performs a get, implementation specific to the type of a field.
-   * 
-   * @return An object representing the value of this field when the method is
-   *         called.
-   * @throws IllegalAccessException
-   */
-  abstract Object doGet()
-      throws IllegalAccessException;
-
-  /**
-   * Performs a set, implementation specific to the type of a field. All
-   * validation of data should be done by the implementing class.
-   * 
-   * @param value
-   *          The value to set.
-   */
-  abstract void doSet(final String value);
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Annotation getAnnotation(final Class annotationClass)
@@ -180,7 +157,7 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
   {
     try
     {
-      return doGet();
+      return field.get(enclosingObject);
     }
     catch (final IllegalAccessException e)
     {
@@ -207,7 +184,7 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
    */
   public void set(String value)
   {
-    doSet(value);
+    setValue(valueConverter.apply(value));
   }
 
   void setValue(final Object value)
@@ -219,18 +196,12 @@ public abstract class SnmpLookupField implements Comparable<SnmpLookupField>
       else
         field.set(enclosingObject, value);
     }
-    catch (SecurityException e)
+    catch (
+        SecurityException |
+        IllegalAccessException |
+        InvocationTargetException e)
     {
       throw new SnmpException(e.getCause().getMessage());
-    }
-    catch (IllegalAccessException e)
-    {
-      throw new SnmpException(e.getCause().getMessage());
-    }
-    catch (InvocationTargetException e)
-    {
-      throw new SnmpException(e.getCause());
     }
   }
-
 }

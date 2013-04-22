@@ -10,21 +10,9 @@ import java.util.TreeSet;
 import org.snmp4j.smi.OID;
 
 import com.sppad.jots.JotsOID;
-import com.sppad.jots.constructor.SnmpTree;
+import com.sppad.jots.SnmpTree;
 import com.sppad.jots.datastructures.primative.IntStack;
-import com.sppad.jots.lookup.SnmpBooleanLookupField;
-import com.sppad.jots.lookup.SnmpDoubleLookupField;
-import com.sppad.jots.lookup.SnmpEnumLookupField;
-import com.sppad.jots.lookup.SnmpFloatLookupField;
-import com.sppad.jots.lookup.SnmpIntegerLookupField;
-import com.sppad.jots.lookup.SnmpLongLookupField;
 import com.sppad.jots.lookup.SnmpLookupField;
-import com.sppad.jots.lookup.SnmpPrimativeBooleanLookupField;
-import com.sppad.jots.lookup.SnmpPrimativeDoubleLookupField;
-import com.sppad.jots.lookup.SnmpPrimativeFloatLookupField;
-import com.sppad.jots.lookup.SnmpPrimativeIntegerLookupField;
-import com.sppad.jots.lookup.SnmpPrimativeLongLookupField;
-import com.sppad.jots.lookup.SnmpStringLookupField;
 import com.sppad.jots.util.FieldUtils;
 
 class TreeConstructor

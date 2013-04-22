@@ -1,4 +1,4 @@
-package com.sppad.jots.constructor;
+package com.sppad.jots;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -75,6 +75,8 @@ public class SnmpTree implements Iterable<VariableBinding>
     final Variable variable;
     if (object instanceof Integer)
       variable = new Integer32((Integer) object);
+    else if (object instanceof Enum)
+      variable = new OctetString(((Enum<?>) object).name());
     else
       variable = new OctetString(object == null ? "" : object.toString());
 

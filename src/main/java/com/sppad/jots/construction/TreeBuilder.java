@@ -7,7 +7,8 @@ import static com.google.common.base.Preconditions.checkState;
 import java.lang.reflect.Field;
 
 import com.google.common.base.Predicate;
-import com.sppad.jots.constructor.SnmpTree;
+import com.sppad.jots.SnmpTree;
+import com.sppad.jots.construction.config.SimpleInclusionStrategy;
 
 public class TreeBuilder
 {

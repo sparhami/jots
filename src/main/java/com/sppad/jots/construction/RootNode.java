@@ -4,9 +4,7 @@ class RootNode extends InnerNode
 {
   RootNode(final Class<?> klass)
   {
-    super(klass, null, false);
-
-    this.name = klass.getSimpleName();
+    super(klass, null, false, klass.getSimpleName());
   }
 
   void accept(final INodeVisitor visitor)

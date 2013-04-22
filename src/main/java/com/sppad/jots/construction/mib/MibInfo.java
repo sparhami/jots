@@ -1,4 +1,4 @@
-package com.sppad.jots.constructor.mib;
+package com.sppad.jots.construction.mib;
 
 import java.io.IOException;
 import java.net.URL;

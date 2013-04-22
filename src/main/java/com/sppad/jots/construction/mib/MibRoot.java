@@ -1,4 +1,4 @@
-package com.sppad.jots.constructor.mib;
+package com.sppad.jots.construction.mib;
 
 public class MibRoot extends MibSubtree
 {

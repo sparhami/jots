@@ -36,7 +36,7 @@ abstract class Node
   final Class<?> klass;
 
   /** The name for this node */
-  String name;
+  final String name;
 
   /** The children nodes */
   final Collection<Node> nodes = new LinkedList<Node>();
@@ -53,12 +53,13 @@ abstract class Node
    */
   final Node snmpParent;
 
-  protected Node(final Class<?> klass, final Node parent, final boolean inTable)
+  Node(final Class<?> klass, final Node parent, final boolean inTable, final String name)
   {
     this.klass = klass;
     this.parent = parent;
     this.snmpParent = getSnmpParentNode(parent);
     this.inTable = inTable;
+    this.name = name;
   }
 
   Node getSnmpParentNode(final Node parent)

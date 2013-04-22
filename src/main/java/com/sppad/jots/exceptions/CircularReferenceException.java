@@ -1,4 +1,4 @@
-package com.sppad.jots.constructor;
+package com.sppad.jots.exceptions;
 
 public class CircularReferenceException extends RuntimeException
 {
