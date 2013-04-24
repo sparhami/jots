@@ -36,14 +36,14 @@ class TreeConstructor
 				staticOidMap);
 		tc.descend(node, obj);
 
-		return new SnmpTree(tc.prefix, tc.sortSet);
+		return new SnmpTree(tc.prefix, tc.sortedSet);
 	}
 
 	private final IntStack extensionStack = new IntStack();
 
 	private final int[] prefix;
 
-	private final SortedSet<SnmpLookupField> sortSet = new TreeSet<SnmpLookupField>(
+	private final SortedSet<SnmpLookupField> sortedSet = new TreeSet<SnmpLookupField>(
 			COMPARE_BY_OID);
 
 	private final Map<Node, IntStack> staticOidMap;
@@ -54,18 +54,17 @@ class TreeConstructor
 		this.staticOidMap = staticOidMap;
 	}
 
-	private void add(final OID oid, final Field field, final Object object,
-						final Method setter)
+	private void add(final OID oid, final Field field, final Object object)
 	{
-		sortSet.add(SnmpLookupField.create(oid, field, object, setter));
+		sortedSet.add(SnmpLookupField.create(oid, field, object));
 	}
 
-	private void createEntry(LeafNode node, Object obj)
+	private void addToSnmpTree(LeafNode node, Object obj)
 	{
 		final OID oid = JotsOID.createTerminalOID(prefix,
 				staticOidMap.get(node), extensionStack);
 
-		add(oid, node.field, obj, FieldUtils.getSetterForField(node.field));
+		add(oid, node.field, obj);
 	}
 
 	private void descend(Node node, Object obj)
@@ -130,7 +129,7 @@ class TreeConstructor
 
 			if (node instanceof LeafNode)
 			{
-				createEntry((LeafNode) node, obj);
+				addToSnmpTree((LeafNode) node, obj);
 			} else
 			{
 				descend(node, field.get(obj));

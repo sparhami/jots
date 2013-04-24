@@ -14,28 +14,6 @@ import com.sppad.jots.annotations.Jots;
 
 public class NodeTest
 {
-	@SuppressWarnings("unused")
-	private class ParentClass
-	{
-		public String name;
-	}
-
-	@SuppressWarnings("unused")
-	private class TestObject extends ParentClass
-	{
-		public boolean bool;
-
-		@Jots(cls = String.class)
-		public Set<String> collection;
-		public NestedObject obj;
-	}
-
-	@SuppressWarnings("unused")
-	private class NestedObject
-	{
-		public int number;
-	}
-
 	@Test
 	public void testIsCollection_Collection()
 	{

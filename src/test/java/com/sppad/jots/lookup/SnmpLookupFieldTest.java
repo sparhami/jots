@@ -4,6 +4,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -13,7 +18,13 @@ import com.sppad.jots.exceptions.SnmpBadValueException;
 
 public class SnmpLookupFieldTest
 {
-	private static class TestClass
+	private static class TestAnnotationClass
+	{
+		@TestAnnotation(value = "test")
+		public int number;
+	}
+
+	private static class TestEnumClass
 	{
 		private static enum TestEnum
 		{
@@ -29,65 +40,114 @@ public class SnmpLookupFieldTest
 		}
 	}
 
-	@Test
-	public void testCreate_enum() throws SecurityException,
-			NoSuchFieldException, NoSuchMethodException
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	private @interface TestAnnotation
 	{
-		final TestClass tc = new TestClass();
-		final Field field = tc.getClass().getDeclaredField("testEnum");
+		String value();
+	}
 
-		final Method method = tc.getClass().getDeclaredMethod("setTestEnum",
-				TestClass.TestEnum.class);
-		final SnmpLookupField testField = SnmpLookupField.create(null, field,
-				tc, method);
+	private static class TestSetterAvailableClass
+	{
+		@SuppressWarnings("unused")
+		public int number;
 
-		assertNotNull(testField);
+		@SuppressWarnings("unused")
+		public void setNumber(int number)
+		{
+			this.number = number + 1;
+		}
+	}
+
+	private static class TestSetterNotAvailableClass
+	{
+		@SuppressWarnings("unused")
+		public int number;
+	}
+
+	private SnmpLookupField createField(Object obj, String name)
+			throws NoSuchFieldException, SecurityException
+	{
+		final Field field = obj.getClass().getDeclaredField(name);
+		return SnmpLookupField.create(null, field, obj);
 	}
 
 	@Test
 	public void testGet_enum() throws SecurityException, NoSuchFieldException,
 			NoSuchMethodException
 	{
-		final TestClass tc = new TestClass();
-		final Field field = tc.getClass().getDeclaredField("testEnum");
+		final SnmpLookupField slf = createField(new TestEnumClass(), "testEnum");
 
-		final Method method = tc.getClass().getDeclaredMethod("setTestEnum",
-				TestClass.TestEnum.class);
-		final SnmpLookupField testField = SnmpLookupField.create(null, field,
-				tc, method);
+		final String value = slf.getValue().toString();
+		final String expected = "FOO";
+		assertThat(value, is(expected));
+	}
 
-		final String value = testField.getValue().toString();
-		assertThat(value, is(tc.testEnum.toString()));
+	@Test
+	public void testGetAnnotation() throws NoSuchFieldException,
+			SecurityException
+	{
+		final SnmpLookupField slf = createField(new TestAnnotationClass(),
+				"number");
+
+		final TestAnnotation annotation = slf
+				.getAnnotation(TestAnnotation.class);
+		
+
+		final String actual = annotation.value();
+		final String expected = "test";
+		assertThat(actual, is(expected));
 	}
 
 	@Test
 	public void testSet_enum() throws SecurityException, NoSuchFieldException,
 			NoSuchMethodException
 	{
-		final TestClass tc = new TestClass();
-		final Field field = tc.getClass().getDeclaredField("testEnum");
+		final SnmpLookupField slf = createField(new TestEnumClass(), "testEnum");
 
-		final Method method = tc.getClass().getDeclaredMethod("setTestEnum",
-				TestClass.TestEnum.class);
-		final SnmpLookupField testField = SnmpLookupField.create(null, field,
-				tc, method);
-		testField.set(TestClass.TestEnum.BAR.toString());
+		slf.set(TestEnumClass.TestEnum.BAR.toString());
 
-		final String value = testField.getValue().toString();
-		assertThat(value, is(TestClass.TestEnum.BAR.toString()));
+		final String actual = slf.getValue().toString();
+		final String expected = TestEnumClass.TestEnum.BAR.toString();
+		assertThat(actual, is(expected));
 	}
 
 	@Test(expected = SnmpBadValueException.class)
 	public void testSet_enum_badValue() throws SecurityException,
 			NoSuchFieldException, NoSuchMethodException
 	{
-		final TestClass tc = new TestClass();
-		final Field field = tc.getClass().getDeclaredField("testEnum");
+		final SnmpLookupField slf = createField(new TestEnumClass(), "testEnum");
 
-		final Method method = tc.getClass().getDeclaredMethod("setTestEnum",
-				TestClass.TestEnum.class);
-		final SnmpLookupField testField = SnmpLookupField.create(null, field,
-				tc, method);
-		testField.set("this is a bad value");
+		slf.set("this is a bad value");
+	}
+
+	@Test
+	public void testSet_setterAvailable() throws NoSuchFieldException,
+			SecurityException
+	{
+		final SnmpLookupField slf = createField(new TestSetterAvailableClass(),
+				"number");
+
+		slf.set("1");
+
+		final String actual = slf.getValue().toString();
+		final String expected = "2";
+
+		assertThat(actual, is(expected));
+	}
+
+	@Test
+	public void testSet_setterNotAvailable() throws NoSuchFieldException,
+			SecurityException
+	{
+		final SnmpLookupField slf = createField(
+				new TestSetterNotAvailableClass(), "number");
+
+		slf.set("1");
+
+		final String actual = slf.getValue().toString();
+		final String expected = "1";
+
+		assertThat(actual, is(expected));
 	}
 }

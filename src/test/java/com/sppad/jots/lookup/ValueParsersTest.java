@@ -9,7 +9,7 @@ import org.junit.Test;
 import com.google.common.base.Function;
 import com.sppad.jots.exceptions.SnmpBadValueException;
 
-public class ValueConvertersTest
+public class ValueParsersTest
 {
 	private static enum Color
 	{
@@ -19,13 +19,13 @@ public class ValueConvertersTest
 	@Test(expected = SnmpBadValueException.class)
 	public void test_boolean_bad()
 	{
-		ValueConverters.get(Boolean.class).apply("1241asd");
+		ValueParsers.get(Boolean.class).apply("1241asd");
 	}
 
 	@Test
 	public void test_boolean_false()
 	{
-		final Boolean actual = (Boolean) ValueConverters.get(Boolean.class)
+		final Boolean actual = (Boolean) ValueParsers.get(Boolean.class)
 				.apply("false");
 
 		assertThat(actual, is(Boolean.FALSE));
@@ -34,7 +34,7 @@ public class ValueConvertersTest
 	@Test
 	public void test_boolean_primitive_true()
 	{
-		final Boolean actual = (Boolean) ValueConverters.get(Boolean.TYPE)
+		final Boolean actual = (Boolean) ValueParsers.get(Boolean.TYPE)
 				.apply("true");
 
 		assertThat(actual, is(Boolean.TRUE));
@@ -43,7 +43,7 @@ public class ValueConvertersTest
 	@Test
 	public void test_boolean_true()
 	{
-		final Boolean actual = (Boolean) ValueConverters.get(Boolean.class)
+		final Boolean actual = (Boolean) ValueParsers.get(Boolean.class)
 				.apply("true");
 
 		assertThat(actual, is(Boolean.TRUE));
@@ -52,7 +52,7 @@ public class ValueConvertersTest
 	@Test
 	public void test_double()
 	{
-		final Double actual = (Double) ValueConverters.get(Double.class).apply(
+		final Double actual = (Double) ValueParsers.get(Double.class).apply(
 				"1234.0");
 
 		assertThat(actual, is(1234.0));
@@ -61,13 +61,13 @@ public class ValueConvertersTest
 	@Test(expected = SnmpBadValueException.class)
 	public void test_double_bad()
 	{
-		ValueConverters.get(Double.class).apply("asbc");
+		ValueParsers.get(Double.class).apply("asbc");
 	}
 
 	@Test
 	public void test_double_primitive()
 	{
-		final Double actual = (Double) ValueConverters.get(Double.TYPE).apply(
+		final Double actual = (Double) ValueParsers.get(Double.TYPE).apply(
 				"1234");
 
 		assertThat(actual, is(1234.0));
@@ -76,7 +76,7 @@ public class ValueConvertersTest
 	@Test
 	public void test_enum()
 	{
-		final Color actual = (Color) ValueConverters.get(Color.class).apply(
+		final Color actual = (Color) ValueParsers.get(Color.class).apply(
 				"RED");
 
 		assertThat(actual, is(Color.RED));
@@ -85,14 +85,14 @@ public class ValueConvertersTest
 	@Test(expected = SnmpBadValueException.class)
 	public void test_enum_bad()
 	{
-		ValueConverters.get(Color.class).apply("purple");
+		ValueParsers.get(Color.class).apply("purple");
 	}
 
 	@Test
 	public void test_enum_cache()
 	{
-		final Function<?, ?> first = ValueConverters.get(Color.BLUE.getClass());
-		final Function<?, ?> second = ValueConverters.get(Color.RED.getClass());
+		final Function<?, ?> first = ValueParsers.get(Color.BLUE.getClass());
+		final Function<?, ?> second = ValueParsers.get(Color.RED.getClass());
 
 		assertEquals(first, second);
 	}
@@ -100,7 +100,7 @@ public class ValueConvertersTest
 	@Test
 	public void test_float()
 	{
-		final Float actual = (Float) ValueConverters.get(Float.class).apply(
+		final Float actual = (Float) ValueParsers.get(Float.class).apply(
 				"1234.0");
 
 		assertThat(actual, is(1234.0F));
@@ -109,13 +109,13 @@ public class ValueConvertersTest
 	@Test(expected = SnmpBadValueException.class)
 	public void test_float_bad()
 	{
-		ValueConverters.get(Float.class).apply("asbc");
+		ValueParsers.get(Float.class).apply("asbc");
 	}
 
 	@Test
 	public void test_float_primitive()
 	{
-		final Float actual = (Float) ValueConverters.get(Float.TYPE).apply(
+		final Float actual = (Float) ValueParsers.get(Float.TYPE).apply(
 				"1234");
 
 		assertThat(actual, is(1234.0F));
@@ -124,7 +124,7 @@ public class ValueConvertersTest
 	@Test
 	public void test_integer()
 	{
-		final Integer actual = (Integer) ValueConverters.get(Integer.class)
+		final Integer actual = (Integer) ValueParsers.get(Integer.class)
 				.apply("1234");
 
 		assertThat(actual, is(1234));
@@ -133,13 +133,13 @@ public class ValueConvertersTest
 	@Test(expected = SnmpBadValueException.class)
 	public void test_integer_bad()
 	{
-		ValueConverters.get(Integer.class).apply("asbc");
+		ValueParsers.get(Integer.class).apply("asbc");
 	}
 
 	@Test
 	public void test_integer_primitive()
 	{
-		final Integer actual = (Integer) ValueConverters.get(Integer.TYPE)
+		final Integer actual = (Integer) ValueParsers.get(Integer.TYPE)
 				.apply("1234");
 
 		assertThat(actual, is(1234));
@@ -148,7 +148,7 @@ public class ValueConvertersTest
 	@Test
 	public void test_long()
 	{
-		final Long actual = (Long) ValueConverters.get(Long.class)
+		final Long actual = (Long) ValueParsers.get(Long.class)
 				.apply("1234");
 
 		assertThat(actual, is(1234L));
@@ -157,13 +157,13 @@ public class ValueConvertersTest
 	@Test(expected = SnmpBadValueException.class)
 	public void test_long_bad()
 	{
-		ValueConverters.get(Long.class).apply("asbc");
+		ValueParsers.get(Long.class).apply("asbc");
 	}
 
 	@Test
 	public void test_long_primitive()
 	{
-		final Long actual = (Long) ValueConverters.get(Long.TYPE).apply("1234");
+		final Long actual = (Long) ValueParsers.get(Long.TYPE).apply("1234");
 
 		assertThat(actual, is(1234L));
 	}
@@ -171,7 +171,7 @@ public class ValueConvertersTest
 	@Test
 	public void test_string()
 	{
-		final String actual = (String) ValueConverters.get(String.class).apply(
+		final String actual = (String) ValueParsers.get(String.class).apply(
 				"test");
 
 		assertThat(actual, is("test"));

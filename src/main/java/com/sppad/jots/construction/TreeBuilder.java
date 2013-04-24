@@ -43,12 +43,16 @@ public class TreeBuilder
 		return new TreeBuilder(obj);
 	}
 
+	/** Determines what Fields are included */
 	private Predicate<Field> inclusionStrategy = null;
 
+	/** The object to build an SnmpTree for */
 	private final Object obj;
 
+	/** The prefix OID for all elements in the tree */
 	private int[] prefix = null;
 
+	/** The strategy for considering items as writable */
 	private SetStrategy setStrategy = null;
 
 	private TreeBuilder(final Object obj)

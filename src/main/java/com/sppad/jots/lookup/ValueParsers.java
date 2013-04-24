@@ -9,7 +9,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.sppad.jots.exceptions.SnmpBadValueException;
 
-class ValueConverters
+class ValueParsers
 {
 	@SuppressWarnings("rawtypes")
 	private static final LoadingCache<Class<? extends Enum>, Function<String, Enum>> cacheEnumConverters = CacheBuilder
@@ -153,7 +153,7 @@ class ValueConverters
 			return CONVERTER_LOOKUP_MAP.get(cls);
 	}
 
-	private ValueConverters()
+	private ValueParsers()
 	{
 		// static only
 	}

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -21,6 +22,14 @@ import com.sppad.jots.lookup.SnmpLookupField;
 
 public class SnmpTreeTest
 {
+	private static final Comparator<SnmpLookupField> COMPARE_BY_OID = new Comparator<SnmpLookupField>()
+	{
+		public int compare(SnmpLookupField arg0, SnmpLookupField arg1)
+		{
+			return arg0.getOid().compareTo(arg1.getOid());
+		}
+	};
+
 	public static class testClass
 	{
 		public boolean testBoolean = true;
@@ -57,33 +66,23 @@ public class SnmpTreeTest
 			NoSuchMethodException
 	{
 		final int[] prefix = new int[] {};
-		final SortedSet<SnmpLookupField> sortSet = new TreeSet<SnmpLookupField>();
+		final SortedSet<SnmpLookupField> sortSet = new TreeSet<SnmpLookupField>(
+				COMPARE_BY_OID);
 		final Object testObj = new testClass();
 
 		final Field fieldOne = testObj.getClass().getField("testBoolean");
-		final Method methodOne = testObj.getClass().getMethod("setTestBoolean",
-				Boolean.TYPE);
-
 		final Field fieldTwo = testObj.getClass().getField("testBooleanObject");
-		final Method methodTwo = testObj.getClass().getMethod(
-				"setTestBooleanObject", Boolean.class);
-
 		final Field fieldThree = testObj.getClass().getField("testInteger");
-		final Method methodThree = testObj.getClass().getMethod(
-				"setTestInteger", Integer.TYPE);
-
 		final Field fieldFour = testObj.getClass().getField("testString");
-		final Method methodFour = testObj.getClass().getMethod("setTestString",
-				String.class);
 
 		sortSet.add(SnmpLookupField.create(new OID(new int[] { 1, 1 }),
-				fieldOne, testObj, methodOne));
+				fieldOne, testObj));
 		sortSet.add(SnmpLookupField.create(new OID(new int[] { 1, 2 }),
-				fieldTwo, testObj, methodTwo));
+				fieldTwo, testObj));
 		sortSet.add(SnmpLookupField.create(new OID(new int[] { 1, 3 }),
-				fieldThree, testObj, methodThree));
+				fieldThree, testObj));
 		sortSet.add(SnmpLookupField.create(new OID(new int[] { 1, 4 }),
-				fieldFour, testObj, methodFour));
+				fieldFour, testObj));
 
 		tree = new SnmpTree(prefix, sortSet);
 	}
@@ -192,33 +191,23 @@ public class SnmpTreeTest
 	{
 
 		final int[] prefix = new int[] {};
-		final SortedSet<SnmpLookupField> sortSet = new TreeSet<SnmpLookupField>();
+		final SortedSet<SnmpLookupField> sortSet = new TreeSet<SnmpLookupField>(
+				COMPARE_BY_OID);
 		final Object testObj = new testClass();
 
 		final Field fieldOne = testObj.getClass().getField("testBoolean");
-		final Method methodOne = testObj.getClass().getMethod("setTestBoolean",
-				Boolean.TYPE);
-
 		final Field fieldTwo = testObj.getClass().getField("testBooleanObject");
-		final Method methodTwo = testObj.getClass().getMethod(
-				"setTestBooleanObject", Boolean.class);
-
 		final Field fieldThree = testObj.getClass().getField("testInteger");
-		final Method methodThree = testObj.getClass().getMethod(
-				"setTestInteger", Integer.TYPE);
-
 		final Field fieldFour = testObj.getClass().getField("testString");
-		final Method methodFour = testObj.getClass().getMethod("setTestString",
-				String.class);
 
 		sortSet.add(SnmpLookupField.create(new OID(new int[] { 2, 1 }),
-				fieldOne, testObj, methodOne));
+				fieldOne, testObj));
 		sortSet.add(SnmpLookupField.create(new OID(new int[] { 2, 2 }),
-				fieldTwo, testObj, methodTwo));
+				fieldTwo, testObj));
 		sortSet.add(SnmpLookupField.create(new OID(new int[] { 2, 3 }),
-				fieldThree, testObj, methodThree));
+				fieldThree, testObj));
 		sortSet.add(SnmpLookupField.create(new OID(new int[] { 2, 4 }),
-				fieldFour, testObj, methodFour));
+				fieldFour, testObj));
 
 		final SnmpTree newtree = new SnmpTree(prefix, sortSet);
 		final SnmpTree mergedTree = tree.mergeSnmpTrees(newtree);

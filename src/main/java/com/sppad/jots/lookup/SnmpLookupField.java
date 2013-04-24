@@ -11,24 +11,23 @@ import org.snmp4j.smi.OID;
 import com.google.common.base.Function;
 import com.sppad.jots.annotations.SnmpNotSettable;
 import com.sppad.jots.exceptions.SnmpException;
+import com.sppad.jots.util.FieldUtils;
 
 public class SnmpLookupField
 {
 	public static SnmpLookupField create(final OID oid, final Field field,
-											final Object object,
-											final Method setter)
+											final Object object)
 	{
-		final Class<?> fieldType = field.getType();
-		final Function<String, ? extends Object> valueConverter = ValueConverters
-				.get(fieldType);
+		final Function<String, ? extends Object> valueConverter = ValueParsers
+				.get(field.getType());
 
 		if (valueConverter == null)
 		{
 			throw new RuntimeException("Cannot create SnmpLookupField for: "
-					+ fieldType);
+					+ field.getType());
 		}
 
-		return new SnmpLookupField(oid, field, object, setter, valueConverter);
+		return new SnmpLookupField(oid, field, object, valueConverter);
 	}
 
 	/** The object that corresponds to this OID instance */
@@ -47,7 +46,7 @@ public class SnmpLookupField
 	 * Used for converting a String value into an Object for setting on the
 	 * field
 	 */
-	final Function<String, ? extends Object> valueConverter;
+	final Function<String, ? extends Object> valueParser;
 
 	/** Whether the field is writable or not */
 	final boolean writable;
@@ -60,41 +59,46 @@ public class SnmpLookupField
 	 * @param object
 	 */
 	private SnmpLookupField(final OID oid, final Field field,
-			final Object enclosingObject, final Method setter,
+			final Object enclosingObject,
 			final Function<String, ? extends Object> valueConverter)
 	{
 		this.oid = oid;
 		this.field = field;
 		this.enclosingObject = enclosingObject;
-		this.setter = setter;
+		this.setter = FieldUtils.getSetterForField(field);
+		;
 		this.writable = checkIsWritable();
-		this.valueConverter = valueConverter;
+		this.valueParser = valueConverter;
 	}
 
-	/**
-	 * Checks to see if the field is 'settable', meaning it either as a set
-	 * method and the field does not have an annotation to prevent it from being
-	 * set.
-	 * 
-	 * @return True if this field is 'settable', false otherwise.
-	 * @see SnmpNotSettable
-	 */
 	private boolean checkIsWritable()
 	{
 		return field.getAnnotation(SnmpNotSettable.class) == null
 				&& setter != null;
 	}
 
-	public Annotation getAnnotation(final Class<? extends Annotation> annotationClass)
+	/**
+	 * @param annotationClass
+	 *            An Annotation class
+	 * @return The Annotation for the specified type if it exists, null
+	 *         otherwise
+	 */
+	public <T extends Annotation> T getAnnotation(final Class<T> annotationClass)
 	{
 		return field.getAnnotation(annotationClass);
 	}
 
+	/**
+	 * @return The object that contains the field
+	 */
 	public Object getEnclosingObject()
 	{
 		return enclosingObject;
 	}
 
+	/**
+	 * @return The name of the field
+	 */
 	public String getFieldName()
 	{
 		return field.getName();
@@ -147,32 +151,28 @@ public class SnmpLookupField
 	 * {@link #isWritable()} can be used to check if the field is considered
 	 * 'settable'.
 	 * 
-	 * @param value
-	 *            The value to set.
+	 * @param data
+	 *            The data to set.
 	 */
-	public void set(String value)
-	{
-		setValue(valueConverter.apply(value));
-	}
-
-	void setValue(final Object value)
+	public void set(String data)
 	{
 		try
 		{
-			if (setter != null)
-			{
-				setter.invoke(enclosingObject, value);
-			}
-
-			else
-			{
-				field.set(enclosingObject, value);
-			}
+			setParsedValue(valueParser.apply(data));
 		} catch (SecurityException
 				| IllegalAccessException
 				| InvocationTargetException e)
 		{
 			throw new SnmpException(e.getCause().getMessage());
 		}
+	}
+
+	void setParsedValue(final Object value) throws IllegalArgumentException,
+			IllegalAccessException, InvocationTargetException
+	{
+		if (setter != null)
+			setter.invoke(enclosingObject, value);
+		else
+			field.set(enclosingObject, value);
 	}
 }
