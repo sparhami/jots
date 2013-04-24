@@ -13,11 +13,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface IntegerInterfaceComment
 {
-  final String type = "Integer";
+	final String type = "Integer";
 
-  int maxValue();
+	int maxValue();
 
-  int minValue();
+	int minValue();
 
-  String synopsis();
+	String synopsis();
 }

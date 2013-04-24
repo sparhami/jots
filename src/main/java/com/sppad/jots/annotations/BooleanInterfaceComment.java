@@ -13,11 +13,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface BooleanInterfaceComment
 {
-  final String type = "Boolean";
+	final String type = "Boolean";
 
-  String falseSynopsis();
+	String falseSynopsis();
 
-  String synopsis();
+	String synopsis();
 
-  String trueSynopsis();
+	String trueSynopsis();
 }

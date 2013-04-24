@@ -5,25 +5,25 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+
 import org.snmp4j.smi.OID;
 
 import com.google.common.base.Function;
 import com.sppad.jots.annotations.SnmpNotSettable;
 import com.sppad.jots.exceptions.SnmpException;
 
-public class SnmpLookupField implements Comparable<SnmpLookupField>
+public class SnmpLookupField
 {
-	public static SnmpLookupField create(
-			final OID oid,
-			final Field field,
-			final Object object,
-			final Method setter)
+	public static SnmpLookupField create(final OID oid, final Field field,
+											final Object object,
+											final Method setter)
 	{
 		final Class<?> fieldType = field.getType();
 		final Function<String, ? extends Object> valueConverter = ValueConverters
 				.get(fieldType);
 
-		if (valueConverter == null) {
+		if (valueConverter == null)
+		{
 			throw new RuntimeException("Cannot create SnmpLookupField for: "
 					+ fieldType);
 		}
@@ -59,11 +59,8 @@ public class SnmpLookupField implements Comparable<SnmpLookupField>
 	 * @param field
 	 * @param object
 	 */
-	private SnmpLookupField(
-			final OID oid,
-			final Field field,
-			final Object enclosingObject,
-			final Method setter,
+	private SnmpLookupField(final OID oid, final Field field,
+			final Object enclosingObject, final Method setter,
 			final Function<String, ? extends Object> valueConverter)
 	{
 		this.oid = oid;
@@ -84,24 +81,11 @@ public class SnmpLookupField implements Comparable<SnmpLookupField>
 	 */
 	private boolean checkIsWritable()
 	{
-		if (field.getAnnotation(SnmpNotSettable.class) != null
-				|| setter == null)
-			return false;
-		else
-			return true;
+		return field.getAnnotation(SnmpNotSettable.class) == null
+				&& setter != null;
 	}
 
-	/**
-	 * Compares the OID of this field to the given field.
-	 */
-	@Override
-	public int compareTo(final SnmpLookupField o)
-	{
-		return oid.compareTo(o.oid);
-	}
-
-	public Annotation getAnnotation(
-			final Class<? extends Annotation> annotationClass)
+	public Annotation getAnnotation(final Class<? extends Annotation> annotationClass)
 	{
 		return field.getAnnotation(annotationClass);
 	}
@@ -176,13 +160,17 @@ public class SnmpLookupField implements Comparable<SnmpLookupField>
 		try
 		{
 			if (setter != null)
+			{
 				setter.invoke(enclosingObject, value);
+			}
+
 			else
+			{
 				field.set(enclosingObject, value);
-		} catch (
-				SecurityException |
-				IllegalAccessException |
-				InvocationTargetException e)
+			}
+		} catch (SecurityException
+				| IllegalAccessException
+				| InvocationTargetException e)
 		{
 			throw new SnmpException(e.getCause().getMessage());
 		}

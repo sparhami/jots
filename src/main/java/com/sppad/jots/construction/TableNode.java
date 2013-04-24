@@ -6,38 +6,38 @@ import com.sppad.jots.annotations.Jots;
 
 class TableNode extends InnerNode
 {
-  TableNode(final Field field, final Node parent)
-  {
-    super(field.getAnnotation(Jots.class).cls(), parent, true, field.getName());
-    
-    this.field = field;
-  }
+	TableNode(final Field field, final Node parent)
+	{
+		super(field.getAnnotation(Jots.class).cls(), parent, true, field
+				.getName());
 
-  void accept(final INodeVisitor visitor)
-  {
-    visitor.visitEnter(this);
+		this.field = field;
+	}
 
-    for (final Node child : snmpNodes)
-      child.accept(visitor);
+	void accept(final INodeVisitor visitor)
+	{
+		visitor.visitEnter(this);
 
-    visitor.visitExit(this);
-  }
+		for (final Node child : snmpNodes)
+			child.accept(visitor);
 
-  @Override
-  Node getSnmpParentNode(Node parent)
-  {
-    do
-    {
-      // Note: the root node will always have inTable = false
-      if (!parent.inTable || (parent instanceof TableNode))
-      {
-        break;
-      }
-    }
-    while ((parent = parent.parent) != null);
+		visitor.visitExit(this);
+	}
 
-    assert (parent != null);
+	@Override
+	Node getSnmpParentNode(Node parent)
+	{
+		do
+		{
+			// Note: the root node will always have inTable = false
+			if (!parent.inTable || (parent instanceof TableNode))
+			{
+				break;
+			}
+		} while ((parent = parent.parent) != null);
 
-    return parent;
-  }
+		assert (parent != null);
+
+		return parent;
+	}
 }

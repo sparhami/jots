@@ -16,107 +16,104 @@ import com.sppad.jots.log.Messages;
 
 class NodeTreeConstructor
 {
-  private static final String COLLECTION_NO_ANNOTATION = Messages
-      .getString("COLLECTION_NO_ANNOTATION");
+	private static final String COLLECTION_NO_ANNOTATION = Messages
+			.getString("COLLECTION_NO_ANNOTATION");
 
-  private static final Logger logger = LoggerFactory
-      .getLogger(NodeTreeConstructor.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(NodeTreeConstructor.class);
 
-  private static final Predicate<Field> removeSynthetic = new Predicate<Field>()
-  {
-    public boolean apply(final Field field)
-    {
-      return !field.isSynthetic();
-    }
-  };
+	private static final Predicate<Field> removeSynthetic = new Predicate<Field>()
+	{
+		public boolean apply(final Field field)
+		{
+			return !field.isSynthetic();
+		}
+	};
 
-  static Node createTree(
-      final Class<?> cls,
-      final Predicate<Field> inclusionStrategy)
-  {
-    final RootNode root = new RootNode(cls);
-    final NodeTreeConstructor constructor = new NodeTreeConstructor(
-        inclusionStrategy);
+	static Node createTree(final Class<?> cls,
+							final Predicate<Field> inclusionStrategy)
+	{
+		final RootNode root = new RootNode(cls);
+		final NodeTreeConstructor constructor = new NodeTreeConstructor(
+				inclusionStrategy);
 
-    constructor.addChildren(root);
+		constructor.addChildren(root);
 
-    return root;
-  }
+		return root;
+	}
 
-  static Collection<Field> getFields(final Class<?> klass)
-  {
-    final List<Field> fields = new LinkedList<Field>();
+	static Collection<Field> getFields(final Class<?> klass)
+	{
+		final List<Field> fields = new LinkedList<Field>();
 
-    for (Class<?> c = klass; c != Object.class; c = c.getSuperclass())
-      fields.addAll(0, Arrays.asList(c.getDeclaredFields()));
+		for (Class<?> c = klass; c != Object.class; c = c.getSuperclass())
+			fields.addAll(0, Arrays.asList(c.getDeclaredFields()));
 
-    return Collections2.filter(fields, removeSynthetic);
-  }
+		return Collections2.filter(fields, removeSynthetic);
+	}
 
-  private final Predicate<Field> inclusionStrategy;
+	private final Predicate<Field> inclusionStrategy;
 
-  private NodeTreeConstructor(final Predicate<Field> inclusionStrategy)
-  {
-    this.inclusionStrategy = inclusionStrategy;
-  }
+	private NodeTreeConstructor(final Predicate<Field> inclusionStrategy)
+	{
+		this.inclusionStrategy = inclusionStrategy;
+	}
 
-  private void addChildren(final InnerNode parent)
-  {
-    for (final Field field : getFields(parent.klass))
-    {
-      if (!include(field))
-        continue;
+	private void addChildren(final InnerNode parent)
+	{
+		for (final Field field : getFields(parent.klass))
+		{
+			if (!include(field))
+				continue;
 
-      final Node child;
-      final Class<?> fieldType = field.getType();
+			final Node child;
+			final Class<?> fieldType = field.getType();
 
-      if (Node.isTable(fieldType))
-      {
-        child = new TableNode(field, parent);
-        addTableChild((TableNode) child);
-      }
-      else if (Node.isLeaf(fieldType))
-      {
-        child = new LeafNode(field, parent);
-      }
-      else
-      {
-        child = new EntryNode(field, parent);
-        addChildren((EntryNode) child);
-      }
+			if (Node.isTable(fieldType))
+			{
+				child = new TableNode(field, parent);
+				addTableChild((TableNode) child);
+			} else if (Node.isLeaf(fieldType))
+			{
+				child = new LeafNode(field, parent);
+			} else
+			{
+				child = new EntryNode(field, parent);
+				addChildren((EntryNode) child);
+			}
 
-      child.parent.addChild(child);
-      child.snmpParent.addSnmpChild(child);
-    }
-  }
+			child.parent.addChild(child);
+			child.snmpParent.addSnmpChild(child);
+		}
+	}
 
-  private void addTableChild(final TableNode parent)
-  {
-    final Class<?> entryClass = parent.field.getAnnotation(Jots.class).cls();
-    final TableEntryNode child = new TableEntryNode(parent.field, entryClass,
-        parent);
+	private void addTableChild(final TableNode parent)
+	{
+		final Class<?> entryClass = parent.field.getAnnotation(Jots.class)
+				.cls();
+		final TableEntryNode child = new TableEntryNode(parent.field,
+				entryClass, parent);
 
-    child.parent.addChild(child);
-    child.snmpParent.addSnmpChild(child);
+		child.parent.addChild(child);
+		child.snmpParent.addSnmpChild(child);
 
-    addChildren(child);
-  }
+		addChildren(child);
+	}
 
-  private boolean include(final Field field)
-  {
-    final boolean leaf = Node.isLeaf(field.getType());
-    final boolean collection = Node.isTable(field.getType());
-    final boolean typeAnnotation = Node.hasCollectionAnnotation(field);
+	private boolean include(final Field field)
+	{
+		final boolean leaf = Node.isLeaf(field.getType());
+		final boolean collection = Node.isTable(field.getType());
+		final boolean typeAnnotation = Node.hasCollectionAnnotation(field);
 
-    if (collection && !typeAnnotation)
-    {
-      logger.warn(COLLECTION_NO_ANNOTATION, field.getDeclaringClass(),
-          field.getName());
-      return false;
-    }
-    else
-    {
-      return leaf || inclusionStrategy.apply(field);
-    }
-  }
+		if (collection && !typeAnnotation)
+		{
+			logger.warn(COLLECTION_NO_ANNOTATION, field.getDeclaringClass(),
+					field.getName());
+			return false;
+		} else
+		{
+			return leaf || inclusionStrategy.apply(field);
+		}
+	}
 }

@@ -4,40 +4,54 @@ import org.snmp4j.smi.OID;
 
 import com.sppad.jots.datastructures.primative.IntStack;
 
-public class JotsOID extends OID
+public class JotsOID
 {
-  private static final long serialVersionUID = 1588073102991378510L;
+	private static final IntStack NOT_TABLE_TERMINATOR = new IntStack(
+			new int[] { 0 });
 
-  public JotsOID(
-      final int[] prefix,
-      final IntStack staticOid,
-      final IntStack extension)
-  {
-    final int oidSize = staticOid.size();
-    final int extensionSize = extension.size();
-    final int size = prefix.length + oidSize + extensionSize;
+	public static OID createOID(final int[] prefix, final IntStack staticOid)
+	{
+		final OID oid = new OID();
 
-    final int[] oidArray = new int[size];
+		final int staticSize = staticOid.size();
+		final int totalSize = prefix.length + staticSize;
 
-    System.arraycopy(prefix, 0, oidArray, 0, prefix.length);
-    staticOid.copyTo(oidArray, prefix.length);
-    extension.copyTo(oidArray, prefix.length + oidSize);
+		final int[] oidArray = new int[totalSize];
 
-    this.setValue(oidArray);
-  }
+		System.arraycopy(prefix, 0, oidArray, 0, prefix.length);
+		staticOid.copyTo(oidArray, prefix.length);
 
-  public JotsOID(final int[] prefix, final IntStack staticOid)
-  {
-    final int oidSize = staticOid.size();
-    final int size = prefix.length + oidSize + 1;
+		oid.setValue(oidArray);
 
-    final int[] oidArray = new int[size];
+		return oid;
+	}
 
-    System.arraycopy(prefix, 0, oidArray, 0, prefix.length);
-    staticOid.copyTo(oidArray, prefix.length);
+	private static OID createOID(final int[] prefix, final IntStack staticOid,
+							final IntStack extension)
+	{
+		final OID oid = new OID();
 
-    oidArray[prefix.length + oidSize] = 0;
+		final int staticSize = staticOid.size();
+		final int extensionSize = extension.size();
+		final int totalSize = prefix.length + staticSize + extensionSize;
 
-    this.setValue(oidArray);
-  }
+		final int[] oidArray = new int[totalSize];
+
+		System.arraycopy(prefix, 0, oidArray, 0, prefix.length);
+		staticOid.copyTo(oidArray, prefix.length);
+		extension.copyTo(oidArray, prefix.length + staticSize);
+
+		oid.setValue(oidArray);
+
+		return oid;
+	}
+
+	public static OID createTerminalOID(int[] prefix, IntStack staticOid,
+										IntStack extensionStack)
+	{
+		if (extensionStack.size() == 0)
+			return createOID(prefix, staticOid, NOT_TABLE_TERMINATOR);
+		else
+			return createOID(prefix, staticOid, extensionStack);
+	}
 }

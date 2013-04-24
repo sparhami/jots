@@ -15,49 +15,49 @@ import com.sppad.jots.exceptions.SnmpPduLengthException;
  */
 public class CustomPDU extends PDU
 {
-  /**
-   * Apparently, using up to the maxPduLength causes an error. TODO - Need to
-   * find the proper way to do this.
-   */
-  private static final int OVERHEAD_BUFFER = 200;
+	/**
+	 * Apparently, using up to the maxPduLength causes an error. TODO - Need to
+	 * find the proper way to do this.
+	 */
+	private static final int OVERHEAD_BUFFER = 200;
 
-  /** Default serialVersionUID */
-  private static final long serialVersionUID = 1L;
+	/** Default serialVersionUID */
+	private static final long serialVersionUID = 1L;
 
-  /** Keep track of the current index for reporting errors */
-  public int currentRequestPduIndex = 0;
+	/** Keep track of the current index for reporting errors */
+	public int currentRequestPduIndex = 0;
 
-  /** Keep track of the current length, quicker than recalculating it */
-  private int length = 0;
+	/** Keep track of the current length, quicker than recalculating it */
+	private int length = 0;
 
-  /** The max length for the response */
-  private final int maxPduLength;
+	/** The max length for the response */
+	private final int maxPduLength;
 
-  /**
-   * Creates a custom PDU for making sure the length limit is not reached.
-   * 
-   * @param maxPduLength
-   *          The max length for the PDU response.
-   */
-  public CustomPDU(final int maxPduLength)
-  {
-    this.maxPduLength = maxPduLength;
-  }
+	/**
+	 * Creates a custom PDU for making sure the length limit is not reached.
+	 * 
+	 * @param maxPduLength
+	 *            The max length for the PDU response.
+	 */
+	public CustomPDU(final int maxPduLength)
+	{
+		this.maxPduLength = maxPduLength;
+	}
 
-  /**
-   * Adds the VariableBinding object to the response after checking to make sure
-   * the max response length is not exceeded.
-   * 
-   * @param vb
-   *          The VariableBinding to add the the PDU
-   */
-  @Override
-  public void add(final VariableBinding vb)
-  {
-    length += vb.getBERLength();
-    if (length + OVERHEAD_BUFFER > maxPduLength)
-      throw new SnmpPduLengthException("Max payload exceeded");
+	/**
+	 * Adds the VariableBinding object to the response after checking to make
+	 * sure the max response length is not exceeded.
+	 * 
+	 * @param vb
+	 *            The VariableBinding to add the the PDU
+	 */
+	@Override
+	public void add(final VariableBinding vb)
+	{
+		length += vb.getBERLength();
+		if (length + OVERHEAD_BUFFER > maxPduLength)
+			throw new SnmpPduLengthException("Max payload exceeded");
 
-    super.add(vb);
-  }
+		super.add(vb);
+	}
 }

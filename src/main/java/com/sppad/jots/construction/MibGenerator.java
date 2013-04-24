@@ -1,140 +1,196 @@
 package com.sppad.jots.construction;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.Map;
 
 import org.snmp4j.smi.OID;
 
 import com.google.common.base.Joiner;
-import com.sppad.jots.datastructures.primative.IntStack;
 import com.sppad.jots.JotsOID;
+import com.sppad.jots.SnmpTree;
+import com.sppad.jots.construction.mib.MibConstructor;
+import com.sppad.jots.datastructures.primative.IntStack;
 
-public class MibGenerator
+public class MibGenerator implements INodeVisitor
 {
-  private static class MibCreatingVisitor implements INodeVisitor
-  {
-    private static String firstCharToUppercase(final String string)
-    {
+	private static final Joiner joiner = Joiner.on("");
 
-      final StringBuilder builder = new StringBuilder(string);
-      builder.setCharAt(0, Character.toUpperCase(builder.charAt(0)));
+	private static String firstCharToUppercase(final String string)
+	{
 
-      return builder.toString();
-    }
+		final StringBuilder builder = new StringBuilder(string);
+		builder.setCharAt(0, Character.toUpperCase(builder.charAt(0)));
 
-    private final IntStack extStack = new IntStack();
+		return builder.toString();
+	}
 
-    private final LinkedList<String> nameStack = new LinkedList<String>();
+	private final LinkedList<String> constructedNameStack = new LinkedList<String>();
 
-    private final int[] prefix;
+	private final MibConstructor constructor;
 
-    private final Map<Node, IntStack> staticOidMap;
+	private final IntStack extensionStack = new IntStack();
 
-    private MibCreatingVisitor(
-        final int[] prefix,
-        Map<Node, IntStack> staticOidMap)
-    {
-      this.staticOidMap = staticOidMap;
-      this.prefix = prefix;
-    }
+	private final LinkedList<String> nameStack = new LinkedList<String>();
 
-    private void printOid(final String nameString, IntStack oidStack)
-    {
-      final OID oid = new JotsOID(prefix, oidStack);
+	private final int[] prefix;
 
-      System.out.printf("%-20s %-20s\n", oid, nameString);
-    }
+	private final Map<Node, IntStack> staticOidMap;
 
-    private void printTableOid(final String nameString, IntStack oidStack)
-    {
-      final OID oid = new JotsOID(prefix, oidStack, extStack);
+	private String constructName(String ending)
+	{
+		return joiner.join(nameStack) + ending;
+	}
 
-      System.out.printf("%-20s %-20s\n", oid, nameString);
-    }
+	private void printOid(final String nameString, OID oid)
+	{
+		System.out.printf("%-20s %-20s\n", oid, nameString);
+	}
 
-    @Override
-    public void visitEnter(final EntryNode node)
-    {
-      nameStack.addLast(firstCharToUppercase(node.name));
+	@Override
+	public void visitEnter(final EntryNode node)
+	{
+		nameStack.addLast(firstCharToUppercase(node.name));
 
-      final String name = Joiner.on("").join(nameStack.toArray()) + "Entry";
-      printTableOid(name, staticOidMap.get(node));
-    }
+		final IntStack staticOid = staticOidMap.get(node);
+		final String name = constructName("Entry");
+		final String parentName = constructedNameStack.peek();
 
-    @Override
-    public void visitEnter(final LeafNode node)
-    {
-      nameStack.addLast(firstCharToUppercase(node.name));
+		final OID oid = JotsOID.createOID(prefix, staticOid);
+		printOid(name, oid);
 
-      final String name = Joiner.on("").join(nameStack.toArray());
+		constructedNameStack.addLast(name);
+	}
 
-      if (node.inTable)
-        printTableOid(name, staticOidMap.get(node));
-      else
-        printOid(name, staticOidMap.get(node));
-    }
+	@Override
+	public void visitEnter(final LeafNode node)
+	{
+		nameStack.addLast(firstCharToUppercase(node.name));
 
-    @Override
-    public void visitEnter(final RootNode node)
-    {
-      nameStack.addLast(firstCharToUppercase(node.name));
+		final IntStack staticOid = staticOidMap.get(node);
+		final String name = constructName("");
+		final String parentName = constructedNameStack.peek();
 
-      final String name = Joiner.on("").join(nameStack.toArray());
-      printTableOid(name, staticOidMap.get(node));
-    }
+		final OID oid = JotsOID.createTerminalOID(prefix, staticOid,
+				extensionStack);
 
-    @Override
-    public void visitEnter(final TableEntryNode node)
-    {
-      final String name = Joiner.on("").join(nameStack.toArray()) + "Entry";
-      printTableOid(name, staticOidMap.get(node));
-    }
+		printOid(name, oid);
+	}
 
-    @Override
-    public void visitEnter(final TableNode node)
-    {
-      nameStack.addLast(firstCharToUppercase(node.name));
+	@Override
+	public void visitEnter(final RootNode node)
+	{
+		nameStack.addLast(firstCharToUppercase(node.name));
 
-      final String name = Joiner.on("").join(nameStack.toArray()) + "Table";
-      printTableOid(name, staticOidMap.get(node));
-    }
+		final IntStack staticOid = staticOidMap.get(node);
+		final String name = constructName("");
 
-    @Override
-    public void visitExit(final EntryNode node)
-    {
-      nameStack.removeLast();
-    }
+		final OID oid = JotsOID.createOID(prefix, staticOid);
+		printOid(name, oid);
 
-    @Override
-    public void visitExit(final LeafNode node)
-    {
-      nameStack.removeLast();
-    }
+		constructedNameStack.addLast(name);
+	}
 
-    @Override
-    public void visitExit(final RootNode node)
-    {
-      nameStack.removeLast();
-    }
+	@Override
+	public void visitEnter(final TableEntryNode node)
+	{
+		final IntStack staticOid = staticOidMap.get(node);
+		final String name = constructName("Entry");
+		final String parentName = constructedNameStack.peek();
 
-    @Override
-    public void visitExit(final TableEntryNode node)
-    {
+		final OID oid = JotsOID.createOID(prefix, staticOid);
+		printOid(name, oid);
 
-    }
+		constructedNameStack.addLast(name);
+	}
 
-    @Override
-    public void visitExit(final TableNode node)
-    {
-      nameStack.removeLast();
-    }
-  }
+	@Override
+	public void visitEnter(final TableNode node)
+	{
+		nameStack.addLast(firstCharToUppercase(node.name));
 
-  public static void createMib(
-      final int[] prefix,
-      Node node,
-      Map<Node, IntStack> staticOidMap)
-  {
-    node.accept(new MibCreatingVisitor(prefix, staticOidMap));
-  }
+		final IntStack staticOid = staticOidMap.get(node);
+		final String name = constructName("Table");
+		final String parentName = constructedNameStack.peek();
+
+		final OID oid = JotsOID.createOID(prefix, staticOid);
+		printOid(name, oid);
+
+		constructedNameStack.addLast(name);
+	}
+
+	@Override
+	public void visitExit(final EntryNode node)
+	{
+		nameStack.removeLast();
+		constructedNameStack.removeLast();
+	}
+
+	@Override
+	public void visitExit(final LeafNode node)
+	{
+		nameStack.removeLast();
+	}
+
+	@Override
+	public void visitExit(final RootNode node)
+	{
+		nameStack.removeLast();
+		constructedNameStack.removeLast();
+	}
+
+	@Override
+	public void visitExit(final TableEntryNode node)
+	{
+		constructedNameStack.removeLast();
+	}
+
+	@Override
+	public void visitExit(final TableNode node)
+	{
+		nameStack.removeLast();
+		constructedNameStack.removeLast();
+	}
+
+	private MibGenerator(final int[] prefix,
+			final Map<Node, IntStack> staticOidMap,
+			final MibConstructor constructor)
+	{
+		this.staticOidMap = staticOidMap;
+		this.prefix = prefix;
+		this.constructor = constructor;
+	}
+
+	public static void generateMib(Object obj, TreeBuilder treeBuilder,
+									final String mibName,
+									final String rootName,
+									final String parentName,
+									final OutputStream os)
+	{
+		final int[] prefix = treeBuilder.getPrefix();
+
+		final Node node = NodeTreeConstructor.createTree(obj.getClass(),
+				treeBuilder.getInclusionStrategy());
+
+		final Map<Node, IntStack> staticOidMap = OidGenerator
+				.getStaticOidParts(node);
+
+		final MibConstructor constructor = new MibConstructor(mibName,
+				rootName, parentName, prefix[prefix.length - 1], os);
+
+		final MibGenerator gen = new MibGenerator(prefix, staticOidMap,
+				constructor);
+
+		node.accept(gen);
+
+		try
+		{
+			constructor.finish();
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

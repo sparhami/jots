@@ -18,8 +18,7 @@ class ValueConverters
 			.build(new CacheLoader<Class<? extends Enum>, Function<String, Enum>>()
 			{
 				@Override
-				public Function<String, Enum> load(
-						final Class<? extends Enum> key)
+				public Function<String, Enum> load(	final Class<? extends Enum> key)
 						throws Exception
 				{
 					return new Function<String, Enum>()
@@ -31,8 +30,7 @@ class ValueConverters
 							try
 							{
 								return Enum.valueOf(key, input);
-							}
-							catch (IllegalArgumentException e)
+							} catch (IllegalArgumentException e)
 							{
 								throw new SnmpBadValueException(String.format(
 										"Value %s is not valid for this field",
@@ -65,8 +63,7 @@ class ValueConverters
 			try
 			{
 				return Double.parseDouble(input);
-			}
-			catch (NumberFormatException e)
+			} catch (NumberFormatException e)
 			{
 				throw new SnmpBadValueException(input);
 			}
@@ -81,8 +78,7 @@ class ValueConverters
 			try
 			{
 				return Float.parseFloat(input);
-			}
-			catch (NumberFormatException e)
+			} catch (NumberFormatException e)
 			{
 				throw new SnmpBadValueException(input);
 			}
@@ -97,8 +93,7 @@ class ValueConverters
 			try
 			{
 				return Integer.parseInt(input);
-			}
-			catch (NumberFormatException e)
+			} catch (NumberFormatException e)
 			{
 				throw new SnmpBadValueException(input);
 			}
@@ -113,8 +108,7 @@ class ValueConverters
 			try
 			{
 				return Long.parseLong(input);
-			}
-			catch (NumberFormatException e)
+			} catch (NumberFormatException e)
 			{
 				throw new SnmpBadValueException(input);
 			}
@@ -136,8 +130,7 @@ class ValueConverters
 			.put(Boolean.class, CONVERT_TO_BOOLEAN)
 			.put(Integer.TYPE, CONVERT_TO_INTEGER)
 			.put(Integer.class, CONVERT_TO_INTEGER)
-			.put(Long.TYPE, CONVERT_TO_LONG)
-			.put(Long.class, CONVERT_TO_LONG)
+			.put(Long.TYPE, CONVERT_TO_LONG).put(Long.class, CONVERT_TO_LONG)
 			.put(Float.TYPE, CONVERT_TO_FLOAT)
 			.put(Float.class, CONVERT_TO_FLOAT)
 			.put(Double.TYPE, CONVERT_TO_DOUBLE)
@@ -145,18 +138,23 @@ class ValueConverters
 			.put(String.class, CONVERT_TO_STRING).build();
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	static <T extends Enum> Function<String, T> enumConverter(
-			final Class<? extends T> enumClass)
+	private static <T extends Enum> Function<String, T> enumConverter(	final Class<? extends T> enumClass)
 	{
 		return (Function<String, T>) cacheEnumConverters
 				.getUnchecked(enumClass);
 	}
 
 	@SuppressWarnings("unchecked")
-	static Function<String, ? extends Object> get(Class<?> cls) {
+	static Function<String, ? extends Object> get(Class<?> cls)
+	{
 		if (cls.isEnum())
 			return enumConverter((Class<? extends Enum<?>>) cls);
 		else
 			return CONVERTER_LOOKUP_MAP.get(cls);
+	}
+
+	private ValueConverters()
+	{
+		// static only
 	}
 }

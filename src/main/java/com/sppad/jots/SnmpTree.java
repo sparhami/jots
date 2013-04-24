@@ -68,9 +68,8 @@ public class SnmpTree implements Iterable<VariableBinding>
 	protected final int[] prefix;
 
 	/** Creates a VariableBinding object for returning OID, value pairs */
-	protected static VariableBinding createVarBind(
-			final OID oid,
-			final Object object)
+	protected static VariableBinding createVarBind(final OID oid,
+													final Object object)
 	{
 		final Variable variable;
 		if (object instanceof Integer)
@@ -88,9 +87,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 		this(prefix, fieldArray, DEFAULT_INDEX_CACHE_SIZE);
 	}
 
-	protected SnmpTree(
-			final int[] prefix,
-			final SnmpLookupField[] fieldArray,
+	protected SnmpTree(final int[] prefix, final SnmpLookupField[] fieldArray,
 			final int cacheSize)
 	{
 		this.prefix = prefix;
@@ -99,8 +96,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 		this.indexCacher = createCacher(cacheSize);
 	}
 
-	public SnmpTree(
-			final int[] prefix,
+	public SnmpTree(final int[] prefix,
 			final SortedSet<SnmpLookupField> snmpFields)
 	{
 		this(prefix, snmpFields.toArray(new SnmpLookupField[snmpFields.size()]));
@@ -127,9 +123,8 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * 
 	 * @return The annotation if it exists, null otherwise.
 	 */
-	public Annotation getAnnotation(
-			final int index,
-			final Class<? extends Annotation> annotationClass)
+	public Annotation getAnnotation(final int index,
+									final Class<? extends Annotation> annotationClass)
 	{
 		return getFieldWithBoundsChecking(index).getAnnotation(annotationClass);
 	}
@@ -185,8 +180,8 @@ public class SnmpTree implements Iterable<VariableBinding>
 
 	/**
 	 * Merges two SnmpTrees into 1 tree. If both trees contain the same OID,
-	 * then the OID is represented by the index from tree and not the current
-	 * object.
+	 * then the OID is represented by the index from the passed in tree and not
+	 * the current object.
 	 * 
 	 * @param other
 	 *            The tree to merge in
@@ -204,11 +199,11 @@ public class SnmpTree implements Iterable<VariableBinding>
 
 		while (thisIndex <= this.lastIndex && otherIndex <= other.lastIndex)
 		{
-			SnmpLookupField thisField = this.fieldArray[thisIndex];
-			SnmpLookupField otherField = other.fieldArray[otherIndex];
+			final SnmpLookupField thisField = this.fieldArray[thisIndex];
+			final SnmpLookupField otherField = other.fieldArray[otherIndex];
 
 			// Ties go to the field from other
-			int cmp = otherField.compareTo(thisField);
+			int cmp = otherField.getOid().compareTo(thisField.getOid());
 			fields.add(cmp <= 0 ? otherField : thisField);
 
 			if (cmp <= 0)
@@ -224,10 +219,9 @@ public class SnmpTree implements Iterable<VariableBinding>
 		for (int i = thisIndex; i <= this.lastIndex; i++)
 			fields.add(this.fieldArray[i]);
 
-		int[] prefix = SnmpUtils.findCommonPrefix(this.prefix, other.prefix);
+		int[] prefix = SnmpUtils.commonPrefix(this.prefix, other.prefix);
 		SnmpLookupField[] fieldArray = fields
-				.toArray(new SnmpLookupField[fields
-						.size()]);
+				.toArray(new SnmpLookupField[fields.size()]);
 		int cacherSize = Math.max(this.indexCacheSize, other.indexCacheSize);
 
 		return new SnmpTree(prefix, fieldArray, cacherSize);
@@ -256,7 +250,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 *            setting the value
 	 */
 	public void set(final OID oid, final String value,
-			final boolean checkWritable)
+					final boolean checkWritable)
 	{
 		Preconditions.checkNotNull(oid);
 

@@ -1,7 +1,8 @@
 package com.sppad.jots.lookup;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
@@ -10,7 +11,8 @@ import com.sppad.jots.exceptions.SnmpBadValueException;
 
 public class ValueConvertersTest
 {
-	private static enum Color {
+	private static enum Color
+	{
 		BLUE, GREEN, RED
 	}
 
@@ -50,8 +52,8 @@ public class ValueConvertersTest
 	@Test
 	public void test_double()
 	{
-		final Double actual = (Double) ValueConverters.get(Double.class)
-				.apply("1234.0");
+		final Double actual = (Double) ValueConverters.get(Double.class).apply(
+				"1234.0");
 
 		assertThat(actual, is(1234.0));
 	}
@@ -65,8 +67,8 @@ public class ValueConvertersTest
 	@Test
 	public void test_double_primitive()
 	{
-		final Double actual = (Double) ValueConverters.get(Double.TYPE)
-				.apply("1234");
+		final Double actual = (Double) ValueConverters.get(Double.TYPE).apply(
+				"1234");
 
 		assertThat(actual, is(1234.0));
 	}
@@ -74,9 +76,8 @@ public class ValueConvertersTest
 	@Test
 	public void test_enum()
 	{
-		final Function<String, Color> converter = ValueConverters
-				.enumConverter(Color.class);
-		final Color actual = (Color) converter.apply("RED");
+		final Color actual = (Color) ValueConverters.get(Color.class).apply(
+				"RED");
 
 		assertThat(actual, is(Color.RED));
 	}
@@ -84,27 +85,23 @@ public class ValueConvertersTest
 	@Test(expected = SnmpBadValueException.class)
 	public void test_enum_bad()
 	{
-		final Function<String, Color> converter = ValueConverters
-				.enumConverter(Color.class);
-		converter.apply("purple");
+		ValueConverters.get(Color.class).apply("purple");
 	}
 
 	@Test
 	public void test_enum_cache()
 	{
-		final Function<String, Color> converterOne = ValueConverters
-				.enumConverter(Color.BLUE.getClass());
-		final Function<String, Color> converterTwo = ValueConverters
-				.enumConverter(Color.RED.getClass());
+		final Function<?, ?> first = ValueConverters.get(Color.BLUE.getClass());
+		final Function<?, ?> second = ValueConverters.get(Color.RED.getClass());
 
-		assertEquals(converterOne, converterTwo);
+		assertEquals(first, second);
 	}
 
 	@Test
 	public void test_float()
 	{
-		final Float actual = (Float) ValueConverters.get(Float.class)
-				.apply("1234.0");
+		final Float actual = (Float) ValueConverters.get(Float.class).apply(
+				"1234.0");
 
 		assertThat(actual, is(1234.0F));
 	}
@@ -118,8 +115,8 @@ public class ValueConvertersTest
 	@Test
 	public void test_float_primitive()
 	{
-		final Float actual = (Float) ValueConverters.get(Float.TYPE)
-				.apply("1234");
+		final Float actual = (Float) ValueConverters.get(Float.TYPE).apply(
+				"1234");
 
 		assertThat(actual, is(1234.0F));
 	}
@@ -166,8 +163,7 @@ public class ValueConvertersTest
 	@Test
 	public void test_long_primitive()
 	{
-		final Long actual = (Long) ValueConverters.get(Long.TYPE)
-				.apply("1234");
+		final Long actual = (Long) ValueConverters.get(Long.TYPE).apply("1234");
 
 		assertThat(actual, is(1234L));
 	}

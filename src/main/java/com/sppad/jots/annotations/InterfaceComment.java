@@ -12,5 +12,5 @@ import java.lang.annotation.Target;
 @Target(value = { ElementType.FIELD, ElementType.ANNOTATION_TYPE })
 public @interface InterfaceComment
 {
-  String synopsis();
+	String synopsis();
 }

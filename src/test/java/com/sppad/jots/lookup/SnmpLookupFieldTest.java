@@ -30,10 +30,8 @@ public class SnmpLookupFieldTest
 	}
 
 	@Test
-	public void testCreate_enum()
-			throws SecurityException,
-			NoSuchFieldException,
-			NoSuchMethodException
+	public void testCreate_enum() throws SecurityException,
+			NoSuchFieldException, NoSuchMethodException
 	{
 		final TestClass tc = new TestClass();
 		final Field field = tc.getClass().getDeclaredField("testEnum");
@@ -41,16 +39,13 @@ public class SnmpLookupFieldTest
 		final Method method = tc.getClass().getDeclaredMethod("setTestEnum",
 				TestClass.TestEnum.class);
 		final SnmpLookupField testField = SnmpLookupField.create(null, field,
-				tc,
-				method);
+				tc, method);
 
 		assertNotNull(testField);
 	}
 
 	@Test
-	public void testGet_enum()
-			throws SecurityException,
-			NoSuchFieldException,
+	public void testGet_enum() throws SecurityException, NoSuchFieldException,
 			NoSuchMethodException
 	{
 		final TestClass tc = new TestClass();
@@ -59,17 +54,14 @@ public class SnmpLookupFieldTest
 		final Method method = tc.getClass().getDeclaredMethod("setTestEnum",
 				TestClass.TestEnum.class);
 		final SnmpLookupField testField = SnmpLookupField.create(null, field,
-				tc,
-				method);
+				tc, method);
 
 		final String value = testField.getValue().toString();
 		assertThat(value, is(tc.testEnum.toString()));
 	}
 
 	@Test
-	public void testSet_enum()
-			throws SecurityException,
-			NoSuchFieldException,
+	public void testSet_enum() throws SecurityException, NoSuchFieldException,
 			NoSuchMethodException
 	{
 		final TestClass tc = new TestClass();
@@ -78,8 +70,7 @@ public class SnmpLookupFieldTest
 		final Method method = tc.getClass().getDeclaredMethod("setTestEnum",
 				TestClass.TestEnum.class);
 		final SnmpLookupField testField = SnmpLookupField.create(null, field,
-				tc,
-				method);
+				tc, method);
 		testField.set(TestClass.TestEnum.BAR.toString());
 
 		final String value = testField.getValue().toString();
@@ -87,10 +78,8 @@ public class SnmpLookupFieldTest
 	}
 
 	@Test(expected = SnmpBadValueException.class)
-	public void testSet_enum_badValue()
-			throws SecurityException,
-			NoSuchFieldException,
-			NoSuchMethodException
+	public void testSet_enum_badValue() throws SecurityException,
+			NoSuchFieldException, NoSuchMethodException
 	{
 		final TestClass tc = new TestClass();
 		final Field field = tc.getClass().getDeclaredField("testEnum");
@@ -98,8 +87,7 @@ public class SnmpLookupFieldTest
 		final Method method = tc.getClass().getDeclaredMethod("setTestEnum",
 				TestClass.TestEnum.class);
 		final SnmpLookupField testField = SnmpLookupField.create(null, field,
-				tc,
-				method);
+				tc, method);
 		testField.set("this is a bad value");
 	}
 }
