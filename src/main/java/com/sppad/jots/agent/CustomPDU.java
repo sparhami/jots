@@ -1,6 +1,7 @@
 package com.sppad.jots.agent;
 
 import org.snmp4j.PDU;
+import org.snmp4j.smi.Integer32;
 import org.snmp4j.smi.VariableBinding;
 
 import com.sppad.jots.exceptions.SnmpPduLengthException;
@@ -13,7 +14,7 @@ import com.sppad.jots.exceptions.SnmpPduLengthException;
  * 
  * @author sepand
  */
-public class CustomPDU extends PDU
+class CustomPDU
 {
 	/**
 	 * Apparently, using up to the maxPduLength causes an error. TODO - Need to
@@ -21,11 +22,8 @@ public class CustomPDU extends PDU
 	 */
 	private static final int OVERHEAD_BUFFER = 200;
 
-	/** Default serialVersionUID */
-	private static final long serialVersionUID = 1L;
-
 	/** Keep track of the current index for reporting errors */
-	public int currentRequestPduIndex = 0;
+	int currentRequestPduIndex = 0;
 
 	/** Keep track of the current length, quicker than recalculating it */
 	private int length = 0;
@@ -33,13 +31,15 @@ public class CustomPDU extends PDU
 	/** The max length for the response */
 	private final int maxPduLength;
 
+	private final PDU pdu = new PDU();
+
 	/**
 	 * Creates a custom PDU for making sure the length limit is not reached.
 	 * 
 	 * @param maxPduLength
 	 *            The max length for the PDU response.
 	 */
-	public CustomPDU(final int maxPduLength)
+	CustomPDU(final int maxPduLength)
 	{
 		this.maxPduLength = maxPduLength;
 	}
@@ -50,14 +50,39 @@ public class CustomPDU extends PDU
 	 * 
 	 * @param vb
 	 *            The VariableBinding to add the the PDU
+	 * @throws SnmpPduLengthException
 	 */
-	@Override
-	public void add(final VariableBinding vb)
+	void add(final VariableBinding vb) throws SnmpPduLengthException
 	{
 		length += vb.getBERLength();
 		if (length + OVERHEAD_BUFFER > maxPduLength)
 			throw new SnmpPduLengthException("Max payload exceeded");
 
-		super.add(vb);
+		pdu.add(vb);
+	}
+
+	PDU getPDU()
+	{
+		return pdu;
+	}
+
+	void setErrorIndex(int errorIndex)
+	{
+		pdu.setErrorIndex(errorIndex);
+	}
+
+	void setErrorStatus(int errorStatus)
+	{
+		pdu.setErrorStatus(errorStatus);
+	}
+
+	public void setRequestID(Integer32 requestID)
+	{
+		pdu.setRequestID(requestID);
+	}
+
+	public void setType(int type)
+	{
+		pdu.setType(type);
 	}
 }

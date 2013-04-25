@@ -22,29 +22,6 @@ public class FieldUtils
 	}
 
 	/**
-	 * Constructs the setter name for the given fieldName. This is done by
-	 * adding the prefix "set" and capitalizing the first letter of the given
-	 * field name.
-	 * <p>
-	 * For example, a field named <b>someField</b> would have the corresponding
-	 * setter <b>setSomeField</b>
-	 * 
-	 * @param fieldName
-	 *            The name of the field to get the setter name for
-	 * @return A string representing the setter name.
-	 */
-	public static String getSetterName(final String fieldName)
-	{
-		final char firstLetter = fieldName.charAt(0);
-
-		final StringBuilder setMethodName = new StringBuilder("set");
-		setMethodName.append(fieldName);
-		setMethodName.setCharAt(3, Character.toUpperCase(firstLetter));
-
-		return setMethodName.toString();
-	}
-
-	/**
 	 * @param field
 	 *            The Field to get the corresponding setter for
 	 * @return Null if the setter does not exist or cannot be accessed, the
@@ -62,6 +39,27 @@ public class FieldUtils
 		{
 			return null;
 		}
+	}
+
+	/**
+	 * Constructs the setter name for the given fieldName. This is done by
+	 * adding the prefix "set" and capitalizing the first letter of the given
+	 * field name.
+	 * <p>
+	 * For example, a field named <b>someField</b> would have the corresponding
+	 * setter <b>setSomeField</b>
+	 * 
+	 * @param fieldName
+	 *            The name of the field to get the setter name for
+	 * @return A string representing the setter name.
+	 */
+	public static String getSetterName(final String fieldName)
+	{
+		final StringBuilder methodName = new StringBuilder("set");
+		methodName.append(fieldName);
+		methodName.setCharAt(3, Character.toUpperCase(fieldName.charAt(0)));
+
+		return methodName.toString();
 	}
 
 	/**

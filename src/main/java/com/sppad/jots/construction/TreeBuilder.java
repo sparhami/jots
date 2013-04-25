@@ -22,11 +22,11 @@ public class TreeBuilder
 		/** Fields that are annotated */
 		ANNOTATED_ONLY,
 
-		/** Fields with a setter or that are annotated by {@link SnmpSettable} */
-		SETTERS_OR_ANNOTATED,
-
 		/** Fields with a setter and that are annotated */
-		SETTERS_AND_ANNOTATED
+		SETTERS_AND_ANNOTATED,
+
+		/** Fields with a setter or that are annotated by {@link SnmpSettable} */
+		SETTERS_OR_ANNOTATED
 	}
 
 	private static final int[] NO_PREFIX = new int[0];

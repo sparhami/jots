@@ -16,13 +16,11 @@ import com.sppad.jots.annotations.Jots;
 
 public class NodeTreeConstructorTest
 {
-	public Function<Field, String> getFieldName = new Function<Field, String>()
+	@SuppressWarnings("unused")
+	private class NestedObject
 	{
-		public String apply(Field field)
-		{
-			return field.getName();
-		}
-	};
+		public int number;
+	}
 
 	@SuppressWarnings("unused")
 	private class ParentClass
@@ -40,11 +38,13 @@ public class NodeTreeConstructorTest
 		public NestedObject obj;
 	}
 
-	@SuppressWarnings("unused")
-	private class NestedObject
+	public Function<Field, String> getFieldName = new Function<Field, String>()
 	{
-		public int number;
-	}
+		public String apply(Field field)
+		{
+			return field.getName();
+		}
+	};
 
 	@Test
 	public void testFields()

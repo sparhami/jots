@@ -15,13 +15,20 @@ import com.sppad.jots.annotations.Jots;
 
 public class ConstructorTest
 {
-	public Function<Field, String> getFieldName = new Function<Field, String>()
+	@SuppressWarnings("unused")
+	private class CollectionObject
 	{
-		public String apply(Field field)
-		{
-			return field.getName();
-		}
-	};
+		public float floatingPoint;
+		@Jots(cls = NestedObject.class)
+		public final Collection<NestedObject> nestedTable = Lists
+				.newArrayList();
+	}
+
+	@SuppressWarnings("unused")
+	private class NestedObject
+	{
+		public int number;
+	}
 
 	@SuppressWarnings("unused")
 	private class ParentClass
@@ -43,20 +50,13 @@ public class ConstructorTest
 		public final NestedObject obj = new NestedObject();
 	}
 
-	@SuppressWarnings("unused")
-	private class NestedObject
+	public Function<Field, String> getFieldName = new Function<Field, String>()
 	{
-		public int number;
-	}
-
-	@SuppressWarnings("unused")
-	private class CollectionObject
-	{
-		@Jots(cls = NestedObject.class)
-		public final Collection<NestedObject> nestedTable = Lists
-				.newArrayList();
-		public float floatingPoint;
-	}
+		public String apply(Field field)
+		{
+			return field.getName();
+		}
+	};
 
 	@Test
 	public void testCreate()

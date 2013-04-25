@@ -10,7 +10,7 @@ import org.snmp4j.smi.OID;
 
 import com.google.common.base.Function;
 import com.sppad.jots.annotations.SnmpNotSettable;
-import com.sppad.jots.exceptions.SnmpException;
+import com.sppad.jots.exceptions.SnmpInternalException;
 import com.sppad.jots.util.FieldUtils;
 
 public class SnmpLookupField
@@ -125,15 +125,16 @@ public class SnmpLookupField
 	 * 
 	 * @return An object representing the value of this field when the method is
 	 *         called.
+	 * @throws SnmpException
 	 */
-	public Object getValue()
+	public Object getValue() throws SnmpInternalException
 	{
 		try
 		{
 			return field.get(enclosingObject);
 		} catch (final IllegalAccessException e)
 		{
-			throw new SnmpException(e);
+			throw new SnmpInternalException(e);
 		}
 	}
 
@@ -153,8 +154,9 @@ public class SnmpLookupField
 	 * 
 	 * @param data
 	 *            The data to set.
+	 * @throws SnmpException
 	 */
-	public void set(String data)
+	public void set(String data) throws SnmpInternalException
 	{
 		try
 		{
@@ -163,7 +165,7 @@ public class SnmpLookupField
 				| IllegalAccessException
 				| InvocationTargetException e)
 		{
-			throw new SnmpException(e.getCause().getMessage());
+			throw new SnmpInternalException(e.getCause().getMessage());
 		}
 	}
 

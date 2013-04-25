@@ -10,6 +10,11 @@ import com.sppad.jots.util.FieldUtils;
 
 abstract class Node
 {
+	static boolean hasCollectionAnnotation(final Field field)
+	{
+		return field.getAnnotation(Jots.class) != null;
+	}
+
 	static boolean isLeaf(final Class<?> cls)
 	{
 		return FieldUtils.isSimple(cls);
@@ -19,11 +24,6 @@ abstract class Node
 	{
 		return Collection.class.isAssignableFrom(cls)
 				|| Map.class.isAssignableFrom(cls);
-	}
-
-	static boolean hasCollectionAnnotation(final Field field)
-	{
-		return field.getAnnotation(Jots.class) != null;
 	}
 
 	/** The field that allows access to this */
@@ -63,11 +63,6 @@ abstract class Node
 		this.name = name;
 	}
 
-	Node getSnmpParentNode(final Node parent)
-	{
-		return parent;
-	}
-
 	/**
 	 * Allows visiting the node using a hierarchical visitor pattern according
 	 * to the SNMP ordering (nested collections in hierarchy flattened).
@@ -82,5 +77,10 @@ abstract class Node
 	void addSnmpChild(final Node node)
 	{
 		snmpNodes.add(node);
+	}
+
+	Node getSnmpParentNode(final Node parent)
+	{
+		return parent;
 	}
 }

@@ -105,4 +105,9 @@ public class OidGenerator
 
 		return visitor.nodeToStaticOidMap;
 	}
+
+	private OidGenerator()
+	{
+
+	}
 }

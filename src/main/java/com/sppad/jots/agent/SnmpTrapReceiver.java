@@ -22,10 +22,10 @@ import com.sppad.jots.exceptions.SnmpInformException;
 
 public abstract class SnmpTrapReceiver implements CommandResponder
 {
-	static int version = SnmpConstants.version3;
-
 	private static final Logger logger = LoggerFactory
 			.getLogger(SnmpTrapReceiver.class);
+
+	static int version = SnmpConstants.version3;
 
 	/** Snmp object for dealing with SNMP requests */
 	private final Snmp snmp;
@@ -44,32 +44,6 @@ public abstract class SnmpTrapReceiver implements CommandResponder
 					address.getAddress(), address.getPort()));
 
 		snmp = new Snmp(transport);
-
-		// if (version == SnmpConstants.version3)
-		// {
-		// // byte[] localEngineID = MPv3.createLocalEngineID();
-		// byte[] localEngineID = "foobar".getBytes();
-		// USM usm = new USM(SecurityProtocols.getInstance(), new OctetString(
-		// localEngineID), 0);
-		// SecurityModels.getInstance().addSecurityModel(usm);
-		// snmp.setLocalEngine(localEngineID, 0, 0);
-		//
-		// OctetString secName = new OctetString("foo");
-		// OID authProto = AuthSHA.ID;
-		// OctetString authPass = new OctetString("foo12345");
-		// OID privProto = PrivAES128.ID;
-		// OctetString privPass = new OctetString("foo12345");
-		//
-		// UsmUser user = new UsmUser(secName, authProto, authPass, privProto,
-		// privPass);
-		//
-		// OctetString engineId = new OctetString(localEngineID);
-		// usm.addUser(user.getSecurityName(), engineId, user);
-		// // Add the configured user to the USM
-		// }
-
-		// USM usm = snmp.getUSM();
-
 		snmp.addCommandResponder(this);
 		snmp.listen();
 	}
@@ -77,6 +51,15 @@ public abstract class SnmpTrapReceiver implements CommandResponder
 	public void close() throws IOException
 	{
 		snmp.close();
+	}
+
+	private void logError(final CommandResponderEvent request, final Throwable t)
+	{
+		final String commandType = PDU
+				.getTypeString(request.getPDU().getType());
+
+		logger.error("Exception while handling {} {} : {}", new Object[] {
+				commandType, request.getPDU(), t.getMessage() });
 	}
 
 	public void processInform(final CommandResponderEvent request)
@@ -140,14 +123,6 @@ public abstract class SnmpTrapReceiver implements CommandResponder
 		request.setProcessed(true);
 	}
 
-	protected abstract void processTrap(final CommandResponderEvent request);
-
-	private void logError(final CommandResponderEvent request, final Throwable t)
-	{
-		final String commandType = PDU
-				.getTypeString(request.getPDU().getType());
-
-		logger.error("Exception while handling {} {} : {}", new Object[] {
-				commandType, request.getPDU(), t.getMessage() });
-	}
+	protected abstract void processTrap(final CommandResponderEvent request)
+			throws SnmpInformException;
 }

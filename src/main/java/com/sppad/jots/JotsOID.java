@@ -27,7 +27,7 @@ public class JotsOID
 	}
 
 	private static OID createOID(final int[] prefix, final IntStack staticOid,
-							final IntStack extension)
+									final IntStack extension)
 	{
 		final OID oid = new OID();
 

@@ -49,27 +49,8 @@ public class SnmpTree implements Iterable<VariableBinding>
 		}
 	};
 
-	/** The last valid index */
-	public final int lastIndex;
-
-	/** A sorted array that stores all the items in the tree */
-	protected SnmpLookupField[] fieldArray;
-
-	/** Used to cache OID lookups */
-	protected LoadingCache<OID, Integer> indexCacher;
-
-	/**
-	 * Stores the size of the index cache, so that it can be persisted when
-	 * merging with another SnmpTree
-	 */
-	protected int indexCacheSize;
-
-	/** The prefix used to create the OIDs in the tree */
-	protected final int[] prefix;
-
 	/** Creates a VariableBinding object for returning OID, value pairs */
-	protected static VariableBinding createVarBind(final OID oid,
-													final Object object)
+	static VariableBinding createVarBind(final OID oid, final Object object)
 	{
 		final Variable variable;
 		if (object instanceof Integer)
@@ -82,12 +63,30 @@ public class SnmpTree implements Iterable<VariableBinding>
 		return new VariableBinding(oid, variable);
 	}
 
-	protected SnmpTree(final int[] prefix, final SnmpLookupField[] fieldArray)
+	/** A sorted array that stores all the items in the tree */
+	final SnmpLookupField[] fieldArray;
+
+	/** Used to cache OID lookups */
+	LoadingCache<OID, Integer> indexCacher;
+
+	/**
+	 * Stores the size of the index cache, so that it can be persisted when
+	 * merging with another SnmpTree
+	 */
+	int indexCacheSize;
+
+	/** The last valid index */
+	private final int lastIndex;
+
+	/** The prefix used to create the OIDs in the tree */
+	final int[] prefix;
+
+	SnmpTree(final int[] prefix, final SnmpLookupField[] fieldArray)
 	{
 		this(prefix, fieldArray, DEFAULT_INDEX_CACHE_SIZE);
 	}
 
-	protected SnmpTree(final int[] prefix, final SnmpLookupField[] fieldArray,
+	SnmpTree(final int[] prefix, final SnmpLookupField[] fieldArray,
 			final int cacheSize)
 	{
 		this.prefix = prefix;
@@ -96,19 +95,71 @@ public class SnmpTree implements Iterable<VariableBinding>
 		this.indexCacher = createCacher(cacheSize);
 	}
 
+	/**
+	 * Creates a SNMP tree
+	 * 
+	 * @param prefix
+	 *            An int array that all OIDs in the tree have in common
+	 * @param snmpFields
+	 *            A sorted set of SnmpLookupFields that make up the tree
+	 */
 	public SnmpTree(final int[] prefix,
 			final SortedSet<SnmpLookupField> snmpFields)
 	{
 		this(prefix, snmpFields.toArray(new SnmpLookupField[snmpFields.size()]));
 	}
 
+	/**
+	 * Creates the internal index cacher.
+	 * 
+	 * @param size
+	 *            The maximum number of entries to cache
+	 * @return The cacher used for index lookups
+	 */
+	private LoadingCache<OID, Integer> createCacher(int size)
+	{
+		return CacheBuilder.newBuilder() //
+				.maximumSize(indexCacheSize = size) //
+				.build(new CacheLoader<OID, Integer>()
+				{
+					@Override
+					public Integer load(final OID key)
+					{
+						return getIndex(key);
+					}
+				});
+	}
+
+	/**
+	 * 
+	 * @param index
+	 *            The index in the tree to get the VariableBinding for
+	 * @return A VariableBinding containing the OID and current value for the
+	 *         given index
+	 * @throws SnmpOidNotFoundException
+	 * @throws SnmpNoMoreEntriesException
+	 * @throws SnmpException
+	 */
 	public VariableBinding get(final int index)
+			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
 		final SnmpLookupField field = getFieldWithBoundsChecking(index);
 		return createVarBind(field.getOid(), field.getValue());
 	}
 
+	/**
+	 * Performs a get, returning the value for the field corresponding to a
+	 * given OID.
+	 * 
+	 * @param oid
+	 *            The OID to get the value for
+	 * @return A VariableBinding containing the requested OID and the associated
+	 *         value
+	 * @throws SnmpNoMoreEntriesException
+	 * @throws SnmpOidNotFoundException
+	 */
 	public VariableBinding get(final OID oid)
+			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
 		return get(getCachedIndex(oid));
 	}
@@ -122,11 +173,83 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 *            The annotation class to get.
 	 * 
 	 * @return The annotation if it exists, null otherwise.
+	 * @throws SnmpOidNotFoundException
+	 * @throws SnmpNoMoreEntriesException
 	 */
 	public Annotation getAnnotation(final int index,
 									final Class<? extends Annotation> annotationClass)
+			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
 		return getFieldWithBoundsChecking(index).getAnnotation(annotationClass);
+	}
+
+	/**
+	 * A wrapper around the index cacher.
+	 * 
+	 * @param oid
+	 *            The OID to lookup
+	 * @return The index, as returned by {@link #getIndex}
+	 */
+	private int getCachedIndex(final OID oid)
+	{
+		try
+		{
+			return indexCacher.get(oid);
+		} catch (ExecutionException e)
+		{
+			throw Throwables.propagate(e.getCause());
+		}
+	}
+
+	private SnmpLookupField getFieldWithBoundsChecking(final int index)
+			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
+	{
+		if (index < 0)
+			throw new SnmpOidNotFoundException("Oid not in table");
+		if (index > lastIndex)
+			throw new SnmpNoMoreEntriesException(
+					"There are no more values in this MIB");
+
+		return fieldArray[index];
+	}
+
+	/**
+	 * Performs a binary search to get the OID index, if it exists. Code from
+	 * {@link Arrays#binarySearch(Object[], Object, java.util.Comparator)}.
+	 * Don't want to create a SnmpLookupField to perform a binary search, so
+	 * duplicating the code here.
+	 * 
+	 * @param oid
+	 *            The OID to lookup
+	 * @return The index of the OID in the fieldArray if it exists, or -(index
+	 *         of next OID) if it doesn't
+	 */
+	private int getIndex(final OID oid)
+	{
+		int low = 0;
+		int high = fieldArray.length - 1;
+
+		while (low <= high)
+		{
+			final int mid = (low + high) >>> 1;
+
+			int compare = fieldArray[mid].getOid().compareTo(oid);
+			if (compare < 0)
+				low = mid + 1;
+			else if (compare > 0)
+				high = mid - 1;
+			else
+				return mid; // key found
+		}
+		return -(low + 1); // key not found.
+	}
+
+	/**
+	 * @return The last index in the tree
+	 */
+	public int getLastIndex()
+	{
+		return lastIndex;
 	}
 
 	/**
@@ -137,8 +260,13 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 *            A reference OID
 	 * @return A VariableBinding containing the current value of the OID
 	 *         following <b>oid</b>
+	 * @throws SnmpPastEndOfTreeException
+	 * @throws SnmpOidNotFoundException
+	 * @throws SnmpNoMoreEntriesException
 	 */
 	public VariableBinding getNext(final OID oid)
+			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException,
+			SnmpPastEndOfTreeException
 	{
 		return get(getNextIndex(oid));
 	}
@@ -150,8 +278,9 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * @param oid
 	 *            A reference OID
 	 * @return The index for the next OID.
+	 * @throws SnmpPastEndOfTreeException
 	 */
-	public int getNextIndex(final OID oid)
+	public int getNextIndex(final OID oid) throws SnmpPastEndOfTreeException
 	{
 		Preconditions.checkNotNull(oid);
 
@@ -232,8 +361,13 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * 
 	 * @param oid
 	 * @param value
+	 * @throws SnmpOidNotFoundException
+	 * @throws SnmpNoMoreEntriesException
+	 * @throws SnmpNotWritableException
 	 */
 	public void set(final OID oid, final String value)
+			throws SnmpNotWritableException, SnmpNoMoreEntriesException,
+			SnmpOidNotFoundException
 	{
 		set(oid, value, true);
 	}
@@ -248,9 +382,14 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * @param checkWritable
 	 *            Whether or not to check of the field is writable or force
 	 *            setting the value
+	 * @throws SnmpOidNotFoundException
+	 * @throws SnmpNoMoreEntriesException
+	 * @throws SnmpException
 	 */
 	public void set(final OID oid, final String value,
 					final boolean checkWritable)
+			throws SnmpNotWritableException, SnmpNoMoreEntriesException,
+			SnmpOidNotFoundException
 	{
 		Preconditions.checkNotNull(oid);
 
@@ -272,86 +411,5 @@ public class SnmpTree implements Iterable<VariableBinding>
 	public void setCacheSize(final int size)
 	{
 		indexCacher = createCacher(size);
-	}
-
-	/**
-	 * Creates the internal index cacher.
-	 * 
-	 * @param size
-	 *            The maximum number of entries to cache
-	 * @return The cacher used for index lookups
-	 */
-	private LoadingCache<OID, Integer> createCacher(int size)
-	{
-		return CacheBuilder.newBuilder() //
-				.maximumSize(indexCacheSize = size) //
-				.build(new CacheLoader<OID, Integer>()
-				{
-					@Override
-					public Integer load(final OID key)
-					{
-						return getIndex(key);
-					}
-				});
-	}
-
-	private SnmpLookupField getFieldWithBoundsChecking(final int index)
-	{
-		if (index < 0)
-			throw new SnmpOidNotFoundException("Oid not in table");
-		if (index > lastIndex)
-			throw new SnmpNoMoreEntriesException(
-					"There are no more values in this MIB");
-
-		return fieldArray[index];
-	}
-
-	/**
-	 * A wrapper around the index cacher.
-	 * 
-	 * @param oid
-	 *            The OID to lookup
-	 * @return The index, as returned by {@link #getIndex}
-	 */
-	private int getCachedIndex(final OID oid)
-	{
-		try
-		{
-			return indexCacher.get(oid);
-		} catch (ExecutionException e)
-		{
-			throw Throwables.propagate(e.getCause());
-		}
-	}
-
-	/**
-	 * Performs a binary search to get the oid index, if it exists. Code from
-	 * {@link Arrays#binarySearch(Object[], Object, java.util.Comparator)}.
-	 * Don't want to create a SnmpLookupField to perform a binary search, so
-	 * duplicating the code here.
-	 * 
-	 * @param oid
-	 *            The OID to lookup
-	 * @return The index of the oid in the fieldArray if it exists, or -(index
-	 *         of next OID) if it doesn't
-	 */
-	private int getIndex(final OID oid)
-	{
-		int low = 0;
-		int high = fieldArray.length - 1;
-
-		while (low <= high)
-		{
-			final int mid = (low + high) >>> 1;
-
-			int compare = fieldArray[mid].getOid().compareTo(oid);
-			if (compare < 0)
-				low = mid + 1;
-			else if (compare > 0)
-				high = mid - 1;
-			else
-				return mid; // key found
-		}
-		return -(low + 1); // key not found.
 	}
 }

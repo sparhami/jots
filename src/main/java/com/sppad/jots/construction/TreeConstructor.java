@@ -1,7 +1,6 @@
 package com.sppad.jots.construction;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
@@ -14,7 +13,6 @@ import com.sppad.jots.JotsOID;
 import com.sppad.jots.SnmpTree;
 import com.sppad.jots.datastructures.primative.IntStack;
 import com.sppad.jots.lookup.SnmpLookupField;
-import com.sppad.jots.util.FieldUtils;
 
 class TreeConstructor
 {

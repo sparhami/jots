@@ -1,6 +1,6 @@
 package com.sppad.jots.exceptions;
 
-public class SnmpInformException extends RuntimeException
+public class SnmpInformException extends Exception
 {
 	private static final long serialVersionUID = 1L;
 

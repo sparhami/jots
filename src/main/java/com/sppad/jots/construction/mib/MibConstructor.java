@@ -58,6 +58,26 @@ public class MibConstructor
 		entry.addEntry(parentName, name, oid, description);
 	}
 
+	private void addEnum(final Class<? extends Enum<?>> enumClass)
+	{
+		if (enumSyntaxSet.contains(enumClass))
+			return;
+
+		enumSyntaxSet.add(enumClass);
+
+		final StringBuilder builder = new StringBuilder();
+
+		builder.append(enumClass.getSimpleName() + " ::= TEXTUAL-CONVENTION\n");
+		builder.append("\tSYNTAX      OCTET STRING {");
+		for (final Enum<?> enumElement : enumClass.getEnumConstants())
+			builder.append(" \"" + enumElement.name() + "\",");
+
+		builder.deleteCharAt(builder.lastIndexOf(","));
+		builder.append(" }\n");
+
+		ps.println(builder.toString());
+	}
+
 	@SuppressWarnings("unchecked")
 	public void addItem(String parentName, final String name, final int oid,
 						final Class<?> type, final String description,
@@ -104,25 +124,5 @@ public class MibConstructor
 
 		createMibStream.writeTo(outstream);
 		outstream.close();
-	}
-
-	private void addEnum(final Class<? extends Enum<?>> enumClass)
-	{
-		if (enumSyntaxSet.contains(enumClass))
-			return;
-
-		enumSyntaxSet.add(enumClass);
-
-		final StringBuilder builder = new StringBuilder();
-
-		builder.append(enumClass.getSimpleName() + " ::= TEXTUAL-CONVENTION\n");
-		builder.append("\tSYNTAX      OCTET STRING {");
-		for (final Enum<?> enumElement : enumClass.getEnumConstants())
-			builder.append(" \"" + enumElement.name() + "\",");
-
-		builder.deleteCharAt(builder.lastIndexOf(","));
-		builder.append(" }\n");
-
-		ps.println(builder.toString());
 	}
 }

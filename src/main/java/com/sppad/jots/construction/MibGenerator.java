@@ -9,7 +9,6 @@ import org.snmp4j.smi.OID;
 
 import com.google.common.base.Joiner;
 import com.sppad.jots.JotsOID;
-import com.sppad.jots.SnmpTree;
 import com.sppad.jots.construction.mib.MibConstructor;
 import com.sppad.jots.datastructures.primative.IntStack;
 
@@ -26,6 +25,38 @@ public class MibGenerator implements INodeVisitor
 		return builder.toString();
 	}
 
+	public static void generateMib(Object obj, TreeBuilder treeBuilder,
+									final String mibName,
+									final String rootName,
+									final String parentName,
+									final OutputStream os)
+	{
+		final int[] prefix = treeBuilder.getPrefix();
+
+		final Node node = NodeTreeConstructor.createTree(obj.getClass(),
+				treeBuilder.getInclusionStrategy());
+
+		final Map<Node, IntStack> staticOidMap = OidGenerator
+				.getStaticOidParts(node);
+
+		final MibConstructor constructor = new MibConstructor(mibName,
+				rootName, parentName, prefix[prefix.length - 1], os);
+
+		final MibGenerator gen = new MibGenerator(prefix, staticOidMap,
+				constructor);
+
+		node.accept(gen);
+
+		try
+		{
+			constructor.finish();
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private final LinkedList<String> constructedNameStack = new LinkedList<String>();
 
 	private final MibConstructor constructor;
@@ -37,6 +68,15 @@ public class MibGenerator implements INodeVisitor
 	private final int[] prefix;
 
 	private final Map<Node, IntStack> staticOidMap;
+
+	private MibGenerator(final int[] prefix,
+			final Map<Node, IntStack> staticOidMap,
+			final MibConstructor constructor)
+	{
+		this.staticOidMap = staticOidMap;
+		this.prefix = prefix;
+		this.constructor = constructor;
+	}
 
 	private String constructName(String ending)
 	{
@@ -151,46 +191,5 @@ public class MibGenerator implements INodeVisitor
 	{
 		nameStack.removeLast();
 		constructedNameStack.removeLast();
-	}
-
-	private MibGenerator(final int[] prefix,
-			final Map<Node, IntStack> staticOidMap,
-			final MibConstructor constructor)
-	{
-		this.staticOidMap = staticOidMap;
-		this.prefix = prefix;
-		this.constructor = constructor;
-	}
-
-	public static void generateMib(Object obj, TreeBuilder treeBuilder,
-									final String mibName,
-									final String rootName,
-									final String parentName,
-									final OutputStream os)
-	{
-		final int[] prefix = treeBuilder.getPrefix();
-
-		final Node node = NodeTreeConstructor.createTree(obj.getClass(),
-				treeBuilder.getInclusionStrategy());
-
-		final Map<Node, IntStack> staticOidMap = OidGenerator
-				.getStaticOidParts(node);
-
-		final MibConstructor constructor = new MibConstructor(mibName,
-				rootName, parentName, prefix[prefix.length - 1], os);
-
-		final MibGenerator gen = new MibGenerator(prefix, staticOidMap,
-				constructor);
-
-		node.accept(gen);
-
-		try
-		{
-			constructor.finish();
-		} catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

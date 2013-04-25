@@ -3,19 +3,60 @@ package com.sppad.jots.util;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.lang.reflect.Method;
+
 import org.junit.Test;
 
 public class FieldUtilsTest
 {
+	@SuppressWarnings("unused")
+	private class TestClass
+	{
+		public int fieldWithoutSetter;
+		public int fieldWithSetter;
+
+		public void setFieldWithSetter(int fieldWithSetter)
+		{
+			this.fieldWithSetter = fieldWithSetter;
+		}
+	}
+
 	private enum TestEnum
 	{
 		BAR, FOO;
 	}
 
 	@Test
+	public void testGetSetterForField_withoutSetter()
+			throws NoSuchFieldException, SecurityException,
+			NoSuchMethodException
+	{
+		Method actual = FieldUtils.getSetterForField(TestClass.class
+				.getDeclaredField("fieldWithoutSetter"));
+		Method expected = null;
+
+		assertThat(actual, is(expected));
+	}
+
+	@Test
+	public void testGetSetterForField_withSetter() throws NoSuchFieldException,
+			SecurityException, NoSuchMethodException
+	{
+		Method actual = FieldUtils.getSetterForField(TestClass.class
+				.getDeclaredField("fieldWithSetter"));
+		Method expected = TestClass.class.getDeclaredMethod(
+				"setFieldWithSetter", Integer.TYPE);
+
+		assertThat(actual, is(expected));
+	}
+
+	@Test
 	public void testGetSetterName()
 	{
-		assertThat(FieldUtils.getSetterName("hello"), is("setHello"));
+		String actual = FieldUtils.getSetterName("hello");
+		String expected = "setHello";
+
+		assertThat(actual, is(expected));
 	}
 
 	@Test

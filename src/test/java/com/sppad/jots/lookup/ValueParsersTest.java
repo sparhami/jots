@@ -25,8 +25,8 @@ public class ValueParsersTest
 	@Test
 	public void test_boolean_false()
 	{
-		final Boolean actual = (Boolean) ValueParsers.get(Boolean.class)
-				.apply("false");
+		final Boolean actual = (Boolean) ValueParsers.get(Boolean.class).apply(
+				"false");
 
 		assertThat(actual, is(Boolean.FALSE));
 	}
@@ -34,8 +34,8 @@ public class ValueParsersTest
 	@Test
 	public void test_boolean_primitive_true()
 	{
-		final Boolean actual = (Boolean) ValueParsers.get(Boolean.TYPE)
-				.apply("true");
+		final Boolean actual = (Boolean) ValueParsers.get(Boolean.TYPE).apply(
+				"true");
 
 		assertThat(actual, is(Boolean.TRUE));
 	}
@@ -43,8 +43,8 @@ public class ValueParsersTest
 	@Test
 	public void test_boolean_true()
 	{
-		final Boolean actual = (Boolean) ValueParsers.get(Boolean.class)
-				.apply("true");
+		final Boolean actual = (Boolean) ValueParsers.get(Boolean.class).apply(
+				"true");
 
 		assertThat(actual, is(Boolean.TRUE));
 	}
@@ -76,8 +76,7 @@ public class ValueParsersTest
 	@Test
 	public void test_enum()
 	{
-		final Color actual = (Color) ValueParsers.get(Color.class).apply(
-				"RED");
+		final Color actual = (Color) ValueParsers.get(Color.class).apply("RED");
 
 		assertThat(actual, is(Color.RED));
 	}
@@ -115,8 +114,7 @@ public class ValueParsersTest
 	@Test
 	public void test_float_primitive()
 	{
-		final Float actual = (Float) ValueParsers.get(Float.TYPE).apply(
-				"1234");
+		final Float actual = (Float) ValueParsers.get(Float.TYPE).apply("1234");
 
 		assertThat(actual, is(1234.0F));
 	}
@@ -124,8 +122,8 @@ public class ValueParsersTest
 	@Test
 	public void test_integer()
 	{
-		final Integer actual = (Integer) ValueParsers.get(Integer.class)
-				.apply("1234");
+		final Integer actual = (Integer) ValueParsers.get(Integer.class).apply(
+				"1234");
 
 		assertThat(actual, is(1234));
 	}
@@ -139,8 +137,8 @@ public class ValueParsersTest
 	@Test
 	public void test_integer_primitive()
 	{
-		final Integer actual = (Integer) ValueParsers.get(Integer.TYPE)
-				.apply("1234");
+		final Integer actual = (Integer) ValueParsers.get(Integer.TYPE).apply(
+				"1234");
 
 		assertThat(actual, is(1234));
 	}
@@ -148,8 +146,7 @@ public class ValueParsersTest
 	@Test
 	public void test_long()
 	{
-		final Long actual = (Long) ValueParsers.get(Long.class)
-				.apply("1234");
+		final Long actual = (Long) ValueParsers.get(Long.class).apply("1234");
 
 		assertThat(actual, is(1234L));
 	}

@@ -10,18 +10,6 @@ public class MibSubtree
 {
 	private static final int paddingSize = 20;
 
-	protected final ByteArrayOutputStream entryByteStream = new ByteArrayOutputStream();
-
-	protected final PrintStream entryPrintStream = new PrintStream(
-			entryByteStream);
-
-	protected final List<String> indexTypes;
-
-	protected final ByteArrayOutputStream itemByteStream = new ByteArrayOutputStream();
-
-	protected final PrintStream itemPrintStream = new PrintStream(
-			itemByteStream);
-
 	private static final String getSyntax(final Class<?> type)
 	{
 		if (type == Integer.class || type == Integer.TYPE)
@@ -35,6 +23,18 @@ public class MibSubtree
 
 		return "OCTET STRING (SIZE(0..65535))";
 	}
+
+	protected final ByteArrayOutputStream entryByteStream = new ByteArrayOutputStream();
+
+	protected final PrintStream entryPrintStream = new PrintStream(
+			entryByteStream);
+
+	protected final List<String> indexTypes;
+
+	protected final ByteArrayOutputStream itemByteStream = new ByteArrayOutputStream();
+
+	protected final PrintStream itemPrintStream = new PrintStream(
+			itemByteStream);
 
 	public MibSubtree()
 	{
@@ -82,16 +82,16 @@ public class MibSubtree
 				.println("\t::= { " + parentName + "Entry " + oid + " }");
 	}
 
-	public ByteArrayOutputStream finish() throws IOException
-	{
-		itemByteStream.writeTo(entryPrintStream);
-		return entryByteStream;
-	}
-
 	protected void addSequenceEntry(final String name)
 	{
 		entryPrintStream.print(String
 				.format("\t%1$-" + paddingSize + "s", name));
 		entryPrintStream.println("\tOCTET STRING,");
+	}
+
+	public ByteArrayOutputStream finish() throws IOException
+	{
+		itemByteStream.writeTo(entryPrintStream);
+		return entryByteStream;
 	}
 }

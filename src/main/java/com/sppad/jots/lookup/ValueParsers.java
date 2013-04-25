@@ -124,8 +124,8 @@ class ValueParsers
 		}
 	};
 
-	private static final Map<Class<?>, Function<String, ? extends Object>> CONVERTER_LOOKUP_MAP = ImmutableMap
-			.<Class<?>, Function<String, ? extends Object>> builder()
+	private static final Map<Class<?>, Function<String, ?>> CONVERTER_LOOKUP_MAP = ImmutableMap
+			.<Class<?>, Function<String, ?>> builder()
 			.put(Boolean.TYPE, CONVERT_TO_BOOLEAN)
 			.put(Boolean.class, CONVERT_TO_BOOLEAN)
 			.put(Integer.TYPE, CONVERT_TO_INTEGER)
@@ -138,14 +138,14 @@ class ValueParsers
 			.put(String.class, CONVERT_TO_STRING).build();
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static <T extends Enum> Function<String, T> enumConverter(	final Class<? extends T> enumClass)
+	private static <T extends Enum> Function<String, T> enumConverter(	final Class<T> enumClass)
 	{
 		return (Function<String, T>) cacheEnumConverters
 				.getUnchecked(enumClass);
 	}
 
 	@SuppressWarnings("unchecked")
-	static Function<String, ? extends Object> get(Class<?> cls)
+	static Function<String, ?> get(Class<?> cls)
 	{
 		if (cls.isEnum())
 			return enumConverter((Class<? extends Enum<?>>) cls);

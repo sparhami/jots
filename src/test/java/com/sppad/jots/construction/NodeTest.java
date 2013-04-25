@@ -10,8 +10,6 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.sppad.jots.annotations.Jots;
-
 public class NodeTest
 {
 	@Test

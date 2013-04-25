@@ -1,16 +1,13 @@
 package com.sppad.jots.lookup;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 import org.junit.Test;
 
@@ -18,6 +15,13 @@ import com.sppad.jots.exceptions.SnmpBadValueException;
 
 public class SnmpLookupFieldTest
 {
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	private @interface TestAnnotation
+	{
+		String value();
+	}
+
 	private static class TestAnnotationClass
 	{
 		@TestAnnotation(value = "test")
@@ -38,13 +42,6 @@ public class SnmpLookupFieldTest
 		{
 			this.testEnum = value;
 		}
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	private @interface TestAnnotation
-	{
-		String value();
 	}
 
 	private static class TestSetterAvailableClass
@@ -92,7 +89,6 @@ public class SnmpLookupFieldTest
 
 		final TestAnnotation annotation = slf
 				.getAnnotation(TestAnnotation.class);
-		
 
 		final String actual = annotation.value();
 		final String expected = "test";

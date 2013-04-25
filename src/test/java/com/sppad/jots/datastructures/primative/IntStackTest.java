@@ -10,21 +10,6 @@ import org.junit.Test;
 public class IntStackTest
 {
 	@Test
-	public void testCopyFrom()
-	{
-		final IntStack testStack = new IntStack();
-		testStack.push(1);
-
-		final int[] testArray = new int[] { 2, 3, 4 };
-		testStack.copyFrom(testArray, 0, testArray.length);
-
-		final int[] checkArray = new int[4];
-		testStack.copyTo(checkArray, 0);
-
-		assertArrayEquals(checkArray, new int[] { 1, 2, 3, 4 });
-	}
-
-	@Test
 	public void testCopyTo()
 	{
 		final IntStack testStack = new IntStack();

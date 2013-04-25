@@ -38,19 +38,6 @@ public class IntStack
 	}
 
 	/**
-	 * Creates a stack from an existing stack.
-	 * 
-	 * @param srcStack
-	 *            The stack to copy the elements from.
-	 */
-	public IntStack(final IntStack srcStack)
-	{
-		backingArray = new int[srcStack.size()];
-		topIndex = srcStack.size() - 1;
-		srcStack.copyTo(backingArray, 0);
-	}
-	
-	/**
 	 * Creates a stack from an array.
 	 * 
 	 * @param array
@@ -64,42 +51,24 @@ public class IntStack
 	}
 
 	/**
+	 * Creates a stack from an existing stack.
+	 * 
+	 * @param srcStack
+	 *            The stack to copy the elements from.
+	 */
+	public IntStack(final IntStack srcStack)
+	{
+		backingArray = new int[srcStack.size()];
+		topIndex = srcStack.size() - 1;
+		srcStack.copyTo(backingArray, 0);
+	}
+
+	/**
 	 * Clears the stack.
 	 */
 	public void clear()
 	{
 		topIndex = -1;
-	}
-
-	/**
-	 * Adds the contents of an array to the stack.
-	 * 
-	 * @param src
-	 *            Where to copy from
-	 * @param srcPos
-	 *            The index to start the copy from
-	 * @param length
-	 *            How many elements to copy
-	 */
-	public void copyFrom(final int[] src, final int srcPos, final int length)
-	{
-		int currentSize = size();
-		if (currentSize + length > backingArray.length)
-			increaseSize(currentSize + length + DEFAULT_INCREMENT_SIZE);
-
-		System.arraycopy(src, srcPos, backingArray, currentSize, length);
-		topIndex = currentSize + length - 1;
-	}
-
-	/**
-	 * Adds the contents of a stack on top of the stack.
-	 * 
-	 * @param mintyStack
-	 *            The stack to copy elements from.
-	 */
-	public void copyFrom(final IntStack intStack)
-	{
-		copyFrom(intStack.backingArray, 0, intStack.size());
 	}
 
 	/**
@@ -159,6 +128,22 @@ public class IntStack
 	}
 
 	/**
+	 * Increases the size of the backing array for the stack by the specified
+	 * amount.
+	 * 
+	 * @param newSize
+	 *            The new size for the backing array, should be larger than the
+	 *            current size.
+	 */
+	private void increaseSize(final int newSize)
+	{
+		final int[] newBackingArray = new int[newSize];
+		System.arraycopy(backingArray, 0, newBackingArray, 0,
+				backingArray.length);
+		backingArray = newBackingArray;
+	}
+
+	/**
 	 * @return The top of the stack.
 	 */
 	public int peek()
@@ -214,21 +199,5 @@ public class IntStack
 	public int[] toArray()
 	{
 		return Arrays.copyOf(backingArray, topIndex + 1);
-	}
-
-	/**
-	 * Increases the size of the backing array for the stack by the specified
-	 * amount.
-	 * 
-	 * @param newSize
-	 *            The new size for the backing array, should be larger than the
-	 *            current size.
-	 */
-	private void increaseSize(final int newSize)
-	{
-		final int[] newBackingArray = new int[newSize];
-		System.arraycopy(backingArray, 0, newBackingArray, 0,
-				backingArray.length);
-		backingArray = newBackingArray;
 	}
 }
