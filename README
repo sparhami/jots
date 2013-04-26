@@ -7,13 +7,7 @@ Section
 
 1. Getting started
 
-1.1 Creating an SNMP tree is done by using one of the following methods:
-
-	public static SnmpTree createSnmpTree(int[] prefix, Object obj)
-	public static SnmpTree createSnmpTree(String mibName, String rootName,
-		String parentName, int[] prefix, Object obj, OutputStream mibOutputStream)
-
-1.2 Tree without MIB generation
+1.1 Tree without MIB generation
 
 Creating a tree without a MIB is fairly straight-forward. See section 2.1  to see what fields get included in the generated tree.
 
@@ -25,24 +19,32 @@ Creating a tree without a MIB is fairly straight-forward. See section 2.1  to se
 	}
 	
 	SomeObject obj = new SomeObject();
-	SnmpTree tree = SnmpTreeConstructor.createSnmpTree(new int[] { 1, 3, 6, 1, 4, 1, <some OID> }, obj);
+	int[] prefix = new int[] { 1, 3, 6, 1, 4, 1, <some OID> };
+	
+	SnmpTree tree = TreeBuilder.from(obj).prefix(prefix).build();
 
-1.3 Tree with MIB generation
+1.2 Building a MIB
 
-Creating a MIB along with the tree can be done by:
+Creating a MIB can be done by:
 
 	ByteArrayOutputStream mibOutputStream = new ByteArrayOutputStream();
 
 	SomeObject obj = new SomeObject();
-	SnmpTree tree = SnmpTreeConstructor.createSnmpTree("<MIB name>",
-		"<root entry's name>", "enterprises",
-		new int[] { 1, 3, 6, 1, 4, 1, <some OID> }, obj, mibOutputStream);
+	String mibName = "TEST";
+	String rootName = "test";
+	String parentName = "enterprises";
+	int[] prefix = new int[] { 1, 3, 6, 1, 4, 1, <some OID> };
+	
+	OutputStream os = new ByteArrayOutputStream();
+	
+	TreeBuilder.from(obj).prefix(prefix)
+				.buildMib(mibName, rootName,parentName, os);
 		
-	// Do something with mibOutputStream, such as print it to a file
+	// Do something with the OutputStream, such as print it to a file
 
-1.4 Interaction with SNMP4j
+1.3 Interaction with SNMP4j
 
-1.4.1 Snmp Agent
+1.3.1 Snmp Agent
 
 At this point, you have an SnmpTree object that lets you do gets and sets. The next step is getting an SNMP agent working. JOTS has an implementation using SNMP4J. Creating your own using a different SNMP library should not be too difficult to integrate instead though.
 
@@ -51,7 +53,7 @@ A SNMP agent can be started using an SnmpTree with the following code:
 	InetSocketAddress agentAddress = new InetSocketAddress("0.0.0.0", 8161);
 	SnmpAgent agent = new SnmpAgent(tree, agentAddress, SnmpAgent.Protocol.udp);
 
-1.4.2 Snmp Trap Receiver
+1.3.2 Snmp Trap Receiver
 
 Creating a trap receiver is done in a similar way to creating an agent. For example, if you want to simply set every trapped OID back into your tree (say you are mirroring subtree on a different Agent), you could do:
 
@@ -65,7 +67,7 @@ Creating a trap receiver is done in a similar way to creating an agent. For exam
 	  }
 	}
 
-1.3 Tables
+1.4 Tables
 
 SNMP tables map to Java collections (Maps and Lists). Currently, there is no way to track changes to the collections, so changes will not be tracked after tree creation. If new entries are added to any collection in the tree hierarchy, the tree must be recreated.
 
@@ -76,13 +78,17 @@ As a limited workaround, SnmpAgent does support replacing the SnmpTree. This can
 
 2.1 Fields
 
-Fields are either included or skipped either through modifiers or annotations. The first condition encountered in the following list determines whether the field is included or skipped.
+By default, Fields are either included or skipped either through modifiers or annotations. The first condition encountered in the following list determines whether the field is included or skipped.
 
-1. If there is an SnmpInclude annotation, include it
-2. If there is an SnmpIgnore annotation, skip it
-3. If the field is static or transient, skip it
-4. If the field is final, primitive, primitive wrapper, enum or String, include it
-5. Skip it
+* Include if annotated with {@link SnmpInclude}
+* Exclude if annotated with {@link SnmpExclude}
+* Include if the field is primitive, a primitive wrapper, String or Enum
+* Exclude if the field is static
+* Exclude if the field is transient
+* Exclude if the field is not final
+* Include
+
+This behavior can be changed by setting the inclusion strategy for the TreeBuilder using the inclusionStrategy method.
 
 2.2 MIB creation
 

@@ -102,18 +102,25 @@ class NodeTreeConstructor
 
 	private boolean include(final Field field)
 	{
-		final boolean leaf = Node.isLeaf(field.getType());
-		final boolean collection = Node.isTable(field.getType());
-		final boolean typeAnnotation = Node.hasCollectionAnnotation(field);
+		final boolean table = Node.isTable(field.getType());
+		final boolean include = inclusionStrategy.apply(field);
 
-		if (collection && !typeAnnotation)
+		if (include && table)
+			return checkForTableAnnotation(field);
+		else
+			return include;
+	}
+
+	private boolean checkForTableAnnotation(Field field)
+	{
+		final boolean annotation = field.getAnnotation(Jots.class) != null;
+
+		if (!annotation)
 		{
 			logger.warn(COLLECTION_NO_ANNOTATION, field.getDeclaringClass(),
 					field.getName());
-			return false;
-		} else
-		{
-			return leaf || inclusionStrategy.apply(field);
 		}
+
+		return annotation;
 	}
 }

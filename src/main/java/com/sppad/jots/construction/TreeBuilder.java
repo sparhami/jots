@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import com.google.common.base.Predicate;
 import com.sppad.jots.SnmpTree;
 import com.sppad.jots.annotations.SnmpSettable;
+import com.sppad.jots.construction.config.DefaultInclusionStrategy;
 import com.sppad.jots.construction.config.SimpleInclusionStrategy;
 
 public class TreeBuilder
@@ -79,7 +80,7 @@ public class TreeBuilder
 
 	Predicate<Field> getInclusionStrategy()
 	{
-		return firstNonNull(inclusionStrategy, new SimpleInclusionStrategy());
+		return firstNonNull(inclusionStrategy, new DefaultInclusionStrategy());
 	}
 
 	int[] getPrefix()

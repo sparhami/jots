@@ -38,7 +38,7 @@ public class NodeTreeConstructorTest
 		public NestedObject obj;
 	}
 
-	public Function<Field, String> getFieldName = new Function<Field, String>()
+	public static Function<Field, String> getFieldName = new Function<Field, String>()
 	{
 		public String apply(Field field)
 		{
@@ -55,7 +55,6 @@ public class NodeTreeConstructorTest
 				.transform(fields, getFieldName);
 		String[] expected = new String[] { "name", "bool", "collection", "obj" };
 
-		assertThat(actual.size(), is(expected.length));
 		assertThat(actual, contains(expected));
 	}
 

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
 import com.sppad.jots.log.Messages;
+import com.sppad.jots.util.FieldUtils;
 
 /**
  * A basic strategy for determining what fields to include in a generated
@@ -21,13 +22,14 @@ import com.sppad.jots.log.Messages;
  * <ul>
  * <li>Include if annotated with {@link SnmpInclude}
  * <li>Exclude if annotated with {@link SnmpExclude}
- * <li>Exclude if the field is static
- * <li>Exclude if the field is transient
- * <li>Exclude if the field is not final
+ * <li>Include if the field is primitive, a primitive wrapper, String or Enum
+ * <li>Check if the field is static
+ * <li>Check if the field is transient
+ * <li>Check if the field is not final
  * <li>Include
  * <ul>
  */
-public class SimpleInclusionStrategy implements Predicate<Field>
+public abstract class SimpleInclusionStrategy implements Predicate<Field>
 {
 	/**
 	 * Marks that a field should always be skipped when generating an SnmpTree.
@@ -74,6 +76,8 @@ public class SimpleInclusionStrategy implements Predicate<Field>
 			return true;
 		else if (excludeAnnotation)
 			return false;
+		else if(FieldUtils.isSimple(field.getType()))
+			return true;
 		else if (Modifier.isStatic(mod) && !includeStatic())
 			return false;
 		else if (Modifier.isTransient(mod) && !includeTransient())
@@ -84,18 +88,9 @@ public class SimpleInclusionStrategy implements Predicate<Field>
 			return true;
 	}
 
-	protected boolean includeNonFinal()
-	{
-		return false;
-	}
+	protected abstract boolean includeNonFinal();
 
-	protected boolean includeStatic()
-	{
-		return false;
-	}
+	protected abstract boolean includeStatic();
 
-	protected boolean includeTransient()
-	{
-		return false;
-	}
+	protected abstract boolean includeTransient();
 }

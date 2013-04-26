@@ -87,7 +87,7 @@ public class MibGenerator implements INodeVisitor
 	{
 		System.out.printf("%-20s %-20s\n", oid, nameString);
 	}
-
+	
 	@Override
 	public void visitEnter(final EntryNode node)
 	{

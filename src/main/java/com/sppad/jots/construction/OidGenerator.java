@@ -98,7 +98,7 @@ public class OidGenerator
 		}
 	}
 
-	public static Map<Node, IntStack> getStaticOidParts(Node node)
+	public static Map<Node, IntStack> getStaticOidParts(final Node node)
 	{
 		OidAssigningVisitor visitor = new OidAssigningVisitor();
 		node.accept(visitor);

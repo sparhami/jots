@@ -5,16 +5,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 
-import com.sppad.jots.annotations.Jots;
 import com.sppad.jots.util.FieldUtils;
 
 abstract class Node
 {
-	static boolean hasCollectionAnnotation(final Field field)
-	{
-		return field.getAnnotation(Jots.class) != null;
-	}
-
 	static boolean isLeaf(final Class<?> cls)
 	{
 		return FieldUtils.isSimple(cls);

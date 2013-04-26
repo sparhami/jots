@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.concurrent.ExecutionException;
 
+import javax.annotation.Nullable;
+
 import org.snmp4j.smi.Integer32;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
@@ -29,10 +31,7 @@ import com.sppad.jots.lookup.SnmpLookupField;
 import com.sppad.jots.util.SnmpUtils;
 
 /**
- * 
- * 
- * @author sepand
- * @see SnmpTreeConstructor
+ * Contains fields in an SNMP tree, providing for getting/setting tree entries.
  */
 public class SnmpTree implements Iterable<VariableBinding>
 {
@@ -53,6 +52,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	static VariableBinding createVarBind(final OID oid, final Object object)
 	{
 		final Variable variable;
+
 		if (object instanceof Integer)
 			variable = new Integer32((Integer) object);
 		else if (object instanceof Enum)
@@ -96,8 +96,6 @@ public class SnmpTree implements Iterable<VariableBinding>
 	}
 
 	/**
-	 * Creates a SNMP tree
-	 * 
 	 * @param prefix
 	 *            An int array that all OIDs in the tree have in common
 	 * @param snmpFields
@@ -116,7 +114,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 *            The maximum number of entries to cache
 	 * @return The cacher used for index lookups
 	 */
-	private LoadingCache<OID, Integer> createCacher(int size)
+	private LoadingCache<OID, Integer> createCacher(final int size)
 	{
 		return CacheBuilder.newBuilder() //
 				.maximumSize(indexCacheSize = size) //
@@ -177,7 +175,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * @throws SnmpNoMoreEntriesException
 	 */
 	public Annotation getAnnotation(final int index,
-									final Class<? extends Annotation> annotationClass)
+									@Nullable final Class<? extends Annotation> annotationClass)
 			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
 		return getFieldWithBoundsChecking(index).getAnnotation(annotationClass);
@@ -360,7 +358,9 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * Performs a set for the given OID.
 	 * 
 	 * @param oid
+	 *            The OID to set
 	 * @param value
+	 *            The value to set
 	 * @throws SnmpOidNotFoundException
 	 * @throws SnmpNoMoreEntriesException
 	 * @throws SnmpNotWritableException
@@ -392,6 +392,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 			SnmpOidNotFoundException
 	{
 		Preconditions.checkNotNull(oid);
+		Preconditions.checkNotNull(value);
 
 		SnmpLookupField field = getFieldWithBoundsChecking(getCachedIndex(oid));
 		if (checkWritable && !field.isWritable())
