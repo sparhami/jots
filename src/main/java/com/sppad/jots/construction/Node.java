@@ -3,6 +3,7 @@ package com.sppad.jots.construction;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Map;
 
 import com.sppad.jots.util.Fields;
 
@@ -11,6 +12,12 @@ abstract class Node
 	static boolean isLeaf(final Class<?> cls)
 	{
 		return Fields.isSimple(cls);
+	}
+
+	static boolean isTable(final Class<?> cls)
+	{
+		return Collection.class.isAssignableFrom(cls)
+				|| Map.class.isAssignableFrom(cls);
 	}
 
 	/** The field that allows access to this */
