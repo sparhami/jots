@@ -9,8 +9,7 @@ public class OidGenerator
 {
 	private static class OidAssigningVisitor implements INodeVisitor
 	{
-		private final Map<Node, IntStack> nodeToStaticOidMap = Maps
-				.newHashMap();
+		private final Map<Node, int[]> nodeToStaticOidMap = Maps.newHashMap();
 
 		private final IntStack oidStack = new IntStack();
 
@@ -24,7 +23,7 @@ public class OidGenerator
 		{
 			oidStack.push(oidStack.pop() + 1);
 
-			nodeToStaticOidMap.put(node, new IntStack(oidStack));
+			nodeToStaticOidMap.put(node, oidStack.toArray());
 
 			oidStack.push(0);
 		}
@@ -34,7 +33,7 @@ public class OidGenerator
 		{
 			oidStack.push(oidStack.pop() + 1);
 
-			nodeToStaticOidMap.put(node, new IntStack(oidStack));
+			nodeToStaticOidMap.put(node, oidStack.toArray());
 		}
 
 		@Override
@@ -42,7 +41,7 @@ public class OidGenerator
 		{
 			oidStack.push(oidStack.pop() + 1);
 
-			nodeToStaticOidMap.put(node, new IntStack(oidStack));
+			nodeToStaticOidMap.put(node, oidStack.toArray());
 
 			oidStack.push(0);
 		}
@@ -52,7 +51,7 @@ public class OidGenerator
 		{
 			oidStack.push(oidStack.pop() + 1);
 
-			nodeToStaticOidMap.put(node, new IntStack(oidStack));
+			nodeToStaticOidMap.put(node, oidStack.toArray());
 
 			oidStack.push(0);
 		}
@@ -62,7 +61,7 @@ public class OidGenerator
 		{
 			oidStack.push(oidStack.pop() + 1);
 
-			nodeToStaticOidMap.put(node, new IntStack(oidStack));
+			nodeToStaticOidMap.put(node, oidStack.toArray());
 
 			oidStack.push(0);
 		}
@@ -98,7 +97,7 @@ public class OidGenerator
 		}
 	}
 
-	public static Map<Node, IntStack> getStaticOidParts(final Node node)
+	public static Map<Node, int[]> getStaticOidParts(final Node node)
 	{
 		OidAssigningVisitor visitor = new OidAssigningVisitor();
 		node.accept(visitor);

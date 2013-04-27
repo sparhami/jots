@@ -11,7 +11,7 @@ import org.snmp4j.smi.OID;
 import com.google.common.base.Function;
 import com.sppad.jots.annotations.SnmpNotSettable;
 import com.sppad.jots.exceptions.SnmpInternalException;
-import com.sppad.jots.util.FieldUtils;
+import com.sppad.jots.util.Fields;
 
 public class SnmpLookupField
 {
@@ -65,7 +65,7 @@ public class SnmpLookupField
 		this.oid = oid;
 		this.field = field;
 		this.enclosingObject = enclosingObject;
-		this.setter = FieldUtils.getSetterForField(field);
+		this.setter = Fields.getSetterForField(field);
 		;
 		this.writable = checkIsWritable();
 		this.valueParser = valueConverter;

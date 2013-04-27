@@ -2,6 +2,7 @@ package com.sppad.jots.construction;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -26,17 +27,15 @@ public class MibGenerator implements INodeVisitor
 	}
 
 	public static void generateMib(Object obj, TreeBuilder treeBuilder,
-									final String mibName,
-									final String rootName,
-									final String parentName,
-									final OutputStream os)
+			final String mibName, final String rootName,
+			final String parentName, final OutputStream os)
 	{
 		final int[] prefix = treeBuilder.getPrefix();
 
 		final Node node = NodeTreeConstructor.createTree(obj.getClass(),
 				treeBuilder.getInclusionStrategy());
 
-		final Map<Node, IntStack> staticOidMap = OidGenerator
+		final Map<Node, int[]> staticOidMap = OidGenerator
 				.getStaticOidParts(node);
 
 		final MibConstructor constructor = new MibConstructor(mibName,
@@ -57,20 +56,18 @@ public class MibGenerator implements INodeVisitor
 		}
 	}
 
-	private final LinkedList<String> constructedNameStack = new LinkedList<String>();
+	private final Deque<String> constructedNameStack = new LinkedList<String>();
 
 	private final MibConstructor constructor;
 
-	private final IntStack extensionStack = new IntStack();
-
-	private final LinkedList<String> nameStack = new LinkedList<String>();
+	private final Deque<String> nameStack = new LinkedList<String>();
 
 	private final int[] prefix;
 
-	private final Map<Node, IntStack> staticOidMap;
+	private final Map<Node, int[]> staticOidMap;
 
 	private MibGenerator(final int[] prefix,
-			final Map<Node, IntStack> staticOidMap,
+			final Map<Node, int[]> staticOidMap,
 			final MibConstructor constructor)
 	{
 		this.staticOidMap = staticOidMap;
@@ -87,13 +84,13 @@ public class MibGenerator implements INodeVisitor
 	{
 		System.out.printf("%-20s %-20s\n", oid, nameString);
 	}
-	
+
 	@Override
 	public void visitEnter(final EntryNode node)
 	{
 		nameStack.addLast(firstCharToUppercase(node.name));
 
-		final IntStack staticOid = staticOidMap.get(node);
+		final int[] staticOid = staticOidMap.get(node);
 		final String name = constructName("Entry");
 		final String parentName = constructedNameStack.peek();
 
@@ -108,12 +105,11 @@ public class MibGenerator implements INodeVisitor
 	{
 		nameStack.addLast(firstCharToUppercase(node.name));
 
-		final IntStack staticOid = staticOidMap.get(node);
+		final int[] staticOid = staticOidMap.get(node);
 		final String name = constructName("");
 		final String parentName = constructedNameStack.peek();
 
-		final OID oid = JotsOID.createTerminalOID(prefix, staticOid,
-				extensionStack);
+		final OID oid = JotsOID.createOID(prefix, staticOid);
 
 		printOid(name, oid);
 	}
@@ -123,7 +119,7 @@ public class MibGenerator implements INodeVisitor
 	{
 		nameStack.addLast(firstCharToUppercase(node.name));
 
-		final IntStack staticOid = staticOidMap.get(node);
+		final int[] staticOid = staticOidMap.get(node);
 		final String name = constructName("");
 
 		final OID oid = JotsOID.createOID(prefix, staticOid);
@@ -135,7 +131,7 @@ public class MibGenerator implements INodeVisitor
 	@Override
 	public void visitEnter(final TableEntryNode node)
 	{
-		final IntStack staticOid = staticOidMap.get(node);
+		final int[] staticOid = staticOidMap.get(node);
 		final String name = constructName("Entry");
 		final String parentName = constructedNameStack.peek();
 
@@ -150,7 +146,7 @@ public class MibGenerator implements INodeVisitor
 	{
 		nameStack.addLast(firstCharToUppercase(node.name));
 
-		final IntStack staticOid = staticOidMap.get(node);
+		final int[] staticOid = staticOidMap.get(node);
 		final String name = constructName("Table");
 		final String parentName = constructedNameStack.peek();
 

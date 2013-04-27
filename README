@@ -82,9 +82,9 @@ By default, Fields are either included or skipped either through modifiers or an
 
 * Include if annotated with {@link SnmpInclude}
 * Exclude if annotated with {@link SnmpExclude}
-* Include if the field is primitive, a primitive wrapper, String or Enum
 * Exclude if the field is static
 * Exclude if the field is transient
+* Include if the field is primitive, a primitive wrapper, String or Enum
 * Exclude if the field is not final
 * Include
 

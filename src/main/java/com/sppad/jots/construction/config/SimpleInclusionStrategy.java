@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
-import com.sppad.jots.log.Messages;
-import com.sppad.jots.util.FieldUtils;
+import com.sppad.jots.log.ErrorMessage;
+import com.sppad.jots.util.Fields;
 
 /**
  * A basic strategy for determining what fields to include in a generated
@@ -22,9 +22,9 @@ import com.sppad.jots.util.FieldUtils;
  * <ul>
  * <li>Include if annotated with {@link SnmpInclude}
  * <li>Exclude if annotated with {@link SnmpExclude}
- * <li>Include if the field is primitive, a primitive wrapper, String or Enum
  * <li>Check if the field is static
  * <li>Check if the field is transient
+ * <li>Include if the field is primitive, a primitive wrapper, String or Enum
  * <li>Check if the field is not final
  * <li>Include
  * <ul>
@@ -51,9 +51,6 @@ public abstract class SimpleInclusionStrategy implements Predicate<Field>
 	{
 	}
 
-	private static final String INCLUDE_AND_IGNORE_ANNOTATIONS = Messages
-			.getString("INCLUDE_AND_IGNORE_ANNOTATIONS");
-
 	private static final Logger logger = LoggerFactory
 			.getLogger(SimpleInclusionStrategy.class);
 
@@ -68,7 +65,7 @@ public abstract class SimpleInclusionStrategy implements Predicate<Field>
 
 		if (includeAnnotation && excludeAnnotation)
 		{
-			logger.warn(INCLUDE_AND_IGNORE_ANNOTATIONS,
+			logger.warn(ErrorMessage.INCLUDE_AND_IGNORE_ANNOTATIONS.getFmt(),
 					field.getDeclaringClass(), field.getName());
 		}
 
@@ -76,12 +73,12 @@ public abstract class SimpleInclusionStrategy implements Predicate<Field>
 			return true;
 		else if (excludeAnnotation)
 			return false;
-		else if(FieldUtils.isSimple(field.getType()))
-			return true;
 		else if (Modifier.isStatic(mod) && !includeStatic())
 			return false;
 		else if (Modifier.isTransient(mod) && !includeTransient())
 			return false;
+		else if (Fields.isSimple(field.getType()))
+			return true;
 		else if (!Modifier.isFinal(mod) && !includeNonFinal())
 			return false;
 		else

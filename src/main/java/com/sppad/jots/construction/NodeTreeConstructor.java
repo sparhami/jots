@@ -1,37 +1,66 @@
 package com.sppad.jots.construction;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.sppad.jots.annotations.Jots;
-import com.sppad.jots.log.Messages;
+import com.sppad.jots.annotations.SnmpTableIndex;
+import com.sppad.jots.log.ErrorMessage;
+import com.sppad.jots.util.Fields;
 
 class NodeTreeConstructor
 {
-	private static final String COLLECTION_NO_ANNOTATION = Messages
-			.getString("COLLECTION_NO_ANNOTATION");
-
 	private static final Logger logger = LoggerFactory
 			.getLogger(NodeTreeConstructor.class);
 
-	private static final Predicate<Field> removeSynthetic = new Predicate<Field>()
+	static boolean checkThatTableIndexIsIncluded(final Field field,
+			final Predicate<Field> inclusionStrategy)
 	{
-		public boolean apply(final Field field)
+		final boolean include = include(field, inclusionStrategy);
+
+		if (!include)
 		{
-			return !field.isSynthetic();
+			logger.warn(ErrorMessage.TABLE_INDEX_NOT_INCLUDED.getFmt(),
+					field.getName());
 		}
-	};
+
+		return include;
+	}
+
+	static boolean checkThatTableIndexIsValid(final Field field)
+	{
+		final Class<?> type = field.getType();
+		final boolean valid = type == String.class
+				|| Number.class.isAssignableFrom(type);
+
+		if (!valid)
+		{
+			logger.warn(ErrorMessage.TABLE_INDEX_NOT_VALID.getFmt(),
+					field.getName());
+		}
+
+		return valid;
+	}
+
+	static boolean checkThatTableIsAnnotated(Field field)
+	{
+		final boolean annotation = field.getAnnotation(Jots.class) != null;
+
+		if (!annotation)
+		{
+			logger.warn(ErrorMessage.COLLECTION_NO_ANNOTATION.getFmt(),
+					field.getDeclaringClass(), field.getName());
+		}
+
+		return annotation;
+	}
 
 	static Node createTree(final Class<?> cls,
-							final Predicate<Field> inclusionStrategy)
+			final Predicate<Field> inclusionStrategy)
 	{
 		final RootNode root = new RootNode(cls);
 		final NodeTreeConstructor constructor = new NodeTreeConstructor(
@@ -42,14 +71,41 @@ class NodeTreeConstructor
 		return root;
 	}
 
-	static Collection<Field> getFields(final Class<?> klass)
+	static Field getIndexField(final Collection<Field> fields,
+			final Predicate<Field> inclusionStrategy)
 	{
-		final List<Field> fields = new LinkedList<Field>();
+		for (final Field field : fields)
+		{
+			if (!isTableIndex(field))
+				continue;
 
-		for (Class<?> c = klass; c != Object.class; c = c.getSuperclass())
-			fields.addAll(0, Arrays.asList(c.getDeclaredFields()));
+			if (!checkThatTableIndexIsValid(field))
+				continue;
 
-		return Collections2.filter(fields, removeSynthetic);
+			if (!checkThatTableIndexIsIncluded(field, inclusionStrategy))
+				continue;
+
+			return field;
+		}
+
+		return null;
+	}
+
+	static boolean include(final Field field,
+			final Predicate<Field> inclusionStrategy)
+	{
+		final boolean table = Node.isTable(field.getType());
+		final boolean include = inclusionStrategy.apply(field);
+
+		if (include && table)
+			return checkThatTableIsAnnotated(field);
+		else
+			return include;
+	}
+
+	static boolean isTableIndex(Field field)
+	{
+		return field.getAnnotation(SnmpTableIndex.class) != null;
 	}
 
 	private final Predicate<Field> inclusionStrategy;
@@ -61,9 +117,15 @@ class NodeTreeConstructor
 
 	private void addChildren(final InnerNode parent)
 	{
-		for (final Field field : getFields(parent.klass))
+		addChildren(parent, Fields.getFields(parent.klass));
+	}
+
+	private void addChildren(final InnerNode parent,
+			final Collection<Field> fields)
+	{
+		for (final Field field : fields)
 		{
-			if (!include(field))
+			if (!include(field, inclusionStrategy))
 				continue;
 
 			final Node child;
@@ -94,33 +156,12 @@ class NodeTreeConstructor
 		final TableEntryNode child = new TableEntryNode(parent.field,
 				entryClass, parent);
 
+		final Collection<Field> fields = Fields.getFields(entryClass);
+		parent.setIndexField(getIndexField(fields, inclusionStrategy));
+
 		child.parent.addChild(child);
 		child.snmpParent.addSnmpChild(child);
 
-		addChildren(child);
-	}
-
-	private boolean include(final Field field)
-	{
-		final boolean table = Node.isTable(field.getType());
-		final boolean include = inclusionStrategy.apply(field);
-
-		if (include && table)
-			return checkForTableAnnotation(field);
-		else
-			return include;
-	}
-
-	private boolean checkForTableAnnotation(Field field)
-	{
-		final boolean annotation = field.getAnnotation(Jots.class) != null;
-
-		if (!annotation)
-		{
-			logger.warn(COLLECTION_NO_ANNOTATION, field.getDeclaringClass(),
-					field.getName());
-		}
-
-		return annotation;
+		addChildren(child, fields);
 	}
 }

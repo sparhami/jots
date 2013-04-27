@@ -28,7 +28,7 @@ class TreeConstructor
 	{
 		Node node = NodeTreeConstructor.createTree(obj.getClass(),
 				treeBuilder.getInclusionStrategy());
-		Map<Node, IntStack> staticOidMap = OidGenerator.getStaticOidParts(node);
+		Map<Node, int[]> staticOidMap = OidGenerator.getStaticOidParts(node);
 
 		TreeConstructor tc = new TreeConstructor(treeBuilder.getPrefix(),
 				staticOidMap);
@@ -44,9 +44,9 @@ class TreeConstructor
 	private final SortedSet<SnmpLookupField> sortedSet = new TreeSet<SnmpLookupField>(
 			COMPARE_BY_OID);
 
-	private final Map<Node, IntStack> staticOidMap;
+	private final Map<Node, int[]> staticOidMap;
 
-	private TreeConstructor(int[] prefix, Map<Node, IntStack> staticOidMap)
+	private TreeConstructor(int[] prefix, Map<Node, int[]> staticOidMap)
 	{
 		this.prefix = prefix;
 		this.staticOidMap = staticOidMap;
@@ -83,8 +83,7 @@ class TreeConstructor
 	{
 		try
 		{
-			Node child = node.snmpNodes.iterator().next();
-			assert (child instanceof TableEntryNode);
+			TableEntryNode child = (TableEntryNode) node.snmpNodes.iterator().next();
 
 			Field field = node.field;
 			field.setAccessible(true);
@@ -99,25 +98,25 @@ class TreeConstructor
 				collection = (Collection<?>) tableObject;
 
 			int index = 1;
-			extensionStack.push(0);
-
 			for (Object next : collection)
 			{
-				extensionStack.pop();
-				extensionStack.push(index++);
+				final int[] extension = node.getIndex(next, index++);
+				final int extensionLength = extension.length;
+				
+				for(int part : extension)
+					extensionStack.push(part);
 
 				descend(child, next);
+				
+				extensionStack.remove(extensionLength);
 			}
-
-			extensionStack.pop();
 
 		} catch (IllegalArgumentException | IllegalAccessException e)
 		{
 			e.printStackTrace();
 		}
-
 	}
-
+	
 	private void handleObject(Node node, Object obj)
 	{
 		try

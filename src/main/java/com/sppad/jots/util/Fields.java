@@ -2,23 +2,45 @@ package com.sppad.jots.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableSet;
 
-public class FieldUtils
+public class Fields
 {
-	private static final Set<Class<?>> builtinClasses = new HashSet<Class<?>>();
+	private static final ImmutableSet<Class<?>> builtinClasses = new ImmutableSet.Builder<Class<?>>()
+			.add(Boolean.class, Byte.class, Integer.class, Long.class,
+					Float.class, Double.class, Character.class, String.class)
+			.build();
 
-	static
+	private static final Predicate<Field> removeSynthetic = new Predicate<Field>()
 	{
-		builtinClasses.add(Boolean.class);
-		builtinClasses.add(Byte.class);
-		builtinClasses.add(Integer.class);
-		builtinClasses.add(Long.class);
-		builtinClasses.add(Float.class);
-		builtinClasses.add(Double.class);
-		builtinClasses.add(Character.class);
-		builtinClasses.add(String.class);
+		public boolean apply(final Field field)
+		{
+			return !field.isSynthetic();
+		}
+	};
+
+	/**
+	 * @param cls
+	 *            The class to get the Fields for
+	 * @return A Collection of Fields contained in the class and its non-Object
+	 *         super-classes. Does not include synthetic fields.
+	 * 
+	 * @see Field#isSynthetic()
+	 */
+	public static Collection<Field> getFields(final Class<?> cls)
+	{
+		final List<Field> fields = new LinkedList<Field>();
+
+		for (Class<?> c = cls; c != Object.class; c = c.getSuperclass())
+			fields.addAll(0, Arrays.asList(c.getDeclaredFields()));
+
+		return Collections2.filter(fields, removeSynthetic);
 	}
 
 	/**

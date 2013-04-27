@@ -5,13 +5,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 
-import com.sppad.jots.util.FieldUtils;
+import com.sppad.jots.util.Fields;
 
 abstract class Node
 {
 	static boolean isLeaf(final Class<?> cls)
 	{
-		return FieldUtils.isSimple(cls);
+		return Fields.isSimple(cls);
 	}
 
 	static boolean isTable(final Class<?> cls)

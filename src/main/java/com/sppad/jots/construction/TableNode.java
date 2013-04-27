@@ -3,9 +3,12 @@ package com.sppad.jots.construction;
 import java.lang.reflect.Field;
 
 import com.sppad.jots.annotations.Jots;
+import com.sppad.jots.util.SnmpUtils;
 
 class TableNode extends InnerNode
 {
+	private Field indexField;
+
 	TableNode(final Field field, final Node parent)
 	{
 		super(field.getAnnotation(Jots.class).cls(), parent, true, field
@@ -39,5 +42,28 @@ class TableNode extends InnerNode
 		assert (parent != null);
 
 		return parent;
+	}
+
+	public void setIndexField(Field indexField)
+	{
+		this.indexField = indexField;
+	}
+
+	public int[] getIndex(Object obj, int ordinal)
+	{
+		if (indexField != null)
+		{
+			try
+			{
+				return SnmpUtils.getSnmpExtension(indexField.get(obj));
+			} catch (IllegalArgumentException | IllegalAccessException e)
+			{
+				return new int[] { ordinal };
+			}
+		}
+		else
+		{
+			return new int[] { ordinal };
+		}
 	}
 }
