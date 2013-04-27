@@ -107,17 +107,10 @@ public class SnmpTree implements Iterable<VariableBinding>
 		this(prefix, snmpFields.toArray(new SnmpLookupField[snmpFields.size()]));
 	}
 
-	/**
-	 * Creates the internal index cacher.
-	 * 
-	 * @param size
-	 *            The maximum number of entries to cache
-	 * @return The cacher used for index lookups
-	 */
-	private LoadingCache<OID, Integer> createCacher(final int size)
+	private LoadingCache<OID, Integer> createCacher(final int maximumSize)
 	{
 		return CacheBuilder.newBuilder() //
-				.maximumSize(indexCacheSize = size) //
+				.maximumSize(indexCacheSize = maximumSize) //
 				.build(new CacheLoader<OID, Integer>()
 				{
 					@Override
@@ -175,7 +168,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * @throws SnmpNoMoreEntriesException
 	 */
 	public Annotation getAnnotation(final int index,
-									@Nullable final Class<? extends Annotation> annotationClass)
+			@Nullable final Class<? extends Annotation> annotationClass)
 			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
 		return getFieldWithBoundsChecking(index).getAnnotation(annotationClass);
@@ -257,7 +250,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * @param oid
 	 *            A reference OID
 	 * @return A VariableBinding containing the current value of the OID
-	 *         following <b>oid</b>
+	 *         following <i>oid</i>
 	 * @throws SnmpPastEndOfTreeException
 	 * @throws SnmpOidNotFoundException
 	 * @throws SnmpNoMoreEntriesException
@@ -387,9 +380,8 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * @throws SnmpException
 	 */
 	public void set(final OID oid, final String value,
-					final boolean checkWritable)
-			throws SnmpNotWritableException, SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
+			final boolean checkWritable) throws SnmpNotWritableException,
+			SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
 		Preconditions.checkNotNull(oid);
 		Preconditions.checkNotNull(value);
@@ -406,11 +398,14 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * do not necessarily have to reside in the tree. This causes all previously
 	 * cached items to be discarded.
 	 * 
-	 * @param size
+	 * @param maximumSize
 	 *            The maximum number of entries to cache
 	 */
-	public void setCacheSize(final int size)
+	public void setCacheSize(final int maximumSize)
 	{
-		indexCacher = createCacher(size);
+		Preconditions.checkArgument(maximumSize >= 0,
+				"maximumSize must not be negative");
+
+		indexCacher = createCacher(maximumSize);
 	}
 }

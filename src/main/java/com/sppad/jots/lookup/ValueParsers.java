@@ -18,8 +18,8 @@ class ValueParsers
 			.build(new CacheLoader<Class<? extends Enum>, Function<String, Enum>>()
 			{
 				@Override
-				public Function<String, Enum> load(	final Class<? extends Enum> key)
-						throws Exception
+				public Function<String, Enum> load(
+						final Class<? extends Enum> key) throws Exception
 				{
 					return new Function<String, Enum>()
 					{
@@ -137,20 +137,21 @@ class ValueParsers
 			.put(Double.class, CONVERT_TO_DOUBLE)
 			.put(String.class, CONVERT_TO_STRING).build();
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static <T extends Enum> Function<String, T> enumConverter(	final Class<T> enumClass)
-	{
-		return (Function<String, T>) cacheEnumConverters
-				.getUnchecked(enumClass);
-	}
-
 	@SuppressWarnings("unchecked")
 	static Function<String, ?> get(Class<?> cls)
 	{
 		if (cls.isEnum())
-			return enumConverter((Class<? extends Enum<?>>) cls);
+			return getEnumConverter((Class<? extends Enum<?>>) cls);
 		else
 			return CONVERTER_LOOKUP_MAP.get(cls);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static <T extends Enum> Function<String, T> getEnumConverter(
+			final Class<T> enumClass)
+	{
+		return (Function<String, T>) cacheEnumConverters
+				.getUnchecked(enumClass);
 	}
 
 	private ValueParsers()

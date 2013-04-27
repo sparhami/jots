@@ -11,7 +11,6 @@ import org.snmp4j.smi.OID;
 import com.google.common.base.Joiner;
 import com.sppad.jots.JotsOID;
 import com.sppad.jots.construction.mib.MibConstructor;
-import com.sppad.jots.datastructures.primative.IntStack;
 
 public class MibGenerator implements INodeVisitor
 {
@@ -84,7 +83,7 @@ public class MibGenerator implements INodeVisitor
 	{
 		System.out.printf("%-20s %-20s\n", oid, nameString);
 	}
-
+	
 	@Override
 	public void visitEnter(final EntryNode node)
 	{

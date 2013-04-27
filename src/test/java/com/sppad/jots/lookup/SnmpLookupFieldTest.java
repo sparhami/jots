@@ -35,6 +35,7 @@ public class SnmpLookupFieldTest
 			BAR, BAZ, FOO
 		}
 
+		@SuppressWarnings("unused")
 		public TestEnum testEnum = TestEnum.FOO;
 
 		@SuppressWarnings("unused")

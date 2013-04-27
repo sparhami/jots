@@ -2,10 +2,11 @@ package com.sppad.jots.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
@@ -29,13 +30,14 @@ public class Fields
 	 * @param cls
 	 *            The class to get the Fields for
 	 * @return A Collection of Fields contained in the class and its non-Object
-	 *         super-classes. Does not include synthetic fields.
+	 *         super-classes, with those of a super class appearing before the
+	 *         extending class. Does not include synthetic fields.
 	 * 
 	 * @see Field#isSynthetic()
 	 */
 	public static Collection<Field> getFields(final Class<?> cls)
 	{
-		final List<Field> fields = new LinkedList<Field>();
+		final List<Field> fields = new ArrayList<Field>();
 
 		for (Class<?> c = cls; c != Object.class; c = c.getSuperclass())
 			fields.addAll(0, Arrays.asList(c.getDeclaredFields()));

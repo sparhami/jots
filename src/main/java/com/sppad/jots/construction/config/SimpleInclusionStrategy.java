@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
+
 import com.sppad.jots.log.ErrorMessage;
 import com.sppad.jots.util.Fields;
 
@@ -32,7 +33,7 @@ import com.sppad.jots.util.Fields;
 public abstract class SimpleInclusionStrategy implements Predicate<Field>
 {
 	/**
-	 * Marks that a field should always be skipped when generating an SnmpTree.
+	 * Marks that a field should always be <b>skipped</b> when generating an SnmpTree.
 	 * This overrides all other considerations except for {@link SnmpInclude}.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
@@ -42,7 +43,7 @@ public abstract class SimpleInclusionStrategy implements Predicate<Field>
 	}
 
 	/**
-	 * Marks that a field should always be included when generating an SnmpTree.
+	 * Marks that a field should always be <b>included</b> when generating an SnmpTree.
 	 * This overrides all other considerations.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)

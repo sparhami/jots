@@ -10,7 +10,7 @@ public enum ErrorMessage
 	TABLE_INDEX_NOT_INCLUDED,
 	TABLE_INDEX_NOT_VALID;
 
-	private static final String BUNDLE_NAME = "com.sppad.jots.log.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "com.sppad.jots.log.messages";
 
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
 			.getBundle(BUNDLE_NAME);
@@ -30,6 +30,7 @@ public enum ErrorMessage
 
 	public String getFmt()
 	{
+		// NOTE: name() is null within the constructor
 		if(fmt != null)
 			return fmt;
 		else 
