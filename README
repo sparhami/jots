@@ -129,7 +129,9 @@ When an OID is requested, the value from the field corresponding to that OID is 
 
 3.2.2 Getnext / Walk
 
-Use of snmpwalk is highly discouraged due to poor performance in comparison to bulkwalk. Since a single walk could easily invalidate the entire cache for the SnmpTree, the OID lookups for getNext are not cached.
+Use of snmp walks is discouraged due to poor performance in comparison to bulkwalk. Each getnext operation requires a lookup in the tree, which is a O(log n) operation, making a snmpwalk O(m log n), where m is the number of entries in the requested subtree and n is the number of elements in the tree. In comparison, each bulkget only needs to do a single O(log n) lookup, followed by O(1) access for each subsequent entry resulting in a complexity of O(m + log n).
+
+Unlike get, getnext lookups are not cached. This is because a single walk could easily invalidate the entire cache for the SnmpTree. A separate cache is not maintained since it could significantly impact performance.
 
 3.3 Set Methods
 
