@@ -6,7 +6,7 @@ import com.sppad.jots.datastructures.primative.IntStack;
 
 public class JotsOID
 {
-	private static final IntStack NOT_TABLE_TERMINATOR = new IntStack(
+	private static final IntStack NON_TABLE_TERMINATOR = new IntStack(
 			new int[] { 0 });
 
 	public static OID createOID(final int[] prefix, final int[] staticOid)
@@ -48,7 +48,7 @@ public class JotsOID
 			IntStack extensionStack)
 	{
 		if (extensionStack.size() == 0)
-			return createOID(prefix, staticOid, NOT_TABLE_TERMINATOR);
+			return createOID(prefix, staticOid, NON_TABLE_TERMINATOR);
 		else
 			return createOID(prefix, staticOid, extensionStack);
 	}

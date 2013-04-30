@@ -11,8 +11,6 @@ import com.sppad.jots.exceptions.SnmpPduLengthException;
  * processed as well as the current response length. The PDU class does not seem
  * to track the max PDU length in anyway and will allow you to happily add more
  * data, only to cause a problem when you try to send it.
- * 
- * @author sepand
  */
 class CustomPDU
 {
@@ -22,9 +20,6 @@ class CustomPDU
 	 */
 	private static final int OVERHEAD_BUFFER = 200;
 
-	/** Keep track of the current index for reporting errors */
-	int currentRequestPduIndex = 0;
-
 	/** Keep track of the current length, quicker than recalculating it */
 	private int length = 0;
 
@@ -32,6 +27,9 @@ class CustomPDU
 	private final int maxPduLength;
 
 	private final PDU pdu = new PDU();
+
+	/** Keep track of the current index for reporting errors */
+	private int requestIndex = 0;
 
 	/**
 	 * Creates a custom PDU for making sure the length limit is not reached.
@@ -66,6 +64,14 @@ class CustomPDU
 		return pdu;
 	}
 
+	int getRequestIndex() {
+		return requestIndex;
+	}
+
+	void incrementRequestIndex() {
+		requestIndex++;
+	}
+
 	void setErrorIndex(int errorIndex)
 	{
 		pdu.setErrorIndex(errorIndex);
@@ -75,13 +81,13 @@ class CustomPDU
 	{
 		pdu.setErrorStatus(errorStatus);
 	}
-
-	public void setRequestID(Integer32 requestID)
+	
+	void setRequestID(Integer32 requestID)
 	{
 		pdu.setRequestID(requestID);
 	}
-
-	public void setType(int type)
+	
+	void setType(int type)
 	{
 		pdu.setType(type);
 	}

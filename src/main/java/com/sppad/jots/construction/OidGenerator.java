@@ -99,7 +99,7 @@ public class OidGenerator
 
 	public static Map<Node, int[]> getStaticOidParts(final Node node)
 	{
-		OidAssigningVisitor visitor = new OidAssigningVisitor();
+		final OidAssigningVisitor visitor = new OidAssigningVisitor();
 		node.accept(visitor);
 
 		return visitor.nodeToStaticOidMap;

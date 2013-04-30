@@ -23,6 +23,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.sppad.jots.exceptions.SnmpNoMoreEntriesException;
 import com.sppad.jots.exceptions.SnmpNotWritableException;
 import com.sppad.jots.exceptions.SnmpOidNotFoundException;
@@ -76,7 +77,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	int indexCacheSize;
 
 	/** The last valid index */
-	private final int lastIndex;
+	final int lastIndex;
 
 	/** The prefix used to create the OIDs in the tree */
 	final int[] prefix;
@@ -339,10 +340,11 @@ public class SnmpTree implements Iterable<VariableBinding>
 		for (int i = thisIndex; i <= this.lastIndex; i++)
 			fields.add(this.fieldArray[i]);
 
-		int[] prefix = SnmpUtils.commonPrefix(this.prefix, other.prefix);
-		SnmpLookupField[] fieldArray = fields
+		final int[] prefix = SnmpUtils.commonPrefix(this.prefix, other.prefix);
+		final SnmpLookupField[] fieldArray = fields
 				.toArray(new SnmpLookupField[fields.size()]);
-		int cacherSize = Math.max(this.indexCacheSize, other.indexCacheSize);
+		final int cacherSize = Math.max(this.indexCacheSize,
+				other.indexCacheSize);
 
 		return new SnmpTree(prefix, fieldArray, cacherSize);
 	}
@@ -386,7 +388,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 		Preconditions.checkNotNull(oid);
 		Preconditions.checkNotNull(value);
 
-		SnmpLookupField field = getFieldWithBoundsChecking(getCachedIndex(oid));
+		final SnmpLookupField field = getFieldWithBoundsChecking(getCachedIndex(oid));
 		if (checkWritable && !field.isWritable())
 			throw new SnmpNotWritableException("Cannot write to this OID");
 

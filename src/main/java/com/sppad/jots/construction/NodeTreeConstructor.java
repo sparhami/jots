@@ -148,7 +148,7 @@ class NodeTreeConstructor
 			child.snmpParent.addSnmpChild(child);
 		}
 	}
-
+	
 	private void addTableChild(final TableNode parent)
 	{
 		final Class<?> entryClass = parent.field.getAnnotation(Jots.class)

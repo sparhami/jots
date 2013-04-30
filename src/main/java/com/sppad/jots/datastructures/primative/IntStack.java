@@ -59,8 +59,8 @@ public class IntStack
 	public IntStack(final IntStack srcStack)
 	{
 		backingArray = new int[srcStack.size()];
-		topIndex = srcStack.size() - 1;
 		srcStack.copyTo(backingArray, 0);
+		topIndex = srcStack.size() - 1;
 	}
 
 	/**

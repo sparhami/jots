@@ -16,15 +16,15 @@ import com.sppad.jots.util.Fields;
 public class SnmpLookupField
 {
 	public static SnmpLookupField create(final OID oid, final Field field,
-											final Object object)
+			final Object object)
 	{
 		final Function<String, ? extends Object> valueConverter = ValueParsers
 				.get(field.getType());
 
 		if (valueConverter == null)
 		{
-			throw new RuntimeException("Cannot create SnmpLookupField for: "
-					+ field.getType());
+			throw new IllegalArgumentException(
+					"Cannot create SnmpLookupField for: " + field.getType());
 		}
 
 		return new SnmpLookupField(oid, field, object, valueConverter);

@@ -97,9 +97,9 @@ public class SnmpAgent implements CommandResponder
 	 * @throws SnmpPduLengthException
 	 */
 	void doSnmpBulkGet(final OID oid, final int getCount,
-						final CustomPDU response)
-			throws SnmpPastEndOfTreeException, SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException, SnmpPduLengthException
+			final CustomPDU response) throws SnmpPastEndOfTreeException,
+			SnmpNoMoreEntriesException, SnmpOidNotFoundException,
+			SnmpPduLengthException
 	{
 		final int startIndex = tree.getNextIndex(oid);
 		final int lastIndex = tree.getLastIndex();
@@ -134,11 +134,11 @@ public class SnmpAgent implements CommandResponder
 	}
 
 	private void logError(final CommandResponderEvent request,
-							final CustomPDU response, final Throwable t)
+			final CustomPDU response, final Throwable t)
 	{
 		final String commandType = PDU
 				.getTypeString(request.getPDU().getType());
-		final int index = response.currentRequestPduIndex;
+		final int index = response.getRequestIndex();
 		final VariableBinding vb = request.getPDU().getVariableBindings()
 				.get(index);
 
@@ -160,14 +160,13 @@ public class SnmpAgent implements CommandResponder
 	 * @throws SnmpPduLengthException
 	 */
 	void processGet(final CommandResponderEvent request,
-					final CustomPDU response)
-			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException,
-			SnmpPduLengthException
+			final CustomPDU response) throws SnmpNoMoreEntriesException,
+			SnmpOidNotFoundException, SnmpPduLengthException
 	{
 		for (final VariableBinding var : request.getPDU().getVariableBindings())
 		{
 			doSnmpGet(var.getOid(), response);
-			response.currentRequestPduIndex++;
+			response.incrementRequestIndex();
 		}
 	}
 
@@ -187,9 +186,9 @@ public class SnmpAgent implements CommandResponder
 	 * @throws SnmpPduLengthException
 	 */
 	void processGetBulk(final CommandResponderEvent request,
-						final CustomPDU response)
-			throws SnmpPastEndOfTreeException, SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException, SnmpPduLengthException
+			final CustomPDU response) throws SnmpPastEndOfTreeException,
+			SnmpNoMoreEntriesException, SnmpOidNotFoundException,
+			SnmpPduLengthException
 	{
 		// nonRepeaters - how many OIDs to do get on before starting bulkgets
 		final int nonRepeaters = request.getPDU().getNonRepeaters();
@@ -198,12 +197,12 @@ public class SnmpAgent implements CommandResponder
 
 		for (final VariableBinding var : request.getPDU().getVariableBindings())
 		{
-			if (response.currentRequestPduIndex >= nonRepeaters)
+			if (response.getRequestIndex() >= nonRepeaters)
 				doSnmpBulkGet(var.getOid(), maxRepititions, response);
 			else
 				doSnmpGet(var.getOid(), response);
 
-			response.currentRequestPduIndex++;
+			response.incrementRequestIndex();
 		}
 	}
 
@@ -221,14 +220,14 @@ public class SnmpAgent implements CommandResponder
 	 * @throws SnmpPduLengthException
 	 */
 	void processGetNext(final CommandResponderEvent request,
-						final CustomPDU response)
-			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException,
-			SnmpPastEndOfTreeException, SnmpPduLengthException
+			final CustomPDU response) throws SnmpNoMoreEntriesException,
+			SnmpOidNotFoundException, SnmpPastEndOfTreeException,
+			SnmpPduLengthException
 	{
 		for (final VariableBinding var : request.getPDU().getVariableBindings())
 		{
 			doSnmpGetNext(var.getOid(), response);
-			response.currentRequestPduIndex++;
+			response.incrementRequestIndex();
 		}
 	}
 
@@ -274,7 +273,7 @@ public class SnmpAgent implements CommandResponder
 		} catch (final SnmpBadValueException e)
 		{
 			response.setErrorStatus(PDU.badValue);
-			response.setErrorIndex(response.currentRequestPduIndex);
+			response.setErrorIndex(response.getRequestIndex());
 		} catch (final SnmpPduLengthException | SnmpNoMoreEntriesException e)
 		{
 			// nothing to do here, just return with what we have
@@ -284,15 +283,15 @@ public class SnmpAgent implements CommandResponder
 				| IllegalArgumentException e)
 		{
 			response.setErrorStatus(PDU.noSuchName);
-			response.setErrorIndex(response.currentRequestPduIndex);
+			response.setErrorIndex(response.getRequestIndex());
 		} catch (final SnmpNotWritableException e)
 		{
 			response.setErrorStatus(PDU.notWritable);
-			response.setErrorIndex(response.currentRequestPduIndex);
+			response.setErrorIndex(response.getRequestIndex());
 		} catch (final Exception e)
 		{
 			response.setErrorStatus(PDU.genErr);
-			response.setErrorIndex(response.currentRequestPduIndex);
+			response.setErrorIndex(response.getRequestIndex());
 			logError(request, response, e);
 		} finally
 		{
@@ -330,14 +329,14 @@ public class SnmpAgent implements CommandResponder
 	 * @throws SnmpPduLengthException
 	 */
 	void processSet(final CommandResponderEvent request,
-					final CustomPDU response) throws SnmpNotWritableException,
+			final CustomPDU response) throws SnmpNotWritableException,
 			SnmpNoMoreEntriesException, SnmpOidNotFoundException,
 			SnmpPduLengthException
 	{
 		for (final VariableBinding var : request.getPDU().getVariableBindings())
 		{
 			doSnmpSet(var, response);
-			response.currentRequestPduIndex++;
+			response.incrementRequestIndex();
 		}
 	}
 
