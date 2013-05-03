@@ -1,6 +1,5 @@
 package com.sppad.jots.log;
 
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public enum ErrorMessage
@@ -17,13 +16,7 @@ public enum ErrorMessage
 
 	private static String getFormatFromResource(String key)
 	{
-		try
-		{
-			return RESOURCE_BUNDLE.getString(key);
-		} catch (MissingResourceException e)
-		{
-			return '!' + key + '!';
-		}
+		return RESOURCE_BUNDLE.getString(key);
 	}
 
 	private String fmt;
@@ -31,9 +24,9 @@ public enum ErrorMessage
 	public String getFmt()
 	{
 		// NOTE: name() is null within the constructor
-		if(fmt != null)
+		if (fmt != null)
 			return fmt;
-		else 
+		else
 			return fmt = getFormatFromResource(name());
 	}
 }
