@@ -77,7 +77,7 @@ public class SnmpLookupFieldTest
 		final SnmpLookupField slf = createField(new TestEnumClass(), "testEnum");
 
 		final String value = slf.getValue().toString();
-		final String expected = "FOO";
+		final String expected = TestEnumClass.TestEnum.FOO.name();
 		assertThat(value, is(expected));
 	}
 
@@ -102,10 +102,10 @@ public class SnmpLookupFieldTest
 	{
 		final SnmpLookupField slf = createField(new TestEnumClass(), "testEnum");
 
-		slf.set(TestEnumClass.TestEnum.BAR.toString());
+		slf.set(TestEnumClass.TestEnum.BAR.name());
 
 		final String actual = slf.getValue().toString();
-		final String expected = TestEnumClass.TestEnum.BAR.toString();
+		final String expected = TestEnumClass.TestEnum.BAR.name();
 		assertThat(actual, is(expected));
 	}
 

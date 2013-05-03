@@ -38,7 +38,7 @@ Creating a MIB can be done by:
 	OutputStream os = new ByteArrayOutputStream();
 	
 	TreeBuilder.from(obj).prefix(prefix)
-				.buildMib(mibName, rootName,parentName, os);
+				.buildMib(mibName, rootName, parentName, os);
 		
 	// Do something with the OutputStream, such as print it to a file
 
