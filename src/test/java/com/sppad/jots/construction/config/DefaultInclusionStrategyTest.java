@@ -1,7 +1,7 @@
 package com.sppad.jots.construction.config;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Field;
 

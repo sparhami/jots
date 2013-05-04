@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
-
 import com.sppad.jots.log.ErrorMessage;
 import com.sppad.jots.util.Fields;
 

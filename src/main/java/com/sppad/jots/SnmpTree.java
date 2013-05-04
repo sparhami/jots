@@ -1,12 +1,14 @@
 package com.sppad.jots;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Nullable;
 
@@ -17,13 +19,10 @@ import org.snmp4j.smi.Variable;
 import org.snmp4j.smi.VariableBinding;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import com.sppad.jots.exceptions.SnmpNoMoreEntriesException;
 import com.sppad.jots.exceptions.SnmpNotWritableException;
 import com.sppad.jots.exceptions.SnmpOidNotFoundException;
@@ -184,13 +183,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 */
 	private int getCachedIndex(final OID oid)
 	{
-		try
-		{
-			return indexCacher.get(oid);
-		} catch (ExecutionException e)
-		{
-			throw Throwables.propagate(e.getCause());
-		}
+		return indexCacher.getUnchecked(oid);
 	}
 
 	private SnmpLookupField getFieldWithBoundsChecking(final int index)
@@ -274,7 +267,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 */
 	public int getNextIndex(final OID oid) throws SnmpPastEndOfTreeException
 	{
-		Preconditions.checkNotNull(oid);
+		checkNotNull(oid);
 
 		final int index = Math.abs(getIndex(oid) + 1);
 		if (index > lastIndex)
@@ -310,7 +303,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 */
 	public SnmpTree mergeSnmpTrees(final SnmpTree other)
 	{
-		Preconditions.checkNotNull(other, "argument must not be null");
+		checkNotNull(other, "argument must not be null");
 
 		final List<SnmpLookupField> fields = new ArrayList<SnmpLookupField>(
 				this.lastIndex);
@@ -385,8 +378,8 @@ public class SnmpTree implements Iterable<VariableBinding>
 			final boolean checkWritable) throws SnmpNotWritableException,
 			SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
-		Preconditions.checkNotNull(oid);
-		Preconditions.checkNotNull(value);
+		checkNotNull(oid);
+		checkNotNull(value);
 
 		final SnmpLookupField field = getFieldWithBoundsChecking(getCachedIndex(oid));
 		if (checkWritable && !field.isWritable())
@@ -405,8 +398,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 */
 	public void setCacheSize(final int maximumSize)
 	{
-		Preconditions.checkArgument(maximumSize >= 0,
-				"maximumSize must not be negative");
+		checkArgument(maximumSize >= 0, "maximumSize must not be negative");
 
 		indexCacher = createCacher(maximumSize);
 	}
