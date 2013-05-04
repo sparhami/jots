@@ -7,24 +7,32 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snmp4j.smi.OID;
 
 import com.sppad.jots.JotsOID;
 import com.sppad.jots.SnmpTree;
 import com.sppad.jots.datastructures.primative.IntStack;
+import com.sppad.jots.log.ErrorMessage;
 import com.sppad.jots.lookup.SnmpLookupField;
 
 class TreeConstructor
 {
 	private static final Comparator<SnmpLookupField> COMPARE_BY_OID = new Comparator<SnmpLookupField>()
 	{
-		public int compare(SnmpLookupField arg0, SnmpLookupField arg1)
+		public int compare(final SnmpLookupField arg0,
+				final SnmpLookupField arg1)
 		{
 			return arg0.getOid().compareTo(arg1.getOid());
 		}
 	};
 
-	public static SnmpTree create(Object obj, TreeBuilder treeBuilder)
+	private static final Logger logger = LoggerFactory
+			.getLogger(TreeConstructor.class);
+
+	public static SnmpTree create(final Object obj,
+			final TreeBuilder treeBuilder)
 	{
 		Node node = NodeTreeConstructor.createTree(obj.getClass(),
 				treeBuilder.getInclusionStrategy());
@@ -37,6 +45,16 @@ class TreeConstructor
 		return new SnmpTree(tc.prefix, tc.sortedSet);
 	}
 
+	private static Collection<?> getCollection(final Object obj)
+	{
+		if (obj instanceof Map)
+			return ((Map<?, ?>) obj).values();
+		else
+			return (Collection<?>) obj;
+	}
+
+	private final IntStack extensionLengthStack = new IntStack();
+
 	private final IntStack extensionStack = new IntStack();
 
 	private final int[] prefix;
@@ -46,7 +64,7 @@ class TreeConstructor
 
 	private final Map<Node, int[]> staticOidMap;
 
-	private TreeConstructor(int[] prefix, Map<Node, int[]> staticOidMap)
+	private TreeConstructor(int[] prefix, final Map<Node, int[]> staticOidMap)
 	{
 		this.prefix = prefix;
 		this.staticOidMap = staticOidMap;
@@ -57,7 +75,18 @@ class TreeConstructor
 		sortedSet.add(SnmpLookupField.create(oid, field, object));
 	}
 
-	private void addToSnmpTree(LeafNode node, Object obj)
+	private void addExtension(final TableNode node, final Object next,
+			final int index)
+	{
+		final int[] extension = node.getIndex(next, index);
+
+		extensionLengthStack.push(extension.length);
+
+		for (final int part : extension)
+			extensionStack.push(part);
+	}
+
+	private void addToSnmpTree(final LeafNode node, final Object obj)
 	{
 		final OID oid = JotsOID.createTerminalOID(prefix,
 				staticOidMap.get(node), extensionStack);
@@ -65,75 +94,58 @@ class TreeConstructor
 		add(oid, node.field, obj);
 	}
 
-	private void descend(Node node, Object obj)
+	private void descend(final Node node, final Object obj)
 	{
-		for (Node child : node.nodes)
-		{
+		for (final Node child : node.nodes)
 			if (child instanceof TableNode)
-			{
 				handleCollection((TableNode) child, obj);
-			} else
-			{
+			else
 				handleObject(child, obj);
-			}
-		}
 	}
 
-	private void handleCollection(TableNode node, Object obj)
+	private void handleCollection(final TableNode node, final Object obj)
 	{
 		try
 		{
-			TableEntryNode child = (TableEntryNode) node.snmpNodes.iterator().next();
-
-			Field field = node.field;
-			field.setAccessible(true);
-
-			Object tableObject = field.get(obj);
-
-			Collection<?> collection;
-
-			if (tableObject instanceof Map)
-				collection = ((Map<?, ?>) tableObject).values();
-			else
-				collection = (Collection<?>) tableObject;
+			final TableEntryNode child = node.getEntry();
+			final Object tableObject = node.field.get(obj);
 
 			int index = 1;
-			for (Object next : collection)
+			for (final Object next : getCollection(tableObject))
 			{
-				final int[] extension = node.getIndex(next, index++);
-				final int extensionLength = extension.length;
-				
-				for(int part : extension)
-					extensionStack.push(part);
-
+				addExtension(node, next, index++);
 				descend(child, next);
-				
-				extensionStack.remove(extensionLength);
+				removeExtension();
 			}
 
-		} catch (IllegalArgumentException | IllegalAccessException e)
+		} catch (IllegalAccessException e)
 		{
+			logger.warn(
+					ErrorMessage.CANNOT_CREATE_SUBTREE_DUE_TO_ACCESS.getFmt(),
+					node.field);
 			e.printStackTrace();
 		}
 	}
-	
-	private void handleObject(Node node, Object obj)
+
+	private void handleObject(final Node node, final Object obj)
 	{
 		try
 		{
-			Field field = node.field;
-			field.setAccessible(true);
-
 			if (node instanceof LeafNode)
 			{
 				addToSnmpTree((LeafNode) node, obj);
 			} else
 			{
-				descend(node, field.get(obj));
+				descend(node, node.field.get(obj));
 			}
 		} catch (IllegalArgumentException | IllegalAccessException e)
 		{
 			e.printStackTrace();
 		}
+	}
+
+	private void removeExtension()
+	{
+		extensionStack.remove(extensionLengthStack.pop());
 	}
 }

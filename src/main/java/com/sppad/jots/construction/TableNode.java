@@ -12,9 +12,7 @@ class TableNode extends InnerNode
 	TableNode(final Field field, final Node parent)
 	{
 		super(field.getAnnotation(Jots.class).cls(), parent, true, field
-				.getName());
-
-		this.field = field;
+				.getName(), field);
 	}
 
 	void accept(final INodeVisitor visitor)
@@ -44,12 +42,12 @@ class TableNode extends InnerNode
 		return parent;
 	}
 
-	public void setIndexField(Field indexField)
+	void setIndexField(Field indexField)
 	{
 		this.indexField = indexField;
 	}
 
-	public int[] getIndex(Object obj, int ordinal)
+	int[] getIndex(Object obj, int ordinal)
 	{
 		if (indexField != null)
 		{
@@ -60,10 +58,14 @@ class TableNode extends InnerNode
 			{
 				return new int[] { ordinal };
 			}
-		}
-		else
+		} else
 		{
 			return new int[] { ordinal };
 		}
+	}
+
+	TableEntryNode getEntry()
+	{
+		return (TableEntryNode) snmpNodes.iterator().next();
 	}
 }

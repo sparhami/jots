@@ -6,9 +6,7 @@ class EntryNode extends InnerNode
 {
 	EntryNode(final Field field, final Node parent)
 	{
-		super(field.getType(), parent, parent.inTable, field.getName());
-
-		this.field = field;
+		super(field.getType(), parent, parent.inTable, field.getName(), field);
 	}
 
 	void accept(final INodeVisitor visitor)

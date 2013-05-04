@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import com.sppad.jots.util.Fields;
 
 abstract class Node
@@ -21,7 +23,7 @@ abstract class Node
 	}
 
 	/** The field that allows access to this */
-	Field field;
+	final Field field;
 
 	/** Whether or not the node is within a SNMP table */
 	final boolean inTable;
@@ -47,14 +49,19 @@ abstract class Node
 	 */
 	final Node snmpParent;
 
-	Node(final Class<?> klass, final Node parent, final boolean inTable,
-			final String name)
+	Node(final Class<?> klass, @Nullable final Node parent,
+			final boolean inTable, final String name,
+			@Nullable final Field field)
 	{
 		this.klass = klass;
 		this.parent = parent;
 		this.snmpParent = getSnmpParentNode(parent);
 		this.inTable = inTable;
 		this.name = name;
+		this.field = field;
+
+		if (field != null)
+			field.setAccessible(true);
 	}
 
 	/**

@@ -6,9 +6,7 @@ class TableEntryNode extends InnerNode
 {
 	TableEntryNode(final Field field, final Class<?> cls, final Node parent)
 	{
-		super(cls, parent, parent.inTable, "");
-
-		this.field = field;
+		super(cls, parent, parent.inTable, "", field);
 	}
 
 	void accept(final INodeVisitor visitor)
