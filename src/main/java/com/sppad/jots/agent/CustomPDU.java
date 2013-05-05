@@ -54,7 +54,7 @@ class CustomPDU
 	{
 		length += vb.getBERLength();
 		if (length + OVERHEAD_BUFFER > maxPduLength)
-			throw new SnmpPduLengthException("Max payload exceeded");
+			throw new SnmpPduLengthException();
 
 		pdu.add(vb);
 	}

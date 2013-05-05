@@ -190,10 +190,9 @@ public class SnmpTree implements Iterable<VariableBinding>
 			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
 		if (index < 0)
-			throw new SnmpOidNotFoundException("Oid not in table");
+			throw new SnmpOidNotFoundException();
 		if (index > lastIndex)
-			throw new SnmpNoMoreEntriesException(
-					"There are no more values in this MIB");
+			throw new SnmpNoMoreEntriesException();
 
 		return fieldArray[index];
 	}
@@ -271,8 +270,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 
 		final int index = Math.abs(getIndex(oid) + 1);
 		if (index > lastIndex)
-			throw new SnmpPastEndOfTreeException(
-					"There are no more values in this MIB");
+			throw new SnmpPastEndOfTreeException();
 
 		return index;
 	}
@@ -383,7 +381,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 
 		final SnmpLookupField field = getFieldWithBoundsChecking(getCachedIndex(oid));
 		if (checkWritable && !field.isWritable())
-			throw new SnmpNotWritableException("Cannot write to this OID");
+			throw new SnmpNotWritableException();
 
 		field.set(value);
 	}

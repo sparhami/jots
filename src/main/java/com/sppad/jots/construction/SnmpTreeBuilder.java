@@ -13,7 +13,7 @@ import com.sppad.jots.annotations.SnmpSettable;
 import com.sppad.jots.construction.config.DefaultInclusionStrategy;
 import com.sppad.jots.construction.config.SimpleInclusionStrategy;
 
-public class TreeBuilder
+public class SnmpTreeBuilder
 {
 	public enum SetStrategy
 	{
@@ -39,9 +39,9 @@ public class TreeBuilder
 	 * @param obj
 	 *            The object to use as the root of the SnmpTree
 	 */
-	public static TreeBuilder from(final Object obj)
+	public static SnmpTreeBuilder from(final Object obj)
 	{
-		return new TreeBuilder(obj);
+		return new SnmpTreeBuilder(obj);
 	}
 
 	/** Determines what Fields are included */
@@ -56,7 +56,7 @@ public class TreeBuilder
 	/** The strategy for considering items as writable */
 	private SetStrategy setStrategy = null;
 
-	private TreeBuilder(final Object obj)
+	private SnmpTreeBuilder(final Object obj)
 	{
 		this.obj = obj;
 	}
@@ -66,7 +66,7 @@ public class TreeBuilder
 	 */
 	public SnmpTree build()
 	{
-		return TreeConstructor.create(obj, this);
+		return SnmpTreeConstructor.create(obj, this);
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class TreeBuilder
 	 * @param strategy
 	 *            The InclusionStrategy to use
 	 */
-	public TreeBuilder inclusionStrategy(final Predicate<Field> strategy)
+	public SnmpTreeBuilder inclusionStrategy(final Predicate<Field> strategy)
 	{
 		checkState(this.inclusionStrategy == null,
 				"InclusionStrategy was already set");
@@ -114,7 +114,7 @@ public class TreeBuilder
 	 * 
 	 * @param prefix
 	 */
-	public TreeBuilder prefix(final int[] prefix)
+	public SnmpTreeBuilder prefix(final int[] prefix)
 	{
 		checkState(this.prefix == null, "Prefix was already set");
 		this.prefix = checkNotNull(prefix);
@@ -129,7 +129,7 @@ public class TreeBuilder
 	 * @param setStrategy
 	 *            The SetStrategy to use
 	 */
-	public TreeBuilder setStrategy(final SetStrategy setStrategy)
+	public SnmpTreeBuilder setStrategy(final SetStrategy setStrategy)
 	{
 		checkState(this.setStrategy == null, "SetStrategy was already set");
 		this.setStrategy = checkNotNull(setStrategy);

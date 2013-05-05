@@ -71,7 +71,7 @@ public class ConstructorTest
 
 		final Object obj = new TestObject();
 
-		SnmpTree tree = TreeBuilder.from(obj)
+		SnmpTree tree = SnmpTreeBuilder.from(obj)
 				.prefix(new int[] { 1, 3, 6, 1, 4, 1, 100 }).build();
 
 		for (VariableBinding vb : tree)

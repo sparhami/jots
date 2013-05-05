@@ -17,7 +17,7 @@ import com.sppad.jots.datastructures.primative.IntStack;
 import com.sppad.jots.log.ErrorMessage;
 import com.sppad.jots.lookup.SnmpLookupField;
 
-class TreeConstructor
+class SnmpTreeConstructor
 {
 	private static final Comparator<SnmpLookupField> COMPARE_BY_OID = new Comparator<SnmpLookupField>()
 	{
@@ -29,16 +29,16 @@ class TreeConstructor
 	};
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(TreeConstructor.class);
+			.getLogger(SnmpTreeConstructor.class);
 
-	public static SnmpTree create(final Object obj,
-			final TreeBuilder treeBuilder)
+	static SnmpTree create(final Object obj,
+			final SnmpTreeBuilder treeBuilder)
 	{
 		Node node = NodeTreeConstructor.createTree(obj.getClass(),
 				treeBuilder.getInclusionStrategy());
 		Map<Node, int[]> staticOidMap = OidGenerator.getStaticOidParts(node);
 
-		TreeConstructor tc = new TreeConstructor(treeBuilder.getPrefix(),
+		SnmpTreeConstructor tc = new SnmpTreeConstructor(treeBuilder.getPrefix(),
 				staticOidMap);
 		tc.descend(node, obj);
 
@@ -64,7 +64,7 @@ class TreeConstructor
 
 	private final Map<Node, int[]> staticOidMap;
 
-	private TreeConstructor(int[] prefix, final Map<Node, int[]> staticOidMap)
+	private SnmpTreeConstructor(int[] prefix, final Map<Node, int[]> staticOidMap)
 	{
 		this.prefix = prefix;
 		this.staticOidMap = staticOidMap;

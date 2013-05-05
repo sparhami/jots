@@ -25,7 +25,7 @@ public class MibGenerator implements INodeVisitor
 		return builder.toString();
 	}
 
-	public static void generateMib(Object obj, TreeBuilder treeBuilder,
+	public static void generateMib(Object obj, SnmpTreeBuilder treeBuilder,
 			final String mibName, final String rootName,
 			final String parentName, final OutputStream os)
 	{
