@@ -17,10 +17,60 @@ class NodeTreeConstructor
 	private static final Logger logger = LoggerFactory
 			.getLogger(NodeTreeConstructor.class);
 
-	static boolean checkThatTableIndexIsIncluded(final Field field,
+	static Node createTree(final Class<?> cls,
 			final Predicate<Field> inclusionStrategy)
 	{
-		final boolean include = include(field, inclusionStrategy);
+		final RootNode root = new RootNode(cls);
+		final NodeTreeConstructor constructor = new NodeTreeConstructor(
+				inclusionStrategy);
+
+		constructor.addChildren(root);
+
+		return root;
+	}
+
+	private static Field getIndexField(final Collection<Field> fields,
+			final Predicate<Field> inclusionStrategy)
+	{
+		for (final Field field : fields)
+		{
+			if (!isTableIndex(field))
+				continue;
+
+			if (!isTableIndexIsValid(field))
+				continue;
+
+			if (!isTableIndexIsIncluded(field, inclusionStrategy))
+
+				continue;
+
+			return field;
+		}
+
+		return null;
+	}
+
+	private static boolean isIncluded(final Field field,
+			final Predicate<Field> inclusionStrategy)
+	{
+		final boolean table = Node.isTable(field.getType());
+		final boolean include = inclusionStrategy.apply(field);
+
+		if (include && table)
+			return isTableIsAnnotated(field);
+		else
+			return include;
+	}
+
+	private static boolean isTableIndex(Field field)
+	{
+		return field.getAnnotation(SnmpTableIndex.class) != null;
+	}
+
+	private static boolean isTableIndexIsIncluded(final Field field,
+			final Predicate<Field> inclusionStrategy)
+	{
+		final boolean include = isIncluded(field, inclusionStrategy);
 
 		if (!include)
 		{
@@ -31,7 +81,7 @@ class NodeTreeConstructor
 		return include;
 	}
 
-	static boolean checkThatTableIndexIsValid(final Field field)
+	private static boolean isTableIndexIsValid(final Field field)
 	{
 		final Class<?> type = field.getType();
 		final boolean valid = type == String.class
@@ -46,7 +96,7 @@ class NodeTreeConstructor
 		return valid;
 	}
 
-	static boolean checkThatTableIsAnnotated(Field field)
+	private static boolean isTableIsAnnotated(Field field)
 	{
 		final boolean annotation = field.getAnnotation(Jots.class) != null;
 
@@ -57,55 +107,6 @@ class NodeTreeConstructor
 		}
 
 		return annotation;
-	}
-
-	static Node createTree(final Class<?> cls,
-			final Predicate<Field> inclusionStrategy)
-	{
-		final RootNode root = new RootNode(cls);
-		final NodeTreeConstructor constructor = new NodeTreeConstructor(
-				inclusionStrategy);
-
-		constructor.addChildren(root);
-
-		return root;
-	}
-
-	static Field getIndexField(final Collection<Field> fields,
-			final Predicate<Field> inclusionStrategy)
-	{
-		for (final Field field : fields)
-		{
-			if (!isTableIndex(field))
-				continue;
-
-			if (!checkThatTableIndexIsValid(field))
-				continue;
-
-			if (!checkThatTableIndexIsIncluded(field, inclusionStrategy))
-				continue;
-
-			return field;
-		}
-
-		return null;
-	}
-
-	static boolean include(final Field field,
-			final Predicate<Field> inclusionStrategy)
-	{
-		final boolean table = Node.isTable(field.getType());
-		final boolean include = inclusionStrategy.apply(field);
-
-		if (include && table)
-			return checkThatTableIsAnnotated(field);
-		else
-			return include;
-	}
-
-	static boolean isTableIndex(Field field)
-	{
-		return field.getAnnotation(SnmpTableIndex.class) != null;
 	}
 
 	private final Predicate<Field> inclusionStrategy;
@@ -125,7 +126,7 @@ class NodeTreeConstructor
 	{
 		for (final Field field : fields)
 		{
-			if (!include(field, inclusionStrategy))
+			if (!isIncluded(field, inclusionStrategy))
 				continue;
 
 			final Node child;
@@ -148,7 +149,7 @@ class NodeTreeConstructor
 			child.snmpParent.addSnmpChild(child);
 		}
 	}
-	
+
 	private void addTableChild(final TableNode parent)
 	{
 		final Class<?> entryClass = parent.field.getAnnotation(Jots.class)

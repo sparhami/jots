@@ -21,43 +21,34 @@ public class OidGenerator
 		@Override
 		public void visitEnter(final EntryNode node)
 		{
-			oidStack.push(oidStack.pop() + 1);
-
-			nodeToStaticOidMap.put(node, oidStack.toArray());
-
-			oidStack.push(0);
+			visitEnterNode(node);
 		}
 
 		@Override
 		public void visitEnter(final LeafNode node)
 		{
-			oidStack.push(oidStack.pop() + 1);
-
-			nodeToStaticOidMap.put(node, oidStack.toArray());
+			visitEnterNode(node);
 		}
 
 		@Override
 		public void visitEnter(final RootNode node)
 		{
-			oidStack.push(oidStack.pop() + 1);
-
-			nodeToStaticOidMap.put(node, oidStack.toArray());
-
-			oidStack.push(0);
+			visitEnterNode(node);
 		}
 
 		@Override
 		public void visitEnter(final TableEntryNode node)
 		{
-			oidStack.push(oidStack.pop() + 1);
-
-			nodeToStaticOidMap.put(node, oidStack.toArray());
-
-			oidStack.push(0);
+			visitEnterNode(node);
 		}
 
 		@Override
 		public void visitEnter(final TableNode node)
+		{
+			visitEnterNode(node);
+		}
+
+		private void visitEnterNode(final Node node)
 		{
 			oidStack.push(oidStack.pop() + 1);
 
@@ -69,29 +60,34 @@ public class OidGenerator
 		@Override
 		public void visitExit(final EntryNode node)
 		{
-			oidStack.pop();
+			visitExitNode(node);
 		}
 
 		@Override
 		public void visitExit(final LeafNode node)
 		{
-
+			visitExitNode(node);
 		}
 
 		@Override
 		public void visitExit(final RootNode node)
 		{
-			oidStack.pop();
+			visitExitNode(node);
 		}
 
 		@Override
 		public void visitExit(final TableEntryNode node)
 		{
-			oidStack.pop();
+			visitExitNode(node);
 		}
 
 		@Override
 		public void visitExit(final TableNode node)
+		{
+			visitExitNode(node);
+		}
+
+		private void visitExitNode(final Node node)
 		{
 			oidStack.pop();
 		}
