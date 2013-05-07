@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import com.sppad.jots.util.Fields;
+import com.sppad.jots.util.Strings;
 
 abstract class Node
 {
@@ -57,7 +58,7 @@ abstract class Node
 		this.parent = parent;
 		this.snmpParent = getSnmpParentNode(parent);
 		this.inTable = inTable;
-		this.name = name;
+		this.name = Strings.firstCharToUppercase(name);
 		this.field = field;
 
 		if (field != null)

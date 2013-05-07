@@ -79,7 +79,8 @@ public class Fields
 	 */
 	public static String getSetterName(final String fieldName)
 	{
-		final StringBuilder methodName = new StringBuilder("set");
+		final StringBuilder methodName = new StringBuilder(fieldName.length() + 3);
+		methodName.append("set");
 		methodName.append(fieldName);
 		methodName.setCharAt(3, Character.toUpperCase(fieldName.charAt(0)));
 

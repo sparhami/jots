@@ -75,7 +75,7 @@ class SnmpTreeConstructor
 		sortedSet.add(SnmpLookupField.create(oid, field, object));
 	}
 
-	private void addExtension(final TableNode node, final Object next,
+	private void pushExtension(final TableEntryNode node, final Object next,
 			final int index)
 	{
 		final int[] extension = node.getIndex(next, index);
@@ -113,9 +113,9 @@ class SnmpTreeConstructor
 			int index = 1;
 			for (final Object next : getCollection(tableObject))
 			{
-				addExtension(node, next, index++);
+				pushExtension(child, next, index++);
 				descend(child, next);
-				removeExtension();
+				popExtension();
 			}
 
 		} catch (IllegalAccessException e)
@@ -123,7 +123,6 @@ class SnmpTreeConstructor
 			logger.warn(
 					ErrorMessage.CANNOT_CREATE_SUBTREE_DUE_TO_ACCESS.getFmt(),
 					node.field);
-			e.printStackTrace();
 		}
 	}
 
@@ -144,7 +143,7 @@ class SnmpTreeConstructor
 		}
 	}
 
-	private void removeExtension()
+	private void popExtension()
 	{
 		extensionStack.remove(extensionLengthStack.pop());
 	}

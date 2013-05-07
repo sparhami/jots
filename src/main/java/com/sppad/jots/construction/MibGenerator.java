@@ -16,15 +16,6 @@ public class MibGenerator implements INodeVisitor
 {
 	private static final Joiner joiner = Joiner.on("");
 
-	private static String firstCharToUppercase(final String string)
-	{
-
-		final StringBuilder builder = new StringBuilder(string);
-		builder.setCharAt(0, Character.toUpperCase(builder.charAt(0)));
-
-		return builder.toString();
-	}
-
 	public static void generateMib(Object obj, SnmpTreeBuilder treeBuilder,
 			final String mibName, final String rootName,
 			final String parentName, final OutputStream os)
@@ -87,7 +78,7 @@ public class MibGenerator implements INodeVisitor
 	@Override
 	public void visitEnter(final EntryNode node)
 	{
-		nameStack.addLast(firstCharToUppercase(node.name));
+		nameStack.addLast(node.name);
 
 		final int[] staticOid = staticOidMap.get(node);
 		final String name = constructName("Entry");
@@ -102,21 +93,22 @@ public class MibGenerator implements INodeVisitor
 	@Override
 	public void visitEnter(final LeafNode node)
 	{
-		nameStack.addLast(firstCharToUppercase(node.name));
+		nameStack.addLast(node.name);
 
 		final int[] staticOid = staticOidMap.get(node);
 		final String name = constructName("");
 		final String parentName = constructedNameStack.peek();
 
 		final OID oid = JotsOID.createOID(prefix, staticOid);
-
 		printOid(name, oid);
+		
+		constructedNameStack.addLast(name);
 	}
 
 	@Override
 	public void visitEnter(final RootNode node)
 	{
-		nameStack.addLast(firstCharToUppercase(node.name));
+		nameStack.addLast(node.name);
 
 		final int[] staticOid = staticOidMap.get(node);
 		final String name = constructName("");
@@ -130,6 +122,8 @@ public class MibGenerator implements INodeVisitor
 	@Override
 	public void visitEnter(final TableEntryNode node)
 	{
+		nameStack.addLast(node.name);
+		
 		final int[] staticOid = staticOidMap.get(node);
 		final String name = constructName("Entry");
 		final String parentName = constructedNameStack.peek();
@@ -143,7 +137,7 @@ public class MibGenerator implements INodeVisitor
 	@Override
 	public void visitEnter(final TableNode node)
 	{
-		nameStack.addLast(firstCharToUppercase(node.name));
+		nameStack.addLast(node.name);
 
 		final int[] staticOid = staticOidMap.get(node);
 		final String name = constructName("Table");
@@ -166,6 +160,7 @@ public class MibGenerator implements INodeVisitor
 	public void visitExit(final LeafNode node)
 	{
 		nameStack.removeLast();
+		constructedNameStack.removeLast();
 	}
 
 	@Override
@@ -178,6 +173,7 @@ public class MibGenerator implements INodeVisitor
 	@Override
 	public void visitExit(final TableEntryNode node)
 	{
+		nameStack.removeLast();
 		constructedNameStack.removeLast();
 	}
 

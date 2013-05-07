@@ -7,8 +7,6 @@ import com.sppad.jots.util.SnmpUtils;
 
 class TableNode extends InnerNode
 {
-	private Field indexField;
-
 	TableNode(final Field field, final Node parent)
 	{
 		super(field.getAnnotation(Jots.class).cls(), parent, true, field
@@ -37,31 +35,7 @@ class TableNode extends InnerNode
 			}
 		} while ((parent = parent.parent) != null);
 
-		assert (parent != null);
-
 		return parent;
-	}
-
-	void setIndexField(Field indexField)
-	{
-		this.indexField = indexField;
-	}
-
-	int[] getIndex(Object obj, int ordinal)
-	{
-		if (indexField != null)
-		{
-			try
-			{
-				return SnmpUtils.getSnmpExtension(indexField.get(obj));
-			} catch (IllegalArgumentException | IllegalAccessException e)
-			{
-				return new int[] { ordinal };
-			}
-		} else
-		{
-			return new int[] { ordinal };
-		}
 	}
 
 	TableEntryNode getEntry()

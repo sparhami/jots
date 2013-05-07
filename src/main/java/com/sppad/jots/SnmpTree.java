@@ -41,17 +41,17 @@ public class SnmpTree implements Iterable<VariableBinding>
 	/** Maps a SnmpLookupField to a VariableBinding */
 	private static final Function<SnmpLookupField, VariableBinding> LOOKUP_FIELD_TO_VARBIND = new Function<SnmpLookupField, VariableBinding>()
 	{
-		@Override
 		public VariableBinding apply(final SnmpLookupField arg)
 		{
-			return createVarBind(arg.getOid(), arg.getValue());
+			return createVarBind(arg);
 		}
 	};
 
 	/** Creates a VariableBinding object for returning OID, value pairs */
-	static VariableBinding createVarBind(final OID oid, final Object object)
+	private static VariableBinding createVarBind(final SnmpLookupField field)
 	{
 		final Variable variable;
+		final Object object = field.getValue();
 
 		if (object instanceof Integer)
 			variable = new Integer32((Integer) object);
@@ -60,7 +60,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 		else
 			variable = new OctetString(object == null ? "" : object.toString());
 
-		return new VariableBinding(oid, variable);
+		return new VariableBinding(field.getOid(), variable);
 	}
 
 	/** A sorted array that stores all the items in the tree */
@@ -134,8 +134,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	public VariableBinding get(final int index)
 			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
-		final SnmpLookupField field = getFieldWithBoundsChecking(index);
-		return createVarBind(field.getOid(), field.getValue());
+		return createVarBind(getFieldWithBoundsChecking(index));
 	}
 
 	/**
@@ -152,7 +151,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	public VariableBinding get(final OID oid)
 			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
-		return get(getCachedIndex(oid));
+		return get(getIndexCached(oid));
 	}
 
 	/**
@@ -172,18 +171,6 @@ public class SnmpTree implements Iterable<VariableBinding>
 			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
 		return getFieldWithBoundsChecking(index).getAnnotation(annotationClass);
-	}
-
-	/**
-	 * A wrapper around the index cacher.
-	 * 
-	 * @param oid
-	 *            The OID to lookup
-	 * @return The index, as returned by {@link #getIndex}
-	 */
-	private int getCachedIndex(final OID oid)
-	{
-		return indexCacher.getUnchecked(oid);
 	}
 
 	private SnmpLookupField getFieldWithBoundsChecking(final int index)
@@ -226,6 +213,18 @@ public class SnmpTree implements Iterable<VariableBinding>
 				return mid; // key found
 		}
 		return -(low + 1); // key not found.
+	}
+
+	/**
+	 * A wrapper around the index cacher.
+	 * 
+	 * @param oid
+	 *            The OID to lookup
+	 * @return The index, as returned by {@link #getIndex}
+	 */
+	private int getIndexCached(final OID oid)
+	{
+		return indexCacher.getUnchecked(oid);
 	}
 
 	/**
@@ -379,7 +378,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 		checkNotNull(oid);
 		checkNotNull(value);
 
-		final SnmpLookupField field = getFieldWithBoundsChecking(getCachedIndex(oid));
+		final SnmpLookupField field = getFieldWithBoundsChecking(getIndexCached(oid));
 		if (checkWritable && !field.isWritable())
 			throw new SnmpNotWritableException();
 

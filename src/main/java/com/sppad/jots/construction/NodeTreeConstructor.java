@@ -158,7 +158,7 @@ class NodeTreeConstructor
 				entryClass, parent);
 
 		final Collection<Field> fields = Fields.getFields(entryClass);
-		parent.setIndexField(getIndexField(fields, inclusionStrategy));
+		child.setIndexField(getIndexField(fields, inclusionStrategy));
 
 		child.parent.addChild(child);
 		child.snmpParent.addSnmpChild(child);
