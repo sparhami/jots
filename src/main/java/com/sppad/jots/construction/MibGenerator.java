@@ -11,6 +11,8 @@ import org.snmp4j.smi.OID;
 import com.google.common.base.Joiner;
 import com.sppad.jots.JotsOID;
 import com.sppad.jots.construction.mib.MibInfo;
+import com.sppad.jots.construction.mib.MibLeaf;
+import com.sppad.jots.construction.mib.MibTable;
 import com.sppad.jots.construction.mib.TextualConvention;
 import com.sppad.jots.construction.nodes.EntryNode;
 import com.sppad.jots.construction.nodes.INodeVisitor;
@@ -20,21 +22,18 @@ import com.sppad.jots.construction.nodes.RootNode;
 import com.sppad.jots.construction.nodes.TableEntryNode;
 import com.sppad.jots.construction.nodes.TableNode;
 
-public class MibGenerator implements INodeVisitor
-{
+public class MibGenerator implements INodeVisitor {
 	private static final Joiner joiner = Joiner.on("");
 
 	static void printHeader(final String mibName, final String rootName,
-			final String parentName, int oid, final PrintStream ps)
-	{
+			final String parentName, int oid, final PrintStream ps) {
 		ps.print(MibInfo
 				.createMibHeader(mibName, rootName, "", parentName, oid));
 	}
 
 	static void generateMib(Object obj, SnmpTreeBuilder treeBuilder,
 			final String mibName, final String rootName,
-			final String parentName, final OutputStream os)
-	{
+			final String parentName, final OutputStream os) {
 		final int[] prefix = treeBuilder.getPrefix();
 
 		final RootNode node = NodeTreeConstructor.createTree(obj.getClass(),
@@ -43,72 +42,88 @@ public class MibGenerator implements INodeVisitor
 		final Map<Node, int[]> staticOidMap = OidGenerator
 				.getStaticOidParts(node);
 
-		final MibGenerator gen = new MibGenerator(prefix, staticOidMap);
-
 		PrintStream ps = new PrintStream(os);
 		printHeader(mibName, rootName, parentName, prefix[prefix.length - 1],
 				ps);
 		TextualConvention.addTextualConventions(node, ps);
-		
+
+		final MibGenerator gen = new MibGenerator(prefix, staticOidMap, ps);
 		node.accept(gen);
 	}
 
-	private final Deque<String> constructedNameStack = new LinkedList<String>();
+	private final LinkedList<String> constructedNameStack = new LinkedList<String>();
 
-	private final Deque<String> nameStack = new LinkedList<String>();
+	private final LinkedList<String> nameStack = new LinkedList<String>();
 
 	private final int[] prefix;
 
+	private final PrintStream ps;
+
 	private final Map<Node, int[]> staticOidMap;
 
-	private MibGenerator(final int[] prefix, final Map<Node, int[]> staticOidMap)
-	{
+	private MibGenerator(final int[] prefix,
+			final Map<Node, int[]> staticOidMap, final PrintStream ps) {
 		this.staticOidMap = staticOidMap;
 		this.prefix = prefix;
+		this.ps = ps;
 	}
 
-	private String constructName(String ending)
-	{
+	private String constructName(String ending) {
 		return joiner.join(nameStack) + ending;
 	}
 
-	private void printOid(final String nameString, OID oid)
-	{
+	private void printOid(final String nameString, OID oid) {
 		System.out.printf("%-20s %-20s\n", oid, nameString);
 	}
 
 	@Override
-	public void visitEnter(final EntryNode node)
-	{
+	public void visitEnter(final EntryNode node) {
 		visitEnterNode(node, "Entry");
 	}
 
 	@Override
 	public void visitEnter(final LeafNode node)
 	{
+		final String parentName = constructedNameStack.peek();
+		
+		visitEnterNode(node, "");
+		
+		final String name = constructedNameStack.peek();
+		final int[] staticOid = staticOidMap.get(node);		
+
+		MibLeaf.addItem(name, parentName, staticOid[0], node.klass, "", true, ps);
+	}
+
+	@Override
+	public void visitEnter(final RootNode node) {
 		visitEnterNode(node, "");
 	}
 
 	@Override
-	public void visitEnter(final RootNode node)
-	{
-		visitEnterNode(node, "");
-	}
+	public void visitEnter(final TableEntryNode node) {
+		final String parentName = constructedNameStack.peek();
 
-	@Override
-	public void visitEnter(final TableEntryNode node)
-	{
 		visitEnterNode(node, "Entry");
+
+		final String name = constructedNameStack.peek();
+
+		MibTable.printEntryStart(node, name, parentName,
+				new LinkedList<String>(), ps);
 	}
 
 	@Override
-	public void visitEnter(final TableNode node)
-	{
+	public void visitEnter(final TableNode node) {
+		final String parentName = constructedNameStack.peek();
+
 		visitEnterNode(node, "Table");
+
+		final String name = constructedNameStack.peek();
+		final int[] staticOid = staticOidMap.get(node);
+
+		MibTable.printTable(node, name, parentName, staticOid[0], ps);
 	}
 
-	public void visitEnterNode(final Node node, final String ending)
-	{
+	public void visitEnterNode(final Node node, final String ending) {
 		nameStack.addLast(node.name);
 
 		final int[] staticOid = staticOidMap.get(node);
@@ -117,42 +132,41 @@ public class MibGenerator implements INodeVisitor
 		final OID oid = JotsOID.createOID(prefix, staticOid);
 		printOid(name, oid);
 
-		constructedNameStack.addLast(name);
+		constructedNameStack.push(name);
+
+		if (node.parent instanceof TableEntryNode)
+			MibTable.printEntrySequence(name, "", ps);
 	}
 
 	@Override
-	public void visitExit(final EntryNode node)
-	{
+	public void visitExit(final EntryNode node) {
 		visitExitNode();
 	}
 
 	@Override
-	public void visitExit(final LeafNode node)
-	{
+	public void visitExit(final LeafNode node) {
 		visitExitNode();
 	}
 
 	@Override
-	public void visitExit(final RootNode node)
-	{
+	public void visitExit(final RootNode node) {
 		visitExitNode();
 	}
 
 	@Override
-	public void visitExit(final TableEntryNode node)
-	{
+	public void visitExit(final TableEntryNode node) {
+		MibTable.printEntryEnd(ps);
+
 		visitExitNode();
 	}
 
 	@Override
-	public void visitExit(final TableNode node)
-	{
+	public void visitExit(final TableNode node) {
 		visitExitNode();
 	}
 
-	public void visitExitNode()
-	{
+	public void visitExitNode() {
 		nameStack.removeLast();
-		constructedNameStack.removeLast();
+		constructedNameStack.pop();
 	}
 }

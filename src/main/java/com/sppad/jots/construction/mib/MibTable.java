@@ -1,60 +1,52 @@
 package com.sppad.jots.construction.mib;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.List;
+import java.io.PrintStream;
+import java.util.Collection;
+import com.google.common.base.Joiner;
+import com.sppad.jots.construction.nodes.TableEntryNode;
+import com.sppad.jots.construction.nodes.TableNode;
 
-public class MibTable extends MibSubtree
-{
-	public MibTable(final String parentName, final String name, final int oid,
-			final boolean isParentTable, final String description,
-			final List<String> indexTypes)
-	{
-		super(indexTypes);
-		final String mibParentName = parentName
-				+ (isParentTable ? "Table" : "Entry");
+public class MibTable {
+	public static void printTable(final TableNode node, final String name,
+			final String parentName, final int oid, final PrintStream ps) {
+		ps.println();
+		ps.println(name + " OBJECT-TYPE");
+		ps.println("\tSYNTAX\t\tSEQUENCE OF " + name);
+		ps.println("\tMAX-ACCESS\tnot-accessible");
+		ps.println("\tSTATUS\t\tcurrent");
+		ps.println("\tDESCRIPTION");
+		ps.println("\t\t\"" + "" + "\"");
 
-		entryPrintStream.println();
-		entryPrintStream.println(name + "Table  OBJECT-TYPE");
-		entryPrintStream.println("\tSYNTAX\t\tSEQUENCE OF " + name + "Entry");
-		entryPrintStream.println("\tMAX-ACCESS\tnot-accessible");
-		entryPrintStream.println("\tSTATUS\t\tcurrent");
-		entryPrintStream.println("\tDESCRIPTION");
-		entryPrintStream.println("\t\t\"" + description + "\"");
-
-		entryPrintStream.println("\t::= { " + mibParentName + " " + oid + " }");
-
-		entryPrintStream.println();
-		entryPrintStream.println(name + "Entry  OBJECT-TYPE");
-		entryPrintStream.println("\tSYNTAX\t\t" + name + "EntryObj");
-		entryPrintStream.println("\tMAX-ACCESS\tnot-accessible");
-		entryPrintStream.println("\tSTATUS\t\tcurrent");
-
-		// If this is a table and there are indicies, list them
-		if (indexTypes != null && indexTypes.size() > 0)
-		{
-			entryPrintStream.print("\tINDEX\t\t{ ");
-			for (int i = 0; i < indexTypes.size(); i++)
-			{
-				entryPrintStream.print(indexTypes.get(i));
-				if (i + 1 < indexTypes.size())
-					entryPrintStream.print(", ");
-			}
-
-			entryPrintStream.println(" }");
-		}
-
-		entryPrintStream.println("\t::= { " + name + "Table 1 }");
-
-		entryPrintStream.println();
-		entryPrintStream.println(name + "EntryObj ::= SEQUENCE {");
+		ps.println("\t::= { " + parentName + " " + oid + " }");
 	}
 
-	@Override
-	public ByteArrayOutputStream finish() throws IOException
-	{
-		// Close the bracket from the SEQUENCE
-		entryPrintStream.println("}");
-		return super.finish();
+	public static void printEntryStart(final TableEntryNode node,
+			final String name, final String parentName,
+			final Collection<String> indicies, final PrintStream ps) {
+		final String indiciesText = Joiner.on(", ").join(indicies);
+
+		ps.println();
+		ps.println(name + " OBJECT-TYPE");
+		ps.println("\tSYNTAX\t\t" + name);
+		ps.println("\tMAX-ACCESS\tnot-accessible");
+		ps.println("\tSTATUS\t\tcurrent");
+
+		ps.print("\tINDEX\t\t{ ");
+		ps.print(indiciesText);
+		ps.print(" }");
+
+		ps.println("\t::= { " + name + "Table 1 }");
+
+		ps.println();
+		ps.println(name + " ::= SEQUENCE {");
+	}
+
+	public static void printEntrySequence(final String name, final String type,
+			final PrintStream ps) {
+		ps.println("\t" + name + "\t" + type);
+	}
+
+	public static void printEntryEnd(final PrintStream ps) {
+		ps.println("}\n\n");
 	}
 }
