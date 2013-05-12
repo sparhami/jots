@@ -9,6 +9,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Predicate;
 import com.sppad.jots.annotations.Jots;
 import com.sppad.jots.annotations.SnmpTableIndex;
+import com.sppad.jots.construction.nodes.EntryNode;
+import com.sppad.jots.construction.nodes.InnerNode;
+import com.sppad.jots.construction.nodes.LeafNode;
+import com.sppad.jots.construction.nodes.Node;
+import com.sppad.jots.construction.nodes.RootNode;
+import com.sppad.jots.construction.nodes.TableEntryNode;
+import com.sppad.jots.construction.nodes.TableNode;
 import com.sppad.jots.log.ErrorMessage;
 import com.sppad.jots.util.Fields;
 
@@ -17,7 +24,7 @@ class NodeTreeConstructor
 	private static final Logger logger = LoggerFactory
 			.getLogger(NodeTreeConstructor.class);
 
-	static Node createTree(final Class<?> cls,
+	static RootNode createTree(final Class<?> cls,
 			final Predicate<Field> inclusionStrategy)
 	{
 		final RootNode root = new RootNode(cls);

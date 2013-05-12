@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.sppad.jots.construction.nodes.Node;
+
 public class NodeTest
 {
 	@Test

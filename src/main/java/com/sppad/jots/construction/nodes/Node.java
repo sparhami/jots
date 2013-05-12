@@ -1,4 +1,4 @@
-package com.sppad.jots.construction;
+package com.sppad.jots.construction.nodes;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -10,45 +10,45 @@ import javax.annotation.Nullable;
 import com.sppad.jots.util.Fields;
 import com.sppad.jots.util.Strings;
 
-abstract class Node
+public abstract class Node
 {
-	static boolean isLeaf(final Class<?> cls)
+	public static boolean isLeaf(final Class<?> cls)
 	{
 		return Fields.isSimple(cls);
 	}
 
-	static boolean isTable(final Class<?> cls)
+	public static boolean isTable(final Class<?> cls)
 	{
 		return Collection.class.isAssignableFrom(cls)
 				|| Map.class.isAssignableFrom(cls);
 	}
 
 	/** The field that allows access to this */
-	final Field field;
+	public final Field field;
 
 	/** Whether or not the node is within a SNMP table */
-	final boolean inTable;
+	public final boolean inTable;
 
 	/** The class that this node corresponds to */
-	final Class<?> klass;
+	public final Class<?> klass;
 
 	/** The name for this node */
-	final String name;
+	public final String name;
 
 	/** The children nodes */
-	final Collection<Node> nodes = new LinkedList<Node>();
+	public final Collection<Node> nodes = new LinkedList<Node>();
 
 	/** The parent of this node, usually the object containing this node. */
-	final Node parent;
+	public final Node parent;
 
 	/** The children nodes in snmp order */
-	final Collection<Node> snmpNodes = new LinkedList<Node>();
+	public final Collection<Node> snmpNodes = new LinkedList<Node>();
 
 	/**
 	 * The parent node for traversing the mib. This is diffrent than parent
 	 * since nested collections need to be flattened into a mult-indexed table.
 	 */
-	final Node snmpParent;
+	public final Node snmpParent;
 
 	Node(final Class<?> klass, @Nullable final Node parent,
 			final boolean inTable, final String name,
@@ -71,12 +71,12 @@ abstract class Node
 	 */
 	abstract void accept(final INodeVisitor visitor);
 
-	void addChild(final Node node)
+	public void addChild(final Node node)
 	{
 		nodes.add(node);
 	}
 
-	void addSnmpChild(final Node node)
+	public void addSnmpChild(final Node node)
 	{
 		snmpNodes.add(node);
 	}

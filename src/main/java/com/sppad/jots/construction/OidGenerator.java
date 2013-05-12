@@ -3,6 +3,13 @@ package com.sppad.jots.construction;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import com.sppad.jots.construction.nodes.EntryNode;
+import com.sppad.jots.construction.nodes.INodeVisitor;
+import com.sppad.jots.construction.nodes.LeafNode;
+import com.sppad.jots.construction.nodes.Node;
+import com.sppad.jots.construction.nodes.RootNode;
+import com.sppad.jots.construction.nodes.TableEntryNode;
+import com.sppad.jots.construction.nodes.TableNode;
 import com.sppad.jots.datastructures.primative.IntStack;
 
 public class OidGenerator
@@ -93,7 +100,7 @@ public class OidGenerator
 		}
 	}
 
-	public static Map<Node, int[]> getStaticOidParts(final Node node)
+	public static Map<Node, int[]> getStaticOidParts(final RootNode node)
 	{
 		final OidAssigningVisitor visitor = new OidAssigningVisitor();
 		node.accept(visitor);

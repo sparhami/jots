@@ -31,27 +31,24 @@ public class MibInfo
 	{
 		try
 		{
-			final URL typesUrl = MibInfo.class.getResource("/jotsMibTypes.txt");
 			final URL importsUrl = MibInfo.class
 					.getResource("/jotsMibImports.txt");
 
-			final StringBuilder header = new StringBuilder();
-			header.append(Resources.toString(typesUrl, Charsets.UTF_8));
-			header.append("\n\n");
-			header.append(mibName + " DEFINITIONS ::= BEGIN\n");
-			header.append(Resources.toString(importsUrl, Charsets.UTF_8));
+			final StringBuilder builder = new StringBuilder();
+			builder.append(mibName + " DEFINITIONS ::= BEGIN\n\n");
+			builder.append(Resources.toString(importsUrl, Charsets.UTF_8));
 
-			header.append("\n\n");
-			header.append(rootName + " MODULE-IDENTITY\n");
-			header.append("\tLAST-UPDATED \"200001010000Z\"\n");
-			header.append("\tORGANIZATION \"None\"\n");
-			header.append("\tCONTACT-INFO \"None\"\n");
-			header.append("\tDESCRIPTION \n\"");
-			header.append(description);
-			header.append("\"\n\n");
-			header.append("\t::= { " + parentTree + " " + mibTreeOid + " }\n\n");
+			builder.append("\n\n");
+			builder.append(rootName + " MODULE-IDENTITY\n");
+			builder.append("\tLAST-UPDATED \"200001010000Z\"\n");
+			builder.append("\tORGANIZATION \"None\"\n");
+			builder.append("\tCONTACT-INFO \"None\"\n");
+			builder.append("\tDESCRIPTION \n\"");
+			builder.append(description);
+			builder.append("\"\n\n");
+			builder.append("\t::= { " + parentTree + " " + mibTreeOid + " }\n\n");
 
-			return header.toString();
+			return builder.toString();
 		} catch (IOException e)
 		{
 			throw new RuntimeException(

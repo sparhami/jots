@@ -1,13 +1,12 @@
-package com.sppad.jots.construction;
+package com.sppad.jots.construction.nodes;
 
 import java.lang.reflect.Field;
 
 import com.sppad.jots.annotations.Jots;
-import com.sppad.jots.util.SnmpUtils;
 
-class TableNode extends InnerNode
+public class TableNode extends InnerNode
 {
-	TableNode(final Field field, final Node parent)
+	public TableNode(final Field field, final Node parent)
 	{
 		super(field.getAnnotation(Jots.class).cls(), parent, true, field
 				.getName(), field);
@@ -24,7 +23,7 @@ class TableNode extends InnerNode
 	}
 
 	@Override
-	Node getSnmpParentNode(Node parent)
+	public Node getSnmpParentNode(Node parent)
 	{
 		do
 		{
@@ -38,7 +37,7 @@ class TableNode extends InnerNode
 		return parent;
 	}
 
-	TableEntryNode getEntry()
+	public TableEntryNode getEntry()
 	{
 		return (TableEntryNode) snmpNodes.iterator().next();
 	}

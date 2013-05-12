@@ -3,8 +3,8 @@ package com.sppad.jots.construction.mib;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
-import com.sppad.jots.annotations.BooleanInterfaceComment;
-import com.sppad.jots.annotations.IntegerInterfaceComment;
+import com.sppad.jots.mib.BooleanInterfaceComment;
+import com.sppad.jots.mib.IntegerInterfaceComment;
 
 public class SnmpDescription
 {

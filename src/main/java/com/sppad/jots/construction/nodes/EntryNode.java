@@ -1,10 +1,10 @@
-package com.sppad.jots.construction;
+package com.sppad.jots.construction.nodes;
 
 import java.lang.reflect.Field;
 
-class EntryNode extends InnerNode
+public class EntryNode extends InnerNode
 {
-	EntryNode(final Field field, final Node parent)
+	public EntryNode(final Field field, final Node parent)
 	{
 		super(field.getType(), parent, parent.inTable, field.getName(), field);
 	}

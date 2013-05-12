@@ -1,4 +1,4 @@
-package com.sppad.jots.annotations;
+package com.sppad.jots.mib;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

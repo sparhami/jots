@@ -7,8 +7,8 @@ import java.lang.reflect.Field;
 
 import org.junit.Test;
 
-import com.sppad.jots.annotations.BooleanInterfaceComment;
 import com.sppad.jots.construction.mib.SnmpDescription;
+import com.sppad.jots.mib.BooleanInterfaceComment;
 
 public class SnmpDescriptionTest
 {

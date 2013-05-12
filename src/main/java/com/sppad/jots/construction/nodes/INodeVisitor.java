@@ -1,6 +1,7 @@
-package com.sppad.jots.construction;
+package com.sppad.jots.construction.nodes;
 
-interface INodeVisitor
+
+public interface INodeVisitor
 {
 	void visitEnter(EntryNode node);
 

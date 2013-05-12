@@ -1,13 +1,14 @@
-package com.sppad.jots.construction;
+package com.sppad.jots.construction.nodes;
 
-class RootNode extends InnerNode
+
+public class RootNode extends InnerNode
 {
-	RootNode(final Class<?> klass)
+	public RootNode(final Class<?> klass)
 	{
 		super(klass, null, false, klass.getSimpleName(), null);
 	}
 
-	void accept(final INodeVisitor visitor)
+	public void accept(final INodeVisitor visitor)
 	{
 		visitor.visitEnter(this);
 
