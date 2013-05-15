@@ -81,6 +81,10 @@ public abstract class Node
 		snmpNodes.add(node);
 	}
 
+	public String getEnding() {
+		return "";
+	}
+	
 	Node getSnmpParentNode(final Node parent)
 	{
 		return parent;

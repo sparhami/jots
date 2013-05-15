@@ -41,4 +41,8 @@ public class TableNode extends InnerNode
 	{
 		return (TableEntryNode) snmpNodes.iterator().next();
 	}
+	
+	public String getEnding() {
+		return "Table";
+	}
 }

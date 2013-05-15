@@ -33,9 +33,9 @@ public class MibTable {
 
 		ps.print("\tINDEX\t\t{ ");
 		ps.print(indiciesText);
-		ps.print(" }");
+		ps.print(" }\n");
 
-		ps.println("\t::= { " + name + "Table 1 }");
+		ps.println("\t::= { " + name + " 1 }");
 
 		ps.println();
 		ps.println(name + " ::= SEQUENCE {");
