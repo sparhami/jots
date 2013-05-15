@@ -27,6 +27,10 @@ public class TableEntryNode extends InnerNode
 	{
 		this.indexField = indexField;
 	}
+	
+	public String getEnding() {
+		return "Entry";
+	}
 
 	public int[] getIndex(Object obj, int ordinal)
 	{
