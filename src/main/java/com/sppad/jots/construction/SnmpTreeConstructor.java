@@ -36,6 +36,8 @@ class SnmpTreeConstructor {
 	static SnmpTree create(final Object obj, final SnmpTreeBuilder treeBuilder) {
 		RootNode node = NodeTreeConstructor.createTree(obj.getClass(),
 				treeBuilder.getInclusionStrategy());
+		
+		OidAssigner.tag(node);
 
 		SnmpTreeConstructor tc = new SnmpTreeConstructor(
 				treeBuilder.getPrefix());

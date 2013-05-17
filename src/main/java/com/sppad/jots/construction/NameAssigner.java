@@ -43,10 +43,10 @@ public class NameAssigner {
 			visitEnterNode(node);
 		}
 
-		public void visitEnterNode(final Node node) {
+		private void visitEnterNode(final Node node) {
 			nameStack.addLast(node.name);
 
-			final String name = joiner.join(nameStack);
+			final String name = joiner.join(nameStack) + node.getEnding();
 			node.setProperty("NAME", name);
 		}
 
@@ -75,7 +75,7 @@ public class NameAssigner {
 			visitExitNode();
 		}
 
-		public void visitExitNode() {
+		private void visitExitNode() {
 			nameStack.removeLast();
 		}
 	}

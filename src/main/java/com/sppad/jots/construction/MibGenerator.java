@@ -73,7 +73,7 @@ public class MibGenerator implements INodeVisitor {
 		final String name = (String) node.getProperty("NAME");
 		final int[] staticOid = (int[]) node.getProperty("OID");
 
-		MibLeaf.addItem(name, parentName, staticOid[0], node.klass, "", true,
+		MibLeaf.addItem(name, parentName, staticOid[staticOid.length - 1], node.klass, "", true,
 				ps);
 		
 		printOid(name, JotsOID.createOID(prefix, staticOid));
@@ -110,10 +110,11 @@ public class MibGenerator implements INodeVisitor {
 	public void visitEnter(final TableNode node) {
 		final String parentName = (String) node.snmpParent.getProperty("NAME");
 		final String name = (String) node.getProperty("NAME");
+		final String childName = (String) node.getEntry().getProperty("NAME");
 		final int[] staticOid = (int[]) node.getProperty("OID");
 	
 
-		MibTable.printTable(node, name, parentName, staticOid[0], ps);
+		MibTable.printTable(node, childName, name, parentName, staticOid[staticOid.length - 1], ps);
 		
 		printOid(name, JotsOID.createOID(prefix, staticOid));
 	}
