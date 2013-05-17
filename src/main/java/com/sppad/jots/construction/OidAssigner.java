@@ -1,8 +1,5 @@
 package com.sppad.jots.construction;
 
-import java.util.Map;
-
-import com.google.common.collect.Maps;
 import com.sppad.jots.construction.nodes.EntryNode;
 import com.sppad.jots.construction.nodes.INodeVisitor;
 import com.sppad.jots.construction.nodes.LeafNode;
@@ -12,12 +9,10 @@ import com.sppad.jots.construction.nodes.TableEntryNode;
 import com.sppad.jots.construction.nodes.TableNode;
 import com.sppad.jots.datastructures.primative.IntStack;
 
-public class OidGenerator
+public class OidAssigner
 {
 	private static class OidAssigningVisitor implements INodeVisitor
 	{
-		private final Map<Node, int[]> nodeToStaticOidMap = Maps.newHashMap();
-
 		private final IntStack oidStack = new IntStack();
 
 		private OidAssigningVisitor()
@@ -59,7 +54,7 @@ public class OidGenerator
 		{
 			oidStack.push(oidStack.pop() + 1);
 
-			nodeToStaticOidMap.put(node, oidStack.toArray());
+			node.setProperty("OID", oidStack.toArray());
 
 			oidStack.push(0);
 		}
@@ -100,15 +95,13 @@ public class OidGenerator
 		}
 	}
 
-	public static Map<Node, int[]> getStaticOidParts(final RootNode node)
+	static void tag(final RootNode node)
 	{
 		final OidAssigningVisitor visitor = new OidAssigningVisitor();
 		node.accept(visitor);
-
-		return visitor.nodeToStaticOidMap;
 	}
 
-	private OidGenerator()
+	private OidAssigner()
 	{
 
 	}

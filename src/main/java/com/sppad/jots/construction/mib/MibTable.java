@@ -7,11 +7,11 @@ import com.sppad.jots.construction.nodes.TableEntryNode;
 import com.sppad.jots.construction.nodes.TableNode;
 
 public class MibTable {
-	public static void printTable(final TableNode node, final String name,
+	public static void printTable(final TableNode node, final String childName, final String name,
 			final String parentName, final int oid, final PrintStream ps) {
 		ps.println();
 		ps.println(name + " OBJECT-TYPE");
-		ps.println("\tSYNTAX\t\tSEQUENCE OF " + name);
+		ps.println("\tSYNTAX\t\tSEQUENCE OF " + childName);
 		ps.println("\tMAX-ACCESS\tnot-accessible");
 		ps.println("\tSTATUS\t\tcurrent");
 		ps.println("\tDESCRIPTION");
@@ -33,9 +33,9 @@ public class MibTable {
 
 		ps.print("\tINDEX\t\t{ ");
 		ps.print(indiciesText);
-		ps.print(" }");
+		ps.print(" }\n");
 
-		ps.println("\t::= { " + name + "Table 1 }");
+		ps.println("\t::= { " + name + " 1 }");
 
 		ps.println();
 		ps.println(name + " ::= SEQUENCE {");

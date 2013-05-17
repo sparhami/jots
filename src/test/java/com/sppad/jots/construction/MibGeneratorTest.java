@@ -1,22 +1,14 @@
 package com.sppad.jots.construction;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 import java.util.Set;
 
 import org.junit.Test;
-import org.snmp4j.smi.OID;
-import org.snmp4j.smi.VariableBinding;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import com.sppad.jots.JotsOID;
-import com.sppad.jots.SnmpTree;
 import com.sppad.jots.annotations.Jots;
-import com.sppad.jots.construction.SnmpTreeBuilder;
 import com.sppad.jots.exceptions.SnmpNoMoreEntriesException;
 import com.sppad.jots.exceptions.SnmpOidNotFoundException;
 
@@ -38,6 +30,7 @@ public class MibGeneratorTest
 	private static class NestedObject
 	{
 		public int number = 5;
+		public String key = "aNumber";
 	}
 
 	@SuppressWarnings("unused")

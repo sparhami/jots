@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.sppad.jots.util.Fields;
 import com.sppad.jots.util.Strings;
 
@@ -41,8 +43,10 @@ public abstract class Node
 	/** The parent of this node, usually the object containing this node. */
 	public final Node parent;
 
+	private final Map<String, Object> properties = Maps.newHashMap();
+
 	/** The children nodes in snmp order */
-	public final Collection<Node> snmpNodes = new LinkedList<Node>();
+	public final Collection<Node> snmpNodes = Lists.newLinkedList();
 
 	/**
 	 * The parent node for traversing the mib. This is diffrent than parent
@@ -81,8 +85,20 @@ public abstract class Node
 		snmpNodes.add(node);
 	}
 
+	public String getEnding() {
+		return "";
+	}
+	
+	public Object getProperty(final String name) {
+		return properties.get(name);
+	}
+	
 	Node getSnmpParentNode(final Node parent)
 	{
 		return parent;
+	}
+	
+	public void setProperty(final String name, final Object value) {
+		properties .put(name, value);
 	}
 }
