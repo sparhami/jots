@@ -38,6 +38,7 @@ public class MibGeneratorTest
 	private static class NestedObject
 	{
 		public int number = 5;
+		public String key = "aNumber";
 	}
 
 	@SuppressWarnings("unused")
