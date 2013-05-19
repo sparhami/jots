@@ -19,7 +19,7 @@ import com.sppad.jots.construction.nodes.RootNode;
 import com.sppad.jots.construction.nodes.TableEntryNode;
 import com.sppad.jots.construction.nodes.TableNode;
 
-public class MibGenerator implements INodeVisitor {
+class MibGenerator implements INodeVisitor {
 	static void printHeader(final String mibName, final String rootName,
 			final String parentName, int oid, final PrintStream ps) {
 		ps.print(MibInfo
@@ -32,13 +32,13 @@ public class MibGenerator implements INodeVisitor {
 		final int[] prefix = treeBuilder.getPrefix();
 
 		final RootNode node = NodeTreeConstructor.createTree(obj.getClass(),
-				treeBuilder.getInclusionStrategy());
+				treeBuilder.getInclusionStrategy(), rootName);
 
 		OidAssigner.tag(node);
 		NameAssigner.tag(node);
 
 		PrintStream ps = new PrintStream(os);
-		printHeader(mibName, rootName, parentName, prefix[prefix.length - 1],
+		printHeader(mibName, node.name, parentName, prefix[prefix.length - 1],
 				ps);
 		TextualConvention.addTextualConventions(node, ps);
 

@@ -9,7 +9,7 @@ import com.sppad.jots.construction.nodes.TableEntryNode;
 import com.sppad.jots.construction.nodes.TableNode;
 import com.sppad.jots.datastructures.primative.IntStack;
 
-public class OidAssigner
+class OidAssigner
 {
 	private static class OidAssigningVisitor implements INodeVisitor
 	{

@@ -62,7 +62,7 @@ public abstract class Node
 		this.parent = parent;
 		this.snmpParent = getSnmpParentNode(parent);
 		this.inTable = inTable;
-		this.name = Strings.firstCharToUppercase(name);
+		this.name = name;
 		this.field = field;
 
 		if (field != null)

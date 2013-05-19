@@ -1,4 +1,4 @@
-package com.sppad.jots.construction.nodes;
+package com.sppad.jots.construction.nodes;	
 
 import java.lang.reflect.Field;
 
@@ -28,7 +28,7 @@ public class TableNode extends InnerNode
 		do
 		{
 			// Note: the root node will always have inTable = false
-			if (!parent.inTable || (parent instanceof TableNode))
+			if (!parent.inTable || (parent instanceof TableEntryNode))
 			{
 				break;
 			}
