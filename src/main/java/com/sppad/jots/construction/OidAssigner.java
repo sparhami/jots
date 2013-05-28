@@ -17,7 +17,7 @@ class OidAssigner
 
 		private OidAssigningVisitor()
 		{
-			this.oidStack.push(0);
+
 		}
 
 		@Override
@@ -35,7 +35,9 @@ class OidAssigner
 		@Override
 		public void visitEnter(final RootNode node)
 		{
-			visitEnterNode(node);
+			node.setProperty("OID", new int[0]);
+
+			oidStack.push(0);
 		}
 
 		@Override

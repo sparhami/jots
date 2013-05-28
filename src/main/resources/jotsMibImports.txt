@@ -1,9 +1,9 @@
-    IMPORTS
-        MODULE-IDENTITY, OBJECT-TYPE, OBJECT-IDENTITY,
-        NOTIFICATION-TYPE, mib-2, enterprises,
-        Counter32, Integer32, TimeTicks        FROM SNMPv2-SMI
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, OBJECT-IDENTITY,
+    NOTIFICATION-TYPE, mib-2, enterprises,
+    Counter32, Integer32, TimeTicks        FROM SNMPv2-SMI
 
-        TEXTUAL-CONVENTION, DisplayString      FROM SNMPv2-TC
+    TEXTUAL-CONVENTION, DisplayString      FROM SNMPv2-TC
 
-        MODULE-COMPLIANCE, OBJECT-GROUP,
-        NOTIFICATION-GROUP                     FROM SNMPv2-CONF;
+    MODULE-COMPLIANCE, OBJECT-GROUP,
+    NOTIFICATION-GROUP                     FROM SNMPv2-CONF;

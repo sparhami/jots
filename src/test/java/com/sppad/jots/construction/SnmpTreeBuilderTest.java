@@ -67,7 +67,7 @@ public class SnmpTreeBuilderTest
 	public void testSuperclassField() throws SnmpNoMoreEntriesException,
 			SnmpOidNotFoundException
 	{
-		final OID oid = JotsOID.createOID(prefix, new int[] { 1, 1, 0 });
+		final OID oid = JotsOID.createOID(prefix, new int[] { 1, 0 });
 
 		String expected = "foobar";
 		String actual = tree.get(oid).getVariable().toString();
@@ -79,7 +79,7 @@ public class SnmpTreeBuilderTest
 	public void testSubclassField() throws SnmpNoMoreEntriesException,
 			SnmpOidNotFoundException
 	{
-		final OID oid = JotsOID.createOID(prefix, new int[] { 1, 2, 0 });
+		final OID oid = JotsOID.createOID(prefix, new int[] { 2, 0 });
 
 		String expected = "false";
 		String actual = tree.get(oid).getVariable().toString();
@@ -91,7 +91,7 @@ public class SnmpTreeBuilderTest
 	public void testAnnotatedCollection() throws SnmpNoMoreEntriesException,
 			SnmpOidNotFoundException
 	{
-		final OID oid = JotsOID.createOID(prefix, new int[] { 1, 3, 1, 1, 2 });
+		final OID oid = JotsOID.createOID(prefix, new int[] { 3, 1, 1, 2 });
 
 		String expected = "3.14";
 		String actual = tree.get(oid).getVariable().toString();
@@ -103,7 +103,7 @@ public class SnmpTreeBuilderTest
 	public void testNestedCollection() throws SnmpNoMoreEntriesException,
 			SnmpOidNotFoundException
 	{
-		final OID oid = JotsOID.createOID(prefix, new int[] { 1, 3, 1, 2, 1, 1, 2,
+		final OID oid = JotsOID.createOID(prefix, new int[] { 3, 1, 2, 1, 1, 2,
 				3 });
 
 		String expected = "5";
@@ -116,7 +116,7 @@ public class SnmpTreeBuilderTest
 	public void testNestedObject() throws SnmpNoMoreEntriesException,
 			SnmpOidNotFoundException
 	{
-		final OID oid = JotsOID.createOID(prefix, new int[] { 1, 4, 1, 0 });
+		final OID oid = JotsOID.createOID(prefix, new int[] { 4, 1, 0 });
 
 		String expected = "5";
 		String actual = tree.get(oid).getVariable().toString();

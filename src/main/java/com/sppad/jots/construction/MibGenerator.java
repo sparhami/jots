@@ -26,6 +26,10 @@ class MibGenerator implements INodeVisitor {
 		ps.print(MibInfo
 				.createMibHeader(mibName, rootName, "", parentName, oid));
 	}
+	
+	static void printFooter(final PrintStream ps) {
+		ps.print("END");
+	}
 
 	static void generateMib(Object obj, SnmpTreeBuilder treeBuilder,
 			final String mibName, final String rootName,
@@ -45,6 +49,8 @@ class MibGenerator implements INodeVisitor {
 
 		final MibGenerator gen = new MibGenerator(prefix, ps);
 		node.accept(gen);
+		
+		printFooter(ps);
 	}
 
 	private final int[] prefix;
