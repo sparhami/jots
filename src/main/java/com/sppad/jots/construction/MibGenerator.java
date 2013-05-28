@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import org.snmp4j.smi.OID;
 
 import com.sppad.jots.JotsOID;
+import com.sppad.jots.construction.mib.MibEntry;
 import com.sppad.jots.construction.mib.MibInfo;
 import com.sppad.jots.construction.mib.MibLeaf;
 import com.sppad.jots.construction.mib.MibTable;
@@ -64,6 +65,9 @@ class MibGenerator implements INodeVisitor {
 		final String name = (String) node.getProperty("NAME");
 		final int[] staticOid = (int[]) node.getProperty("OID");
 
+		MibEntry entry = new MibEntry(node);
+		entry.write(ps);
+		
 		printOid(name, JotsOID.createOID(prefix, staticOid));
 	}
 
@@ -89,20 +93,13 @@ class MibGenerator implements INodeVisitor {
 
 	@Override
 	public void visitEnter(final TableEntryNode node) {
-		final String parentName = (String) node.snmpParent.getProperty("NAME");
 		final String name = (String) node.getProperty("NAME");
 		final int[] staticOid = (int[]) node.getProperty("OID");
 
-		MibTable.printEntryStart(node, name, parentName,
-				new LinkedList<String>(), ps);
-
-		for (final Node child : node.snmpNodes) {
-			final String childName = (String) child.getProperty("NAME");
-			MibTable.printEntrySequence(childName, "", ps);
-		}
-
-		MibTable.printEntryEnd(ps);
-
+		
+		MibEntry entry = new MibEntry(node);
+		entry.write(ps);
+		
 		printOid(name, JotsOID.createOID(prefix, staticOid));
 	}
 

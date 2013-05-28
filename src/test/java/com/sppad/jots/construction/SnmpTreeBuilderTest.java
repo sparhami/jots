@@ -103,7 +103,7 @@ public class SnmpTreeBuilderTest
 	public void testNestedCollection() throws SnmpNoMoreEntriesException,
 			SnmpOidNotFoundException
 	{
-		final OID oid = JotsOID.createOID(prefix, new int[] { 1, 3, 2, 1, 1, 2,
+		final OID oid = JotsOID.createOID(prefix, new int[] { 1, 3, 1, 2, 1, 1, 2,
 				3 });
 
 		String expected = "5";
@@ -124,7 +124,7 @@ public class SnmpTreeBuilderTest
 		assertThat(actual, is(expected));
 	}
 
-	// @Test
+	//@Test
 	public void testPrint() throws SnmpNoMoreEntriesException,
 			SnmpOidNotFoundException
 	{

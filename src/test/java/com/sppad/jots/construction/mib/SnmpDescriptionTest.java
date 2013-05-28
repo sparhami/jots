@@ -1,4 +1,4 @@
-package com.sppad.jots.constructor.mib;
+package com.sppad.jots.construction.mib;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
