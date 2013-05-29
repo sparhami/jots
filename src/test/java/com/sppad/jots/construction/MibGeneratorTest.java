@@ -22,8 +22,8 @@ public class MibGeneratorTest
 		public float floatingPoint = 3.14F;
 
 		@Jots(cls = NestedObject.class)
-		public final Collection<NestedObject> nestedCollection = ImmutableList.of(
-				new NestedObject(), new NestedObject(), new NestedObject());
+		public final Collection<NestedObject> nestedCollection = ImmutableList
+				.of(new NestedObject(), new NestedObject(), new NestedObject());
 	}
 
 	@SuppressWarnings("unused")
@@ -60,10 +60,10 @@ public class MibGeneratorTest
 			SnmpOidNotFoundException
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		
-		SnmpTreeBuilder.from(new TestObject())
-				.prefix(prefix).buildMib("TEST-MIB", "Test", "enterprises", baos);
-		
+
+		SnmpTreeBuilder.from(new TestObject()).prefix(prefix)
+				.buildMib("TEST-MIB", "Test", "enterprises", baos);
+
 		System.out.println(baos.toString());
 	}
 }

@@ -69,7 +69,8 @@ public abstract class SnmpTrapReceiver implements CommandResponder
 		try
 		{
 			processTrap(request);
-		} catch (final SnmpInformException e)
+		}
+		catch (final SnmpInformException e)
 		{
 			response.setErrorStatus(PDU.badValue);
 			response.setErrorIndex(e.index);
@@ -87,7 +88,8 @@ public abstract class SnmpTrapReceiver implements CommandResponder
 					request.getSecurityLevel(), response,
 					request.getMaxSizeResponsePDU(),
 					request.getStateReference(), null);
-		} catch (final MessageException e)
+		}
+		catch (final MessageException e)
 		{
 			logger.error("Exception sending inform response: ", e);
 		}
@@ -104,18 +106,18 @@ public abstract class SnmpTrapReceiver implements CommandResponder
 		{
 			switch (command.getType())
 			{
-				case PDU.TRAP:
-					processTrap(request);
-					break;
-				case PDU.INFORM:
-					processInform(request);
-					break;
-				default:
-					throw new Exception(String.format(
-							"Type not implemented {} ",
-							PDU.getTypeString(command.getType())));
+			case PDU.TRAP:
+				processTrap(request);
+				break;
+			case PDU.INFORM:
+				processInform(request);
+				break;
+			default:
+				throw new Exception(String.format("Type not implemented {} ",
+						PDU.getTypeString(command.getType())));
 			}
-		} catch (final Exception e)
+		}
+		catch (final Exception e)
 		{
 			logError(request, e);
 		}

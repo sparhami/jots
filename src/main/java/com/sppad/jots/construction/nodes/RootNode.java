@@ -1,6 +1,5 @@
 package com.sppad.jots.construction.nodes;
 
-
 public class RootNode extends InnerNode
 {
 	public RootNode(final Class<?> klass, final String name)

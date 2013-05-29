@@ -20,19 +20,22 @@ import com.sppad.jots.log.ErrorMessage;
 import com.sppad.jots.util.Fields;
 import com.sppad.jots.util.Strings;
 
-class NodeTreeConstructor {
+class NodeTreeConstructor
+{
 	private static final Logger logger = LoggerFactory
 			.getLogger(NodeTreeConstructor.class);
 
 	static RootNode createTree(final Class<?> cls,
-			final Predicate<Field> inclusionStrategy) {
+			final Predicate<Field> inclusionStrategy)
+	{
 		return createTree(cls, inclusionStrategy, "mib");
 	}
 
 	static RootNode createTree(final Class<?> cls,
-			final Predicate<Field> inclusionStrategy, final String name) {
+			final Predicate<Field> inclusionStrategy, final String name)
+	{
 		final String rootName = Strings.firstCharToLowercase(name);
-		
+
 		final RootNode root = new RootNode(cls, rootName);
 		final NodeTreeConstructor constructor = new NodeTreeConstructor(
 				inclusionStrategy);
@@ -43,8 +46,10 @@ class NodeTreeConstructor {
 	}
 
 	private static Field getIndexField(final Collection<Field> fields,
-			final Predicate<Field> inclusionStrategy) {
-		for (final Field field : fields) {
+			final Predicate<Field> inclusionStrategy)
+	{
+		for (final Field field : fields)
+		{
 			if (!isTableIndex(field))
 				continue;
 
@@ -62,7 +67,8 @@ class NodeTreeConstructor {
 	}
 
 	private static boolean isIncluded(final Field field,
-			final Predicate<Field> inclusionStrategy) {
+			final Predicate<Field> inclusionStrategy)
+	{
 		final boolean table = Node.isTable(field.getType());
 		final boolean include = inclusionStrategy.apply(field);
 
@@ -72,15 +78,18 @@ class NodeTreeConstructor {
 			return include;
 	}
 
-	private static boolean isTableIndex(Field field) {
+	private static boolean isTableIndex(Field field)
+	{
 		return field.getAnnotation(SnmpTableIndex.class) != null;
 	}
 
 	private static boolean isTableIndexIsIncluded(final Field field,
-			final Predicate<Field> inclusionStrategy) {
+			final Predicate<Field> inclusionStrategy)
+	{
 		final boolean include = isIncluded(field, inclusionStrategy);
 
-		if (!include) {
+		if (!include)
+		{
 			logger.warn(ErrorMessage.TABLE_INDEX_NOT_INCLUDED.getFmt(),
 					field.getName());
 		}
@@ -88,12 +97,14 @@ class NodeTreeConstructor {
 		return include;
 	}
 
-	private static boolean isTableIndexIsValid(final Field field) {
+	private static boolean isTableIndexIsValid(final Field field)
+	{
 		final Class<?> type = field.getType();
 		final boolean valid = type == String.class
 				|| Number.class.isAssignableFrom(type);
 
-		if (!valid) {
+		if (!valid)
+		{
 			logger.warn(ErrorMessage.TABLE_INDEX_NOT_VALID.getFmt(),
 					field.getName());
 		}
@@ -101,10 +112,12 @@ class NodeTreeConstructor {
 		return valid;
 	}
 
-	private static boolean isTableIsAnnotated(Field field) {
+	private static boolean isTableIsAnnotated(Field field)
+	{
 		final boolean annotation = field.getAnnotation(Jots.class) != null;
 
-		if (!annotation) {
+		if (!annotation)
+		{
 			logger.warn(ErrorMessage.COLLECTION_NO_ANNOTATION.getFmt(),
 					field.getDeclaringClass(), field.getName());
 		}
@@ -114,29 +127,38 @@ class NodeTreeConstructor {
 
 	private final Predicate<Field> inclusionStrategy;
 
-	private NodeTreeConstructor(final Predicate<Field> inclusionStrategy) {
+	private NodeTreeConstructor(final Predicate<Field> inclusionStrategy)
+	{
 		this.inclusionStrategy = inclusionStrategy;
 	}
 
-	private void addChildren(final InnerNode parent) {
+	private void addChildren(final InnerNode parent)
+	{
 		addChildren(parent, Fields.getFields(parent.klass));
 	}
 
 	private void addChildren(final InnerNode parent,
-			final Collection<Field> fields) {
-		for (final Field field : fields) {
+			final Collection<Field> fields)
+	{
+		for (final Field field : fields)
+		{
 			if (!isIncluded(field, inclusionStrategy))
 				continue;
 
 			final Node child;
 			final Class<?> fieldType = field.getType();
 
-			if (Node.isTable(fieldType)) {
+			if (Node.isTable(fieldType))
+			{
 				child = new TableNode(field, parent);
 				addTableChild((TableNode) child);
-			} else if (Node.isLeaf(fieldType)) {
+			}
+			else if (Node.isLeaf(fieldType))
+			{
 				child = new LeafNode(field, parent);
-			} else {
+			}
+			else
+			{
 				child = new EntryNode(field, parent);
 				addChildren((EntryNode) child);
 			}
@@ -146,7 +168,8 @@ class NodeTreeConstructor {
 		}
 	}
 
-	private void addTableChild(final TableNode parent) {
+	private void addTableChild(final TableNode parent)
+	{
 		final Class<?> entryClass = parent.field.getAnnotation(Jots.class)
 				.cls();
 		final TableEntryNode child = new TableEntryNode(parent.field,

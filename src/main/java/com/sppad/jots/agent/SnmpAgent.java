@@ -253,47 +253,52 @@ public class SnmpAgent implements CommandResponder
 
 			switch (command.getType())
 			{
-				case PDU.GET:
-					processGet(request, response);
-					break;
-				case PDU.GETNEXT:
-					processGetNext(request, response);
-					break;
-				case PDU.GETBULK:
-					processGetBulk(request, response);
-					break;
-				case PDU.SET:
-					processSet(request, response);
-					break;
-				default:
-					throw new RuntimeException(String.format(
-							"Type not implemented {} ",
-							PDU.getTypeString(command.getType())));
+			case PDU.GET:
+				processGet(request, response);
+				break;
+			case PDU.GETNEXT:
+				processGetNext(request, response);
+				break;
+			case PDU.GETBULK:
+				processGetBulk(request, response);
+				break;
+			case PDU.SET:
+				processSet(request, response);
+				break;
+			default:
+				throw new RuntimeException(String.format(
+						"Type not implemented {} ",
+						PDU.getTypeString(command.getType())));
 			}
-		} catch (final SnmpBadValueException e)
+		}
+		catch (final SnmpBadValueException e)
 		{
 			response.setErrorStatus(PDU.badValue);
 			response.setErrorIndex(response.getRequestIndex());
-		} catch (final SnmpPduLengthException | SnmpNoMoreEntriesException e)
+		}
+		catch (final SnmpPduLengthException | SnmpNoMoreEntriesException e)
 		{
 			// nothing to do here, just return with what we have
 			// System.out.println("caught exception, now to return.");
-		} catch (final SnmpOidNotFoundException
-				| SnmpPastEndOfTreeException
+		}
+		catch (final SnmpOidNotFoundException | SnmpPastEndOfTreeException
 				| IllegalArgumentException e)
 		{
 			response.setErrorStatus(PDU.noSuchName);
 			response.setErrorIndex(response.getRequestIndex());
-		} catch (final SnmpNotWritableException e)
+		}
+		catch (final SnmpNotWritableException e)
 		{
 			response.setErrorStatus(PDU.notWritable);
 			response.setErrorIndex(response.getRequestIndex());
-		} catch (final Exception e)
+		}
+		catch (final Exception e)
 		{
 			response.setErrorStatus(PDU.genErr);
 			response.setErrorIndex(response.getRequestIndex());
 			logError(request, response, e);
-		} finally
+		}
+		finally
 		{
 			updateLock.readLock().unlock();
 		}
@@ -306,7 +311,8 @@ public class SnmpAgent implements CommandResponder
 					request.getSecurityLevel(), response.getPDU(),
 					request.getMaxSizeResponsePDU(),
 					request.getStateReference(), status);
-		} catch (final MessageException e)
+		}
+		catch (final MessageException e)
 		{
 			logger.error("Exception while returning response: ", e);
 		}

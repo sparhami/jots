@@ -7,8 +7,9 @@ import com.sppad.jots.util.SnmpUtils;
 public class TableEntryNode extends InnerNode
 {
 	private Field indexField;
-	
-	public TableEntryNode(final Field field, final Class<?> cls, final Node parent)
+
+	public TableEntryNode(final Field field, final Class<?> cls,
+			final Node parent)
 	{
 		super(cls, parent, parent.inTable, "", field);
 	}
@@ -27,8 +28,9 @@ public class TableEntryNode extends InnerNode
 	{
 		this.indexField = indexField;
 	}
-	
-	public String getEnding() {
+
+	public String getEnding()
+	{
 		return "Entry";
 	}
 
@@ -39,11 +41,13 @@ public class TableEntryNode extends InnerNode
 			try
 			{
 				return SnmpUtils.getSnmpExtension(indexField.get(obj));
-			} catch (IllegalArgumentException | IllegalAccessException e)
+			}
+			catch (IllegalArgumentException | IllegalAccessException e)
 			{
 				return new int[] { ordinal };
 			}
-		} else
+		}
+		else
 		{
 			return new int[] { ordinal };
 		}

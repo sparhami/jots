@@ -14,11 +14,12 @@ public class JotsOID
 		final OID oid = new OID();
 
 		final int totalSize = prefix.length + staticOid.length;
-		
+
 		final int[] oidArray = new int[totalSize];
 
 		System.arraycopy(prefix, 0, oidArray, 0, prefix.length);
-		System.arraycopy(staticOid, 0, oidArray, prefix.length, staticOid.length);
+		System.arraycopy(staticOid, 0, oidArray, prefix.length,
+				staticOid.length);
 
 		oid.setValue(oidArray);
 
@@ -32,11 +33,12 @@ public class JotsOID
 
 		final int extensionSize = extension.size();
 		final int totalSize = prefix.length + staticOid.length + extensionSize;
-		
+
 		final int[] oidArray = new int[totalSize];
 
 		System.arraycopy(prefix, 0, oidArray, 0, prefix.length);
-		System.arraycopy(staticOid, 0, oidArray, prefix.length, staticOid.length);
+		System.arraycopy(staticOid, 0, oidArray, prefix.length,
+				staticOid.length);
 		extension.copyTo(oidArray, prefix.length + staticOid.length);
 
 		oid.setValue(oidArray);

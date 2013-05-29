@@ -56,8 +56,7 @@ public class FieldsTest
 		public NestedObject obj;
 	}
 
-	public static Function<Field, String> getFieldName = new Function<Field, String>()
-	{
+	public static Function<Field, String> getFieldName = new Function<Field, String>() {
 		public String apply(Field field)
 		{
 			return field.getName();

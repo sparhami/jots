@@ -22,10 +22,12 @@ import com.sppad.jots.datastructures.primative.IntStack;
 import com.sppad.jots.log.ErrorMessage;
 import com.sppad.jots.lookup.SnmpLookupField;
 
-class SnmpTreeConstructor {
+class SnmpTreeConstructor
+{
 	private static final Comparator<SnmpLookupField> COMPARE_BY_OID = new Comparator<SnmpLookupField>() {
 		public int compare(final SnmpLookupField arg0,
-				final SnmpLookupField arg1) {
+				final SnmpLookupField arg1)
+		{
 			return arg0.getOid().compareTo(arg1.getOid());
 		}
 	};
@@ -33,7 +35,8 @@ class SnmpTreeConstructor {
 	private static final Logger logger = LoggerFactory
 			.getLogger(SnmpTreeConstructor.class);
 
-	static SnmpTree create(final Object obj, final SnmpTreeBuilder treeBuilder) {
+	static SnmpTree create(final Object obj, final SnmpTreeBuilder treeBuilder)
+	{
 		RootNode node = NodeTreeConstructor.createTree(obj.getClass(),
 				treeBuilder.getInclusionStrategy());
 
@@ -47,7 +50,8 @@ class SnmpTreeConstructor {
 		return new SnmpTree(tc.prefix, tc.sortedSet);
 	}
 
-	private static Collection<?> getCollection(final Object obj) {
+	private static Collection<?> getCollection(final Object obj)
+	{
 		if (obj instanceof Map)
 			return ((Map<?, ?>) obj).values();
 		else
@@ -67,11 +71,13 @@ class SnmpTreeConstructor {
 	private final SortedSet<SnmpLookupField> sortedSet = new TreeSet<SnmpLookupField>(
 			COMPARE_BY_OID);
 
-	private SnmpTreeConstructor(int[] prefix) {
+	private SnmpTreeConstructor(int[] prefix)
+	{
 		this.prefix = prefix;
 	}
 
-	private void addToSnmpTree(final LeafNode node, final Object obj) {
+	private void addToSnmpTree(final LeafNode node, final Object obj)
+	{
 
 		final int[] oidArray = (int[]) node.getProperty("OID");
 		final OID oid = JotsOID.createTerminalOID(prefix, oidArray, indexStack);
@@ -80,11 +86,13 @@ class SnmpTreeConstructor {
 	}
 
 	private void addToSnmpTree(final OID oid, final Field field,
-			final Object object) {
+			final Object object)
+	{
 		sortedSet.add(SnmpLookupField.create(oid, field, object));
 	}
 
-	private void descend(final Node node, final Object obj) {
+	private void descend(final Node node, final Object obj)
+	{
 		for (final Node child : node.nodes)
 			if (child instanceof TableNode)
 				descendIntoCollection((TableNode) child, obj);
@@ -92,13 +100,17 @@ class SnmpTreeConstructor {
 				descendIntoObject(child, obj);
 	}
 
-	private void descendIntoCollection(final TableNode node, final Object obj) {
-		try {
+	private void descendIntoCollection(final TableNode node, final Object obj)
+	{
+		try
+		{
 			final TableEntryNode child = node.getEntry();
 			final Object tableObject = node.field.get(obj);
 
 			descendIntoCollection(child, getCollection(tableObject));
-		} catch (IllegalAccessException e) {
+		}
+		catch (IllegalAccessException e)
+		{
 			logger.warn(
 					ErrorMessage.CANNOT_CREATE_SUBTREE_DUE_TO_ACCESS.getFmt(),
 					node.field);
@@ -106,34 +118,42 @@ class SnmpTreeConstructor {
 	}
 
 	private void descendIntoCollection(final TableEntryNode node,
-			final Collection<?> collection) {
+			final Collection<?> collection)
+	{
 		int index = 1;
-		for (final Object next : collection) {
+		for (final Object next : collection)
+		{
 			pushExtension(node, next, index++);
 			descend(node, next);
 			popExtension();
 		}
 	}
 
-	private void descendIntoObject(final Node node, final Object obj) {
-		try {
+	private void descendIntoObject(final Node node, final Object obj)
+	{
+		try
+		{
 			if (node instanceof LeafNode)
 				addToSnmpTree((LeafNode) node, obj);
 			else
 				descend(node, node.field.get(obj));
-		} catch (IllegalAccessException e) {
+		}
+		catch (IllegalAccessException e)
+		{
 			logger.warn(
 					ErrorMessage.CANNOT_CREATE_SUBTREE_DUE_TO_ACCESS.getFmt(),
 					node.field);
 		}
 	}
 
-	private void popExtension() {
+	private void popExtension()
+	{
 		indexStack.remove(indexLengthStack.pop());
 	}
 
 	private void pushExtension(final TableEntryNode node, final Object next,
-			final int index) {
+			final int index)
+	{
 		final int[] extension = node.getIndex(next, index);
 
 		indexLengthStack.push(extension.length);

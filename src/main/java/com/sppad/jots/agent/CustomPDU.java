@@ -64,11 +64,13 @@ class CustomPDU
 		return pdu;
 	}
 
-	int getRequestIndex() {
+	int getRequestIndex()
+	{
 		return requestIndex;
 	}
 
-	void incrementRequestIndex() {
+	void incrementRequestIndex()
+	{
 		requestIndex++;
 	}
 
@@ -81,12 +83,12 @@ class CustomPDU
 	{
 		pdu.setErrorStatus(errorStatus);
 	}
-	
+
 	void setRequestID(Integer32 requestID)
 	{
 		pdu.setRequestID(requestID);
 	}
-	
+
 	void setType(int type)
 	{
 		pdu.setType(type);

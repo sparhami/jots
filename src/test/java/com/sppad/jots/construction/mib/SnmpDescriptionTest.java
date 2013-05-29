@@ -7,7 +7,6 @@ import java.lang.reflect.Field;
 
 import org.junit.Test;
 
-import com.sppad.jots.construction.mib.SnmpDescription;
 import com.sppad.jots.mib.BooleanInterfaceComment;
 
 public class SnmpDescriptionTest
@@ -16,11 +15,8 @@ public class SnmpDescriptionTest
 	public void testGetBooleanDescription_class() throws SecurityException,
 			NoSuchFieldException
 	{
-		final Object obj = new Object()
-		{
-			@BooleanInterfaceComment(	synopsis = "This is something about the field",
-										trueSynopsis = "This is a true comment",
-										falseSynopsis = "This is a false comment")
+		final Object obj = new Object() {
+			@BooleanInterfaceComment(synopsis = "This is something about the field", trueSynopsis = "This is a true comment", falseSynopsis = "This is a false comment")
 			public final Boolean testBoolean = true;
 		};
 
@@ -38,11 +34,8 @@ public class SnmpDescriptionTest
 	public void testGetBooleanDescription_type() throws SecurityException,
 			NoSuchFieldException
 	{
-		final Object obj = new Object()
-		{
-			@BooleanInterfaceComment(	synopsis = "This is something about the field",
-										trueSynopsis = "This is a true comment",
-										falseSynopsis = "This is a false comment")
+		final Object obj = new Object() {
+			@BooleanInterfaceComment(synopsis = "This is something about the field", trueSynopsis = "This is a true comment", falseSynopsis = "This is a false comment")
 			public final boolean testBoolean = true;
 		};
 

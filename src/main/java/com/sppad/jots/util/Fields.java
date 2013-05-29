@@ -18,8 +18,7 @@ public class Fields
 					Float.class, Double.class, Character.class, String.class)
 			.build();
 
-	private static final Predicate<Field> removeSynthetic = new Predicate<Field>()
-	{
+	private static final Predicate<Field> removeSynthetic = new Predicate<Field>() {
 		public boolean apply(final Field field)
 		{
 			return !field.isSynthetic();
@@ -59,7 +58,8 @@ public class Fields
 			final String name = getSetterName(field.getName());
 
 			return cls.getMethod(name, field.getType());
-		} catch (NoSuchMethodException | SecurityException e)
+		}
+		catch (NoSuchMethodException | SecurityException e)
 		{
 			return null;
 		}
@@ -79,7 +79,8 @@ public class Fields
 	 */
 	public static String getSetterName(final String fieldName)
 	{
-		final StringBuilder methodName = new StringBuilder(fieldName.length() + 3);
+		final StringBuilder methodName = new StringBuilder(
+				fieldName.length() + 3);
 		methodName.append("set");
 		methodName.append(fieldName);
 		methodName.setCharAt(3, Character.toUpperCase(fieldName.charAt(0)));

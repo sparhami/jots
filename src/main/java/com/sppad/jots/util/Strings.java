@@ -1,7 +1,9 @@
 package com.sppad.jots.util;
 
-public class Strings {
-	public static String firstCharToUppercase(final String string) {
+public class Strings
+{
+	public static String firstCharToUppercase(final String string)
+	{
 		if (string.length() == 0)
 			return string;
 
@@ -11,7 +13,8 @@ public class Strings {
 		return builder.toString();
 	}
 
-	public static String firstCharToLowercase(final String string) {
+	public static String firstCharToLowercase(final String string)
+	{
 		if (string.length() == 0)
 			return string;
 

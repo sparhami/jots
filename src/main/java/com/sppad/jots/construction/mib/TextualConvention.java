@@ -94,18 +94,18 @@ public class TextualConvention
 			final PrintStream ps)
 	{
 		addBooleanTextualConvention(ps);
-		
+
 		node.accept(new TextualConventionVisitor(ps));
 	}
-	
-	private static void addBooleanTextualConvention(final PrintStream ps) {
-		
+
+	private static void addBooleanTextualConvention(final PrintStream ps)
+	{
+
 		ps.append("Boolean ::= TEXTUAL-CONVENTION\n");
 		ps.append("\tSYNTAX		OCTET STRING { \"true\", \"false\" }\n\n");
 	}
-	
-	static String createTextualConvention(
-			final Class<? extends Enum<?>> cls)
+
+	static String createTextualConvention(final Class<? extends Enum<?>> cls)
 	{
 		final StringBuilder builder = new StringBuilder();
 
@@ -120,8 +120,9 @@ public class TextualConvention
 
 		return builder.toString();
 	}
-	
-	private TextualConvention() {
-		
+
+	private TextualConvention()
+	{
+
 	}
 }

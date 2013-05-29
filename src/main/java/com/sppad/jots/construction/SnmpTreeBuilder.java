@@ -73,13 +73,13 @@ public class SnmpTreeBuilder
 	 * Builds a MIB, printing it to the supplied OutputStream.
 	 */
 	public void buildMib(final String mibName, final String rootName,
-							final String parentName, final OutputStream os)
+			final String parentName, final OutputStream os)
 	{
 		checkNotNull(mibName);
 		checkNotNull(rootName);
 		checkNotNull(parentName);
 		checkNotNull(os);
-		
+
 		MibGenerator.generateMib(obj, this, mibName, rootName, parentName, os);
 	}
 

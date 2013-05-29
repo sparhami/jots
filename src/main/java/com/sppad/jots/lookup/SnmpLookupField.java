@@ -132,7 +132,8 @@ public class SnmpLookupField
 		try
 		{
 			return field.get(enclosingObject);
-		} catch (final IllegalAccessException e)
+		}
+		catch (final IllegalAccessException e)
 		{
 			throw new SnmpInternalException(e);
 		}
@@ -161,8 +162,8 @@ public class SnmpLookupField
 		try
 		{
 			setParsedValue(valueParser.apply(data));
-		} catch (SecurityException
-				| IllegalAccessException
+		}
+		catch (SecurityException | IllegalAccessException
 				| InvocationTargetException e)
 		{
 			throw new SnmpInternalException(e.getCause().getMessage());

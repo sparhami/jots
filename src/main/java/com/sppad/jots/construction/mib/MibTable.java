@@ -5,10 +5,12 @@ import java.io.PrintStream;
 import com.sppad.jots.construction.nodes.TableNode;
 import com.sppad.jots.util.Strings;
 
-public class MibTable {
+public class MibTable
+{
 	public static void printTable(final TableNode node, final String childName,
 			final String name, final String parentName, final int oid,
-			final PrintStream ps) {
+			final PrintStream ps)
+	{
 
 		final String sequenceName = Strings.firstCharToUppercase(childName);
 

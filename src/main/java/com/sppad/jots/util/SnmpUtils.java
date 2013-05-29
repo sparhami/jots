@@ -12,7 +12,7 @@ public class SnmpUtils
 	 * @return An int array with the common prefix
 	 */
 	public static int[] commonPrefix(final int[] prefixOne,
-										final int[] prefixTwo)
+			final int[] prefixTwo)
 	{
 		final int minLength = Math.min(prefixOne.length, prefixTwo.length);
 		final IntStack prefix = new IntStack(minLength);

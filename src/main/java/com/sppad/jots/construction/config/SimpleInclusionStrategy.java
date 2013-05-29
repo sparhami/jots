@@ -32,8 +32,9 @@ import com.sppad.jots.util.Fields;
 public abstract class SimpleInclusionStrategy implements Predicate<Field>
 {
 	/**
-	 * Marks that a field should always be <b>skipped</b> when generating an SnmpTree.
-	 * This overrides all other considerations except for {@link SnmpInclude}.
+	 * Marks that a field should always be <b>skipped</b> when generating an
+	 * SnmpTree. This overrides all other considerations except for
+	 * {@link SnmpInclude}.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
@@ -42,8 +43,8 @@ public abstract class SimpleInclusionStrategy implements Predicate<Field>
 	}
 
 	/**
-	 * Marks that a field should always be <b>included</b> when generating an SnmpTree.
-	 * This overrides all other considerations.
+	 * Marks that a field should always be <b>included</b> when generating an
+	 * SnmpTree. This overrides all other considerations.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)

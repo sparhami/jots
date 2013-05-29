@@ -51,8 +51,7 @@ public class SnmpTreeTest
 		}
 	}
 
-	private static final Comparator<SnmpLookupField> COMPARE_BY_OID = new Comparator<SnmpLookupField>()
-	{
+	private static final Comparator<SnmpLookupField> COMPARE_BY_OID = new Comparator<SnmpLookupField>() {
 		public int compare(SnmpLookupField arg0, SnmpLookupField arg1)
 		{
 			return arg0.getOid().compareTo(arg1.getOid());

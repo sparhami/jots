@@ -15,14 +15,12 @@ class ValueParsers
 	private static final LoadingCache<Class<? extends Enum>, Function<String, Enum>> cacheEnumConverters = CacheBuilder
 			.newBuilder()
 			.weakValues()
-			.build(new CacheLoader<Class<? extends Enum>, Function<String, Enum>>()
-			{
+			.build(new CacheLoader<Class<? extends Enum>, Function<String, Enum>>() {
 				@Override
 				public Function<String, Enum> load(
 						final Class<? extends Enum> key) throws Exception
 				{
-					return new Function<String, Enum>()
-					{
+					return new Function<String, Enum>() {
 						@SuppressWarnings("unchecked")
 						@Override
 						public Enum apply(final String input)
@@ -30,7 +28,8 @@ class ValueParsers
 							try
 							{
 								return Enum.valueOf(key, input);
-							} catch (IllegalArgumentException e)
+							}
+							catch (IllegalArgumentException e)
 							{
 								throw new SnmpBadValueException(String.format(
 										"Value %s is not valid for this field",
@@ -41,8 +40,7 @@ class ValueParsers
 				}
 			});
 
-	private static final Function<String, Boolean> CONVERT_TO_BOOLEAN = new Function<String, Boolean>()
-	{
+	private static final Function<String, Boolean> CONVERT_TO_BOOLEAN = new Function<String, Boolean>() {
 		@Override
 		public Boolean apply(final String input)
 		{
@@ -55,68 +53,67 @@ class ValueParsers
 		}
 	};
 
-	private static final Function<String, Double> CONVERT_TO_DOUBLE = new Function<String, Double>()
-	{
+	private static final Function<String, Double> CONVERT_TO_DOUBLE = new Function<String, Double>() {
 		@Override
 		public Double apply(final String input)
 		{
 			try
 			{
 				return Double.parseDouble(input);
-			} catch (NumberFormatException e)
+			}
+			catch (NumberFormatException e)
 			{
 				throw new SnmpBadValueException(input);
 			}
 		}
 	};
 
-	private static final Function<String, Float> CONVERT_TO_FLOAT = new Function<String, Float>()
-	{
+	private static final Function<String, Float> CONVERT_TO_FLOAT = new Function<String, Float>() {
 		@Override
 		public Float apply(final String input)
 		{
 			try
 			{
 				return Float.parseFloat(input);
-			} catch (NumberFormatException e)
+			}
+			catch (NumberFormatException e)
 			{
 				throw new SnmpBadValueException(input);
 			}
 		}
 	};
 
-	private static final Function<String, Integer> CONVERT_TO_INTEGER = new Function<String, Integer>()
-	{
+	private static final Function<String, Integer> CONVERT_TO_INTEGER = new Function<String, Integer>() {
 		@Override
 		public Integer apply(final String input)
 		{
 			try
 			{
 				return Integer.parseInt(input);
-			} catch (NumberFormatException e)
+			}
+			catch (NumberFormatException e)
 			{
 				throw new SnmpBadValueException(input);
 			}
 		}
 	};
 
-	private static final Function<String, Long> CONVERT_TO_LONG = new Function<String, Long>()
-	{
+	private static final Function<String, Long> CONVERT_TO_LONG = new Function<String, Long>() {
 		@Override
 		public Long apply(final String input)
 		{
 			try
 			{
 				return Long.parseLong(input);
-			} catch (NumberFormatException e)
+			}
+			catch (NumberFormatException e)
 			{
 				throw new SnmpBadValueException(input);
 			}
 		}
 	};
 
-	private static final Function<String, String> CONVERT_TO_STRING = new Function<String, String>()
-	{
+	private static final Function<String, String> CONVERT_TO_STRING = new Function<String, String>() {
 		@Override
 		public String apply(final String input)
 		{

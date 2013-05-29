@@ -24,10 +24,8 @@ public class MibInfo
 	 * @return A String containing the header info.
 	 */
 	public static String createMibHeader(final String mibName,
-											final String rootName,
-											final String description,
-											final String parentTree,
-											final int mibTreeOid)
+			final String rootName, final String description,
+			final String parentTree, final int mibTreeOid)
 	{
 		try
 		{
@@ -46,10 +44,12 @@ public class MibInfo
 			builder.append("\tDESCRIPTION \n\"");
 			builder.append(description);
 			builder.append("\"\n\n");
-			builder.append("\t::= { " + parentTree + " " + mibTreeOid + " }\n\n");
+			builder.append("\t::= { " + parentTree + " " + mibTreeOid
+					+ " }\n\n");
 
 			return builder.toString();
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			throw new RuntimeException(
 					"Internal library error: failed to read MIB defs\n");

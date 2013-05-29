@@ -8,28 +8,32 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Joiner;
 import com.sppad.jots.construction.nodes.Node;
-import com.sppad.jots.construction.nodes.TableEntryNode;
 import com.sppad.jots.util.Strings;
 
-public class MibEntry {
+public class MibEntry
+{
 	private final Node node;
 	private final String name;
 	private final String parentName;
 
-	public MibEntry(final Node node) {
+	public MibEntry(final Node node)
+	{
 		this.node = node;
 		this.name = (String) node.getProperty("NAME");
 		this.parentName = (String) node.snmpParent.getProperty("NAME");
 	}
 
-	public void write(PrintStream ps) {
+	public void write(PrintStream ps)
+	{
 
-		final int[] staticOid = (int[])node.getProperty("OID");
+		final int[] staticOid = (int[]) node.getProperty("OID");
 		final int subtree = staticOid[staticOid.length - 1];
-		
-		printEntryStart(node, name, parentName, subtree, new LinkedList<String>(), ps);
 
-		for (final Node child : node.snmpNodes) {
+		printEntryStart(node, name, parentName, subtree,
+				new LinkedList<String>(), ps);
+
+		for (final Node child : node.snmpNodes)
+		{
 			final String childName = (String) child.getProperty("NAME");
 			printEntrySequence(childName, "", ps);
 		}
@@ -40,7 +44,8 @@ public class MibEntry {
 
 	private static void printEntryStart(final Node node, final String name,
 			final String parentName, final int subtree,
-			@Nullable final Collection<String> indicies, final PrintStream ps) {
+			@Nullable final Collection<String> indicies, final PrintStream ps)
+	{
 		final String sequenceName = Strings.firstCharToUppercase(name);
 
 		ps.println();
@@ -58,7 +63,8 @@ public class MibEntry {
 	}
 
 	private static void printIndicies(
-			@Nullable final Collection<String> indicies, final PrintStream ps) {
+			@Nullable final Collection<String> indicies, final PrintStream ps)
+	{
 		if (indicies == null || indicies.size() == 0)
 			return;
 
@@ -70,11 +76,13 @@ public class MibEntry {
 	}
 
 	private static void printEntrySequence(final String name,
-			final String type, final PrintStream ps) {
+			final String type, final PrintStream ps)
+	{
 		ps.println("\t" + name + "\t" + type);
 	}
 
-	private static void printEntryEnd(final PrintStream ps) {
+	private static void printEntryEnd(final PrintStream ps)
+	{
 		ps.println("}\n");
 	}
 }

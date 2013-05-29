@@ -1,11 +1,9 @@
 package com.sppad.jots.construction.mib;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
-
-import com.sppad.jots.construction.mib.TextualConvention;
 
 public class TextualConventionTest
 {

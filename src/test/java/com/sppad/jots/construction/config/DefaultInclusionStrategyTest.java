@@ -27,18 +27,18 @@ public class DefaultInclusionStrategyTest
 
 		@SnmpExclude
 		public final Object testAnnotatedExclude = null;
-		
+
 		@SnmpInclude
 		public Object testAnnotatedInclude;
-		
+
 		public TestEnum testEnum;
-		
+
 		public final Object testFinalObject = null;
 
 		public int testInt;
-		
+
 		public transient final Object testTransientFinalObject = null;
-		
+
 		public transient int testTransientInt;
 	}
 
@@ -70,7 +70,7 @@ public class DefaultInclusionStrategyTest
 		boolean actual = true;
 		assertThat(expected, is(actual));
 	}
-	
+
 	@Test
 	public void testApply_object_include() throws NoSuchFieldException,
 			SecurityException
@@ -81,10 +81,10 @@ public class DefaultInclusionStrategyTest
 		boolean actual = true;
 		assertThat(expected, is(actual));
 	}
-	
+
 	@Test
-	public void testApply_object_includeAndExclude() throws NoSuchFieldException,
-			SecurityException
+	public void testApply_object_includeAndExclude()
+			throws NoSuchFieldException, SecurityException
 	{
 		Field field = TestClass.class.getField("testAnnotatedBoth");
 
@@ -92,7 +92,7 @@ public class DefaultInclusionStrategyTest
 		boolean actual = true;
 		assertThat(expected, is(actual));
 	}
-	
+
 	@Test
 	public void testApply_object_static() throws NoSuchFieldException,
 			SecurityException
@@ -103,7 +103,7 @@ public class DefaultInclusionStrategyTest
 		boolean actual = false;
 		assertThat(expected, is(actual));
 	}
-	
+
 	@Test
 	public void testApply_object_static_final() throws NoSuchFieldException,
 			SecurityException
@@ -136,7 +136,7 @@ public class DefaultInclusionStrategyTest
 		boolean actual = true;
 		assertThat(expected, is(actual));
 	}
-	
+
 	@Test
 	public void testApply_simple_int() throws NoSuchFieldException,
 			SecurityException
@@ -148,7 +148,6 @@ public class DefaultInclusionStrategyTest
 		assertThat(expected, is(actual));
 	}
 
-	
 	@Test
 	public void testApply_simple_static() throws NoSuchFieldException,
 			SecurityException
@@ -160,7 +159,6 @@ public class DefaultInclusionStrategyTest
 		assertThat(expected, is(actual));
 	}
 
-
 	@Test
 	public void testApply_simple_transient() throws NoSuchFieldException,
 			SecurityException
@@ -171,6 +169,5 @@ public class DefaultInclusionStrategyTest
 		boolean actual = false;
 		assertThat(expected, is(actual));
 	}
-	
-	
+
 }

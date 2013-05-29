@@ -39,8 +39,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	private static final int DEFAULT_INDEX_CACHE_SIZE = 100;
 
 	/** Maps a SnmpLookupField to a VariableBinding */
-	private static final Function<SnmpLookupField, VariableBinding> LOOKUP_FIELD_TO_VARBIND = new Function<SnmpLookupField, VariableBinding>()
-	{
+	private static final Function<SnmpLookupField, VariableBinding> LOOKUP_FIELD_TO_VARBIND = new Function<SnmpLookupField, VariableBinding>() {
 		public VariableBinding apply(final SnmpLookupField arg)
 		{
 			return createVarBind(arg);
@@ -111,8 +110,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	{
 		return CacheBuilder.newBuilder() //
 				.maximumSize(indexCacheSize = maximumSize) //
-				.build(new CacheLoader<OID, Integer>()
-				{
+				.build(new CacheLoader<OID, Integer>() {
 					@Override
 					public Integer load(final OID key)
 					{

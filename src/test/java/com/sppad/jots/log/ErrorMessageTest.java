@@ -9,7 +9,7 @@ public class ErrorMessageTest
 	public void testEnumerationMembers()
 	{
 		// Should not get any exceptions
-		for(ErrorMessage em : ErrorMessage.values())
+		for (ErrorMessage em : ErrorMessage.values())
 			em.getFmt();
 	}
 

@@ -24,7 +24,8 @@ public class SnmpDescription
 			description.append(comment.falseSynopsis());
 
 			descriptionString = description.toString();
-		} else
+		}
+		else
 		{
 			descriptionString = "No interface documentation";
 		}
@@ -61,7 +62,8 @@ public class SnmpDescription
 			description.append(comment.maxValue());
 
 			descriptionString = description.toString();
-		} else
+		}
+		else
 		{
 			descriptionString = "No interface documentation";
 		}

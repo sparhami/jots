@@ -1,4 +1,4 @@
-package com.sppad.jots.construction.nodes;	
+package com.sppad.jots.construction.nodes;
 
 import java.lang.reflect.Field;
 
@@ -32,7 +32,8 @@ public class TableNode extends InnerNode
 			{
 				break;
 			}
-		} while ((parent = parent.parent) != null);
+		}
+		while ((parent = parent.parent) != null);
 
 		return parent;
 	}
@@ -41,8 +42,9 @@ public class TableNode extends InnerNode
 	{
 		return (TableEntryNode) snmpNodes.iterator().next();
 	}
-	
-	public String getEnding() {
+
+	public String getEnding()
+	{
 		return "Table";
 	}
 }
