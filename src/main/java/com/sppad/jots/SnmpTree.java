@@ -4,10 +4,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.SortedSet;
 
 import javax.annotation.Nullable;
@@ -20,6 +18,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Sets;
 import com.sppad.jots.exceptions.SnmpNotWritableException;
 import com.sppad.jots.exceptions.SnmpOidNotFoundException;
 import com.sppad.jots.lookup.LookupEntry;
@@ -70,20 +69,15 @@ public class SnmpTree implements Iterable<VariableBinding>
 	public SnmpTree(final int[] prefix,
 			final SortedSet<SnmpLookupField> snmpFields)
 	{
-		this(prefix, snmpFields.toArray(new SnmpLookupField[snmpFields.size()]));
+		this(prefix, snmpFields, DEFAULT_INDEX_CACHE_SIZE);
 	}
 
-	SnmpTree(final int[] prefix, final SnmpLookupField[] fieldArray)
-	{
-		this(prefix, fieldArray, DEFAULT_INDEX_CACHE_SIZE);
-	}
-
-	SnmpTree(final int[] prefix, final SnmpLookupField[] fieldArray,
-			final int cacheSize)
+	public SnmpTree(final int[] prefix,
+			final SortedSet<SnmpLookupField> fields, final int cacheSize)
 	{
 		this.prefix = prefix;
-		this.lastIndex = fieldArray.length - 1;
-		this.fieldArray = fieldArray;
+		this.lastIndex = fields.size() - 1;
+		this.fieldArray = fields.toArray(new SnmpLookupField[fields.size()]);
 		this.indexCacher = createCacher(cacheSize);
 	}
 
@@ -195,41 +189,15 @@ public class SnmpTree implements Iterable<VariableBinding>
 	{
 		checkNotNull(other);
 
-		final List<SnmpLookupField> fields = new ArrayList<SnmpLookupField>(
-				this.lastIndex);
+		final SortedSet<SnmpLookupField> mergedFields = Sets.newTreeSet();
 
-		int thisIndex = 0; // index in this
-		int otherIndex = 0; // index in other
+		mergedFields.addAll(Arrays.asList(fieldArray));
+		mergedFields.addAll(Arrays.asList(other.fieldArray));
 
-		while (thisIndex <= this.lastIndex && otherIndex <= other.lastIndex)
-		{
-			final SnmpLookupField thisField = this.fieldArray[thisIndex];
-			final SnmpLookupField otherField = other.fieldArray[otherIndex];
+		final int[] mergedPrefix = SnmpUtils.commonPrefix(prefix, other.prefix);
+		final int cacherSize = Math.max(indexCacheSize, other.indexCacheSize);
 
-			// Ties go to the field from other
-			int cmp = otherField.getOid().compareTo(thisField.getOid());
-			fields.add(cmp <= 0 ? otherField : thisField);
-
-			if (cmp <= 0)
-				otherIndex++;
-
-			if (cmp >= 0)
-				thisIndex++;
-		}
-
-		// copy any left over fields (should all be greater now)
-		for (int i = otherIndex; i <= other.lastIndex; i++)
-			fields.add(other.fieldArray[i]);
-		for (int i = thisIndex; i <= this.lastIndex; i++)
-			fields.add(this.fieldArray[i]);
-
-		final int[] prefix = SnmpUtils.commonPrefix(this.prefix, other.prefix);
-		final SnmpLookupField[] fieldArray = fields
-				.toArray(new SnmpLookupField[fields.size()]);
-		final int cacherSize = Math.max(this.indexCacheSize,
-				other.indexCacheSize);
-
-		return new SnmpTree(prefix, fieldArray, cacherSize);
+		return new SnmpTree(mergedPrefix, mergedFields, cacherSize);
 	}
 
 	/**
