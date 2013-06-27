@@ -111,14 +111,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 */
 	public VariableBinding get(final OID oid) throws SnmpOidNotFoundException
 	{
-		try
-		{
-			return get(getIndexCached(oid));
-		}
-		catch (IndexOutOfBoundsException e)
-		{
-			throw new SnmpOidNotFoundException(oid);
-		}
+		return _get(checkNotNull(oid));
 	}
 
 	/**
@@ -158,15 +151,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	public VariableBinding getNext(final OID oid)
 			throws SnmpOidNotFoundException
 	{
-		try
-		{
-			return get(getNextIndex(oid));
-		}
-		catch (IndexOutOfBoundsException e)
-		{
-			throw new SnmpOidNotFoundException(oid);
-		}
-
+		return _getNext(checkNotNull(oid));
 	}
 
 	/**
@@ -179,9 +164,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 */
 	public int getNextIndex(final OID oid)
 	{
-		checkNotNull(oid);
-
-		return Math.abs(getIndex(oid) + 1);
+		return _getNextIndex(checkNotNull(oid));
 	}
 
 	/**
@@ -210,7 +193,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 */
 	public SnmpTree mergeSnmpTrees(final SnmpTree other)
 	{
-		checkNotNull(other, "argument must not be null");
+		checkNotNull(other);
 
 		final List<SnmpLookupField> fields = new ArrayList<SnmpLookupField>(
 				this.lastIndex);
@@ -262,7 +245,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 	public void set(final OID oid, final String value)
 			throws SnmpNotWritableException, SnmpOidNotFoundException
 	{
-		set(oid, value, true);
+		_set(checkNotNull(oid), checkNotNull(value), true);
 	}
 
 	/**
@@ -282,21 +265,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 			final boolean checkWritable) throws SnmpNotWritableException,
 			SnmpOidNotFoundException
 	{
-		try
-		{
-			checkNotNull(oid);
-			checkNotNull(value);
-
-			final SnmpLookupField field = fieldArray[getIndexCached(oid)];
-			if (checkWritable && !field.isWritable())
-				throw new SnmpNotWritableException(oid);
-
-			field.set(value);
-		}
-		catch (IndexOutOfBoundsException e)
-		{
-			throw new SnmpOidNotFoundException(oid);
-		}
+		_set(checkNotNull(oid), checkNotNull(value), checkWritable);
 	}
 
 	/**
@@ -312,6 +281,54 @@ public class SnmpTree implements Iterable<VariableBinding>
 		checkArgument(maximumSize >= 0, "maximumSize must not be negative");
 
 		indexCacher = createCacher(maximumSize);
+	}
+
+	private VariableBinding _get(final OID oid) throws SnmpOidNotFoundException
+	{
+		try
+		{
+			return get(getIndexCached(oid));
+		}
+		catch (IndexOutOfBoundsException e)
+		{
+			throw new SnmpOidNotFoundException(oid);
+		}
+	}
+
+	private VariableBinding _getNext(final OID oid)
+			throws SnmpOidNotFoundException
+	{
+		try
+		{
+			return get(getNextIndex(oid));
+		}
+		catch (IndexOutOfBoundsException e)
+		{
+			throw new SnmpOidNotFoundException(oid);
+		}
+	}
+
+	private int _getNextIndex(final OID oid)
+	{
+		return Math.abs(getIndex(oid) + 1);
+	}
+
+	private void _set(final OID oid, final String value,
+			final boolean checkWritable) throws SnmpNotWritableException,
+			SnmpOidNotFoundException
+	{
+		try
+		{
+			final SnmpLookupField field = fieldArray[getIndexCached(oid)];
+			if (checkWritable && !field.isWritable())
+				throw new SnmpNotWritableException(oid);
+
+			field.set(value);
+		}
+		catch (IndexOutOfBoundsException e)
+		{
+			throw new SnmpOidNotFoundException(oid);
+		}
 	}
 
 	private LoadingCache<OID, Integer> createCacher(final int maximumSize)

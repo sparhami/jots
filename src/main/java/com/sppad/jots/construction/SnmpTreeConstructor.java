@@ -2,7 +2,6 @@ package com.sppad.jots.construction;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -24,15 +23,6 @@ import com.sppad.jots.lookup.SnmpLookupField;
 
 class SnmpTreeConstructor
 {
-	private static final Comparator<SnmpLookupField> COMPARE_BY_OID = new Comparator<SnmpLookupField>() {
-		@Override
-		public int compare(final SnmpLookupField arg0,
-				final SnmpLookupField arg1)
-		{
-			return arg0.getOid().compareTo(arg1.getOid());
-		}
-	};
-
 	private static final Logger logger = LoggerFactory
 			.getLogger(SnmpTreeConstructor.class);
 
@@ -69,8 +59,7 @@ class SnmpTreeConstructor
 	private final int[] prefix;
 
 	/** The SnmpLookupFields that make up the generated SnmpTree */
-	private final SortedSet<SnmpLookupField> sortedSet = new TreeSet<SnmpLookupField>(
-			COMPARE_BY_OID);
+	private final SortedSet<SnmpLookupField> sortedSet = new TreeSet<SnmpLookupField>();
 
 	private SnmpTreeConstructor(int[] prefix)
 	{
