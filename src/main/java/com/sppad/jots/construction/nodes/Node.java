@@ -1,8 +1,8 @@
 package com.sppad.jots.construction.nodes;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -36,8 +36,8 @@ public abstract class Node
 	/** The name for this node */
 	public final String name;
 
-	/** The children nodes */
-	public final Collection<Node> nodes = new LinkedList<Node>();
+	/** The child nodes */
+	public final Collection<Node> nodes = new ArrayList<Node>(0);
 
 	/** The parent of this node, usually the object containing this node. */
 	public final Node parent;

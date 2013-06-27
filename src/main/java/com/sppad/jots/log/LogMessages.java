@@ -2,9 +2,13 @@ package com.sppad.jots.log;
 
 import java.util.ResourceBundle;
 
-public enum ErrorMessage
+public enum LogMessages
 {
-	CANNOT_CREATE_SUBTREE_DUE_TO_ACCESS, COLLECTION_NO_ANNOTATION, INCLUDE_AND_IGNORE_ANNOTATIONS, TABLE_INDEX_NOT_INCLUDED, TABLE_INDEX_NOT_VALID;
+	CANNOT_CREATE_SUBTREE_DUE_TO_ACCESS, //
+	COLLECTION_NO_ANNOTATION, //
+	INCLUDE_AND_IGNORE_ANNOTATIONS, //
+	TABLE_INDEX_NOT_INCLUDED, //
+	TABLE_INDEX_NOT_VALID;
 
 	private static final String BUNDLE_NAME = "com.sppad.jots.log.messages";
 

@@ -27,6 +27,8 @@ import com.sppad.jots.util.SnmpUtils;
 
 /**
  * Contains fields in an SNMP tree, providing for getting/setting tree entries.
+ * 
+ * @see SnmpTreeBuilder
  */
 public class SnmpTree implements Iterable<VariableBinding>
 {
@@ -78,7 +80,8 @@ public class SnmpTree implements Iterable<VariableBinding>
 		this.prefix = prefix;
 		this.lastIndex = fields.size() - 1;
 		this.fieldArray = fields.toArray(new SnmpLookupField[fields.size()]);
-		this.indexCacher = createCacher(cacheSize);
+
+		setCacheSize(cacheSize);
 	}
 
 	/**
@@ -248,7 +251,16 @@ public class SnmpTree implements Iterable<VariableBinding>
 	{
 		checkArgument(maximumSize >= 0, "maximumSize must not be negative");
 
-		indexCacher = createCacher(maximumSize);
+		indexCacheSize = maximumSize;
+		indexCacher = CacheBuilder.newBuilder() //
+				.maximumSize(indexCacheSize) //
+				.build(new CacheLoader<OID, Integer>() {
+					@Override
+					public Integer load(final OID key)
+					{
+						return getIndex(key);
+					}
+				});
 	}
 
 	private VariableBinding _get(final OID oid) throws SnmpOidNotFoundException
@@ -297,19 +309,6 @@ public class SnmpTree implements Iterable<VariableBinding>
 		{
 			throw new SnmpOidNotFoundException(oid);
 		}
-	}
-
-	private LoadingCache<OID, Integer> createCacher(final int maximumSize)
-	{
-		return CacheBuilder.newBuilder() //
-				.maximumSize(indexCacheSize = maximumSize) //
-				.build(new CacheLoader<OID, Integer>() {
-					@Override
-					public Integer load(final OID key)
-					{
-						return getIndex(key);
-					}
-				});
 	}
 
 	/**

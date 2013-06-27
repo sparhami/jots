@@ -36,7 +36,7 @@ public abstract class SnmpTrapReceiver implements CommandResponder
 	public SnmpTrapReceiver(final InetSocketAddress address,
 			final Protocol proto) throws IOException
 	{
-		if (proto == Protocol.udp)
+		if (proto == Protocol.UDP)
 			this.transport = new DefaultUdpTransportMapping(new UdpAddress(
 					address.getAddress(), address.getPort()));
 		else

@@ -31,7 +31,7 @@ public class SnmpAgent implements CommandResponder
 {
 	public enum Protocol
 	{
-		tcp, udp;
+		TCP, UDP;
 	}
 
 	private static final Logger logger = LoggerFactory
@@ -59,7 +59,7 @@ public class SnmpAgent implements CommandResponder
 	{
 		this.tree = tree;
 
-		if (proto == Protocol.udp)
+		if (proto == Protocol.UDP)
 			this.transport = new DefaultUdpTransportMapping(new UdpAddress(
 					address.getAddress(), address.getPort()));
 		else
@@ -170,7 +170,7 @@ public class SnmpAgent implements CommandResponder
 		request.setProcessed(true);
 
 		final long time = System.nanoTime() - startTime;
-		logger.debug("Finished request, time: {}", time);
+		logger.debug("Finished request, time: {}ns", time);
 	}
 
 	/**

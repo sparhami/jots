@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
-import com.sppad.jots.log.ErrorMessage;
+import com.sppad.jots.log.LogMessages;
 import com.sppad.jots.util.Fields;
 
 /**
@@ -66,7 +66,7 @@ public abstract class SimpleInclusionStrategy implements Predicate<Field>
 
 		if (includeAnnotation && excludeAnnotation)
 		{
-			logger.warn(ErrorMessage.INCLUDE_AND_IGNORE_ANNOTATIONS.getFmt(),
+			logger.warn(LogMessages.INCLUDE_AND_IGNORE_ANNOTATIONS.getFmt(),
 					field.getDeclaringClass(), field.getName());
 		}
 

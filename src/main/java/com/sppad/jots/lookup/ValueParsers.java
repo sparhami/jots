@@ -113,16 +113,18 @@ class ValueParsers
 
 	private static final Map<Class<?>, Function<String, ?>> CONVERTER_LOOKUP_MAP = ImmutableMap
 			.<Class<?>, Function<String, ?>> builder()
-			.put(Boolean.TYPE, CONVERT_TO_BOOLEAN)
-			.put(Boolean.class, CONVERT_TO_BOOLEAN)
-			.put(Integer.TYPE, CONVERT_TO_INTEGER)
-			.put(Integer.class, CONVERT_TO_INTEGER)
-			.put(Long.TYPE, CONVERT_TO_LONG).put(Long.class, CONVERT_TO_LONG)
-			.put(Float.TYPE, CONVERT_TO_FLOAT)
-			.put(Float.class, CONVERT_TO_FLOAT)
-			.put(Double.TYPE, CONVERT_TO_DOUBLE)
-			.put(Double.class, CONVERT_TO_DOUBLE)
-			.put(String.class, CONVERT_TO_STRING).build();
+			.put(Boolean.TYPE, CONVERT_TO_BOOLEAN) //
+			.put(Boolean.class, CONVERT_TO_BOOLEAN) //
+			.put(Integer.TYPE, CONVERT_TO_INTEGER) //
+			.put(Integer.class, CONVERT_TO_INTEGER) //
+			.put(Long.TYPE, CONVERT_TO_LONG) //
+			.put(Long.class, CONVERT_TO_LONG) //
+			.put(Float.TYPE, CONVERT_TO_FLOAT) //
+			.put(Float.class, CONVERT_TO_FLOAT) //
+			.put(Double.TYPE, CONVERT_TO_DOUBLE) //
+			.put(Double.class, CONVERT_TO_DOUBLE) //
+			.put(String.class, CONVERT_TO_STRING) //
+			.build();
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static <T extends Enum> Function<String, T> getEnumConverter(

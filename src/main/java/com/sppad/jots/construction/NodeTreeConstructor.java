@@ -16,7 +16,7 @@ import com.sppad.jots.construction.nodes.Node;
 import com.sppad.jots.construction.nodes.RootNode;
 import com.sppad.jots.construction.nodes.TableEntryNode;
 import com.sppad.jots.construction.nodes.TableNode;
-import com.sppad.jots.log.ErrorMessage;
+import com.sppad.jots.log.LogMessages;
 import com.sppad.jots.util.Fields;
 import com.sppad.jots.util.Strings;
 
@@ -70,7 +70,7 @@ class NodeTreeConstructor
 
 		if (!include)
 		{
-			logger.warn(ErrorMessage.TABLE_INDEX_NOT_INCLUDED.getFmt(),
+			logger.warn(LogMessages.TABLE_INDEX_NOT_INCLUDED.getFmt(),
 					field.getName());
 		}
 
@@ -85,7 +85,7 @@ class NodeTreeConstructor
 
 		if (!valid)
 		{
-			logger.warn(ErrorMessage.TABLE_INDEX_NOT_VALID.getFmt(),
+			logger.warn(LogMessages.TABLE_INDEX_NOT_VALID.getFmt(),
 					field.getName());
 		}
 
@@ -98,7 +98,7 @@ class NodeTreeConstructor
 
 		if (!annotation)
 		{
-			logger.warn(ErrorMessage.COLLECTION_NO_ANNOTATION.getFmt(),
+			logger.warn(LogMessages.COLLECTION_NO_ANNOTATION.getFmt(),
 					field.getDeclaringClass(), field.getName());
 		}
 

@@ -18,7 +18,7 @@ import com.sppad.jots.construction.nodes.RootNode;
 import com.sppad.jots.construction.nodes.TableEntryNode;
 import com.sppad.jots.construction.nodes.TableNode;
 import com.sppad.jots.datastructures.primative.IntStack;
-import com.sppad.jots.log.ErrorMessage;
+import com.sppad.jots.log.LogMessages;
 import com.sppad.jots.lookup.SnmpLookupField;
 
 class SnmpTreeConstructor
@@ -114,7 +114,7 @@ class SnmpTreeConstructor
 		catch (IllegalAccessException e)
 		{
 			logger.warn(
-					ErrorMessage.CANNOT_CREATE_SUBTREE_DUE_TO_ACCESS.getFmt(),
+					LogMessages.CANNOT_CREATE_SUBTREE_DUE_TO_ACCESS.getFmt(),
 					node.field);
 		}
 	}
@@ -131,7 +131,7 @@ class SnmpTreeConstructor
 		catch (IllegalAccessException e)
 		{
 			logger.warn(
-					ErrorMessage.CANNOT_CREATE_SUBTREE_DUE_TO_ACCESS.getFmt(),
+					LogMessages.CANNOT_CREATE_SUBTREE_DUE_TO_ACCESS.getFmt(),
 					node.field);
 		}
 	}
