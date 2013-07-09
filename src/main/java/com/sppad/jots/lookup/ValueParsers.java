@@ -8,6 +8,14 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 
+/**
+ * Contains functions for converting strings into Objects of the appropriate
+ * type. All parsers throw IllegalArgumentException if the provided String to
+ * parse is not correctly formatted for the type.
+ * <p>
+ * Note: unlike {@link Boolean#valueOf(String) }, the converter for
+ * booleans/Booleans only excepts 'true' and 'false', both case insensitive.
+ */
 class ValueParsers
 {
 	@SuppressWarnings("rawtypes")

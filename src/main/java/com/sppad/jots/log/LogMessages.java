@@ -4,6 +4,8 @@ import java.util.ResourceBundle;
 
 public enum LogMessages
 {
+	AGENT_BAD_VALUE, //
+	AGENT_NOT_WRITABLE, //
 	CANNOT_CREATE_SUBTREE_DUE_TO_ACCESS, //
 	COLLECTION_NO_ANNOTATION, //
 	INCLUDE_AND_IGNORE_ANNOTATIONS, //

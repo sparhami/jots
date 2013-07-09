@@ -26,6 +26,7 @@ import com.sppad.jots.exceptions.SnmpBadValueException;
 import com.sppad.jots.exceptions.SnmpNotWritableException;
 import com.sppad.jots.exceptions.SnmpOidNotFoundException;
 import com.sppad.jots.exceptions.SnmpPduLengthException;
+import com.sppad.jots.log.LogMessages;
 
 public class SnmpAgent implements CommandResponder
 {
@@ -131,22 +132,28 @@ public class SnmpAgent implements CommandResponder
 		}
 		catch (final SnmpBadValueException e)
 		{
-			logger.info("Value {} is not valid for OID {}", e.getValue(),
-					e.getOid());
+			VariableBinding vb = request.getPDU().get(
+					response.getRequestIndex());
+			logger.info(LogMessages.AGENT_BAD_VALUE.getFmt(), vb.getVariable()
+					.toString(), vb.getOid());
+
 			response.setErrorStatus(PDU.badValue);
 			response.setErrorIndex(response.getRequestIndex());
 		}
 		catch (final SnmpNotWritableException e)
 		{
-			logger.info("Call to non writeable OID {}", e.getOid());
+			VariableBinding vb = request.getPDU().get(
+					response.getRequestIndex());
+			logger.info(LogMessages.AGENT_NOT_WRITABLE.getFmt(), vb.getOid());
+
 			response.setErrorStatus(PDU.notWritable);
 			response.setErrorIndex(response.getRequestIndex());
 		}
 		catch (final Exception e)
 		{
-			response.setErrorStatus(PDU.genErr);
-			response.setErrorIndex(response.getRequestIndex());
 			logError(request, response, e);
+
+			response.setErrorStatus(PDU.genErr);
 		}
 		finally
 		{

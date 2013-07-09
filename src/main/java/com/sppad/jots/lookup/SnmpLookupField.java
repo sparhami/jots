@@ -155,7 +155,7 @@ public class SnmpLookupField extends LookupEntry
 		}
 		catch (IllegalArgumentException e)
 		{
-			throw new SnmpBadValueException(oid, data);
+			throw new SnmpBadValueException();
 		}
 		catch (SecurityException | IllegalAccessException
 				| InvocationTargetException e)

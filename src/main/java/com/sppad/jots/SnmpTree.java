@@ -19,6 +19,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
+import com.sppad.jots.construction.SnmpTreeBuilder;
 import com.sppad.jots.exceptions.SnmpNotWritableException;
 import com.sppad.jots.exceptions.SnmpOidNotFoundException;
 import com.sppad.jots.lookup.LookupEntry;
@@ -271,7 +272,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 		}
 		catch (IndexOutOfBoundsException e)
 		{
-			throw new SnmpOidNotFoundException(oid);
+			throw new SnmpOidNotFoundException();
 		}
 	}
 
@@ -284,7 +285,7 @@ public class SnmpTree implements Iterable<VariableBinding>
 		}
 		catch (IndexOutOfBoundsException e)
 		{
-			throw new SnmpOidNotFoundException(oid);
+			throw new SnmpOidNotFoundException();
 		}
 	}
 
@@ -301,13 +302,13 @@ public class SnmpTree implements Iterable<VariableBinding>
 		{
 			final SnmpLookupField field = fieldArray[getIndexCached(oid)];
 			if (checkWritable && !field.isWritable())
-				throw new SnmpNotWritableException(oid);
+				throw new SnmpNotWritableException();
 
 			field.set(value);
 		}
 		catch (IndexOutOfBoundsException e)
 		{
-			throw new SnmpOidNotFoundException(oid);
+			throw new SnmpOidNotFoundException();
 		}
 	}
 
