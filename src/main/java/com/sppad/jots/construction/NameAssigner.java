@@ -50,15 +50,6 @@ class NameAssigner
 			visitEnterNode(node);
 		}
 
-		private void visitEnterNode(final Node node)
-		{
-			final String name = nameStack.peek()
-					+ Strings.firstCharToUppercase(node.name);
-
-			node.setProperty("NAME", name + node.getEnding());
-			nameStack.push(name);
-		}
-
 		@Override
 		public void visitExit(final EntryNode node)
 		{
@@ -87,6 +78,15 @@ class NameAssigner
 		public void visitExit(final TableNode node)
 		{
 			visitExitNode();
+		}
+
+		private void visitEnterNode(final Node node)
+		{
+			final String name = nameStack.peek()
+					+ Strings.firstCharToUppercase(node.name);
+
+			node.setProperty("NAME", name + node.getEnding());
+			nameStack.push(name);
 		}
 
 		private void visitExitNode()

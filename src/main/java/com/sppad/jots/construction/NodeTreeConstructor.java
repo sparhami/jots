@@ -25,26 +25,6 @@ class NodeTreeConstructor
 	private static final Logger logger = LoggerFactory
 			.getLogger(NodeTreeConstructor.class);
 
-	static RootNode createTree(final Class<?> cls,
-			final Predicate<Field> inclusionStrategy)
-	{
-		return createTree(cls, inclusionStrategy, "mib");
-	}
-
-	static RootNode createTree(final Class<?> cls,
-			final Predicate<Field> inclusionStrategy, final String name)
-	{
-		final String rootName = Strings.firstCharToLowercase(name);
-
-		final RootNode root = new RootNode(cls, rootName);
-		final NodeTreeConstructor constructor = new NodeTreeConstructor(
-				inclusionStrategy);
-
-		constructor.addChildren(root);
-
-		return root;
-	}
-
 	private static Field getIndexField(final Collection<Field> fields,
 			final Predicate<Field> inclusionStrategy)
 	{
@@ -123,6 +103,26 @@ class NodeTreeConstructor
 		}
 
 		return annotation;
+	}
+
+	static RootNode createTree(final Class<?> cls,
+			final Predicate<Field> inclusionStrategy)
+	{
+		return createTree(cls, inclusionStrategy, "mib");
+	}
+
+	static RootNode createTree(final Class<?> cls,
+			final Predicate<Field> inclusionStrategy, final String name)
+	{
+		final String rootName = Strings.firstCharToLowercase(name);
+
+		final RootNode root = new RootNode(cls, rootName);
+		final NodeTreeConstructor constructor = new NodeTreeConstructor(
+				inclusionStrategy);
+
+		constructor.addChildren(root);
+
+		return root;
 	}
 
 	private final Predicate<Field> inclusionStrategy;

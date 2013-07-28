@@ -63,13 +63,6 @@ public class SnmpLookupFieldTest
 		public int number;
 	}
 
-	private SnmpLookupField createField(Object obj, String name)
-			throws NoSuchFieldException, SecurityException
-	{
-		final Field field = obj.getClass().getDeclaredField(name);
-		return SnmpLookupField.create(null, field, obj);
-	}
-
 	@Test
 	public void testGet_enum() throws SecurityException, NoSuchFieldException,
 			NoSuchMethodException
@@ -146,5 +139,12 @@ public class SnmpLookupFieldTest
 		final String expected = "1";
 
 		assertThat(actual, is(expected));
+	}
+
+	private SnmpLookupField createField(Object obj, String name)
+			throws NoSuchFieldException, SecurityException
+	{
+		final Field field = obj.getClass().getDeclaredField(name);
+		return SnmpLookupField.create(null, field, obj);
 	}
 }

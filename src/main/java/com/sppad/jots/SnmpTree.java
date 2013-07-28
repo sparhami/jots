@@ -12,10 +12,7 @@ import java.util.SortedSet;
 
 import javax.annotation.Nullable;
 
-import org.snmp4j.smi.Integer32;
 import org.snmp4j.smi.OID;
-import org.snmp4j.smi.OctetString;
-import org.snmp4j.smi.Variable;
 import org.snmp4j.smi.VariableBinding;
 
 import com.google.common.base.Function;
@@ -23,10 +20,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.FluentIterable;
-import com.sppad.jots.exceptions.SnmpNoMoreEntriesException;
 import com.sppad.jots.exceptions.SnmpNotWritableException;
 import com.sppad.jots.exceptions.SnmpOidNotFoundException;
-import com.sppad.jots.exceptions.SnmpPastEndOfTreeException;
+import com.sppad.jots.lookup.LookupEntry;
 import com.sppad.jots.lookup.SnmpLookupField;
 import com.sppad.jots.util.SnmpUtils;
 
@@ -40,27 +36,12 @@ public class SnmpTree implements Iterable<VariableBinding>
 
 	/** Maps a SnmpLookupField to a VariableBinding */
 	private static final Function<SnmpLookupField, VariableBinding> LOOKUP_FIELD_TO_VARBIND = new Function<SnmpLookupField, VariableBinding>() {
+		@Override
 		public VariableBinding apply(final SnmpLookupField arg)
 		{
-			return createVarBind(arg);
+			return arg.toVarBind();
 		}
 	};
-
-	/** Creates a VariableBinding object for returning OID, value pairs */
-	private static VariableBinding createVarBind(final SnmpLookupField field)
-	{
-		final Variable variable;
-		final Object object = field.getValue();
-
-		if (object instanceof Integer)
-			variable = new Integer32((Integer) object);
-		else if (object instanceof Enum)
-			variable = new OctetString(((Enum<?>) object).name());
-		else
-			variable = new OctetString(object == null ? "" : object.toString());
-
-		return new VariableBinding(field.getOid(), variable);
-	}
 
 	/** A sorted array that stores all the items in the tree */
 	final SnmpLookupField[] fieldArray;
@@ -80,6 +61,18 @@ public class SnmpTree implements Iterable<VariableBinding>
 	/** The prefix used to create the OIDs in the tree */
 	final int[] prefix;
 
+	/**
+	 * @param prefix
+	 *            An int array that all OIDs in the tree have in common
+	 * @param snmpFields
+	 *            A sorted set of SnmpLookupFields that make up the tree
+	 */
+	public SnmpTree(final int[] prefix,
+			final SortedSet<SnmpLookupField> snmpFields)
+	{
+		this(prefix, snmpFields.toArray(new SnmpLookupField[snmpFields.size()]));
+	}
+
 	SnmpTree(final int[] prefix, final SnmpLookupField[] fieldArray)
 	{
 		this(prefix, fieldArray, DEFAULT_INDEX_CACHE_SIZE);
@@ -95,44 +88,15 @@ public class SnmpTree implements Iterable<VariableBinding>
 	}
 
 	/**
-	 * @param prefix
-	 *            An int array that all OIDs in the tree have in common
-	 * @param snmpFields
-	 *            A sorted set of SnmpLookupFields that make up the tree
-	 */
-	public SnmpTree(final int[] prefix,
-			final SortedSet<SnmpLookupField> snmpFields)
-	{
-		this(prefix, snmpFields.toArray(new SnmpLookupField[snmpFields.size()]));
-	}
-
-	private LoadingCache<OID, Integer> createCacher(final int maximumSize)
-	{
-		return CacheBuilder.newBuilder() //
-				.maximumSize(indexCacheSize = maximumSize) //
-				.build(new CacheLoader<OID, Integer>() {
-					@Override
-					public Integer load(final OID key)
-					{
-						return getIndex(key);
-					}
-				});
-	}
-
-	/**
 	 * 
 	 * @param index
 	 *            The index in the tree to get the VariableBinding for
 	 * @return A VariableBinding containing the OID and current value for the
 	 *         given index
-	 * @throws SnmpOidNotFoundException
-	 * @throws SnmpNoMoreEntriesException
-	 * @throws SnmpException
 	 */
 	public VariableBinding get(final int index)
-			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
-		return createVarBind(getFieldWithBoundsChecking(index));
+		return fieldArray[index].toVarBind();
 	}
 
 	/**
@@ -143,13 +107,18 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 *            The OID to get the value for
 	 * @return A VariableBinding containing the requested OID and the associated
 	 *         value
-	 * @throws SnmpNoMoreEntriesException
 	 * @throws SnmpOidNotFoundException
 	 */
-	public VariableBinding get(final OID oid)
-			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
+	public VariableBinding get(final OID oid) throws SnmpOidNotFoundException
 	{
-		return get(getIndexCached(oid));
+		try
+		{
+			return get(getIndexCached(oid));
+		}
+		catch (IndexOutOfBoundsException e)
+		{
+			throw new SnmpOidNotFoundException(oid);
+		}
 	}
 
 	/**
@@ -161,68 +130,11 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 *            The annotation class to get.
 	 * 
 	 * @return The annotation if it exists, null otherwise.
-	 * @throws SnmpOidNotFoundException
-	 * @throws SnmpNoMoreEntriesException
 	 */
 	public Annotation getAnnotation(final int index,
 			@Nullable final Class<? extends Annotation> annotationClass)
-			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
 	{
-		return getFieldWithBoundsChecking(index).getAnnotation(annotationClass);
-	}
-
-	private SnmpLookupField getFieldWithBoundsChecking(final int index)
-			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException
-	{
-		if (index < 0)
-			throw new SnmpOidNotFoundException();
-		if (index > lastIndex)
-			throw new SnmpNoMoreEntriesException();
-
-		return fieldArray[index];
-	}
-
-	/**
-	 * Performs a binary search to get the OID index, if it exists. Code from
-	 * {@link Arrays#binarySearch(Object[], Object, java.util.Comparator)}.
-	 * Don't want to create a SnmpLookupField to perform a binary search, so
-	 * duplicating the code here.
-	 * 
-	 * @param oid
-	 *            The OID to lookup
-	 * @return The index of the OID in the fieldArray if it exists, or -(index
-	 *         of next OID) if it doesn't
-	 */
-	private int getIndex(final OID oid)
-	{
-		int low = 0;
-		int high = fieldArray.length - 1;
-
-		while (low <= high)
-		{
-			final int mid = (low + high) >>> 1;
-
-			int compare = fieldArray[mid].getOid().compareTo(oid);
-			if (compare < 0)
-				low = mid + 1;
-			else if (compare > 0)
-				high = mid - 1;
-			else
-				return mid; // key found
-		}
-		return -(low + 1); // key not found.
-	}
-
-	/**
-	 * A wrapper around the index cacher.
-	 * 
-	 * @param oid
-	 *            The OID to lookup
-	 * @return The index, as returned by {@link #getIndex}
-	 */
-	private int getIndexCached(final OID oid)
-	{
-		return indexCacher.getUnchecked(oid);
+		return fieldArray[index].getAnnotation(annotationClass);
 	}
 
 	/**
@@ -241,15 +153,20 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 *            A reference OID
 	 * @return A VariableBinding containing the current value of the OID
 	 *         following <i>oid</i>
-	 * @throws SnmpPastEndOfTreeException
 	 * @throws SnmpOidNotFoundException
-	 * @throws SnmpNoMoreEntriesException
 	 */
 	public VariableBinding getNext(final OID oid)
-			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException,
-			SnmpPastEndOfTreeException
+			throws SnmpOidNotFoundException
 	{
-		return get(getNextIndex(oid));
+		try
+		{
+			return get(getNextIndex(oid));
+		}
+		catch (IndexOutOfBoundsException e)
+		{
+			throw new SnmpOidNotFoundException(oid);
+		}
+
 	}
 
 	/**
@@ -259,17 +176,12 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * @param oid
 	 *            A reference OID
 	 * @return The index for the next OID.
-	 * @throws SnmpPastEndOfTreeException
 	 */
-	public int getNextIndex(final OID oid) throws SnmpPastEndOfTreeException
+	public int getNextIndex(final OID oid)
 	{
 		checkNotNull(oid);
 
-		final int index = Math.abs(getIndex(oid) + 1);
-		if (index > lastIndex)
-			throw new SnmpPastEndOfTreeException();
-
-		return index;
+		return Math.abs(getIndex(oid) + 1);
 	}
 
 	/**
@@ -345,12 +257,10 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * @param value
 	 *            The value to set
 	 * @throws SnmpOidNotFoundException
-	 * @throws SnmpNoMoreEntriesException
 	 * @throws SnmpNotWritableException
 	 */
 	public void set(final OID oid, final String value)
-			throws SnmpNotWritableException, SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
+			throws SnmpNotWritableException, SnmpOidNotFoundException
 	{
 		set(oid, value, true);
 	}
@@ -365,22 +275,28 @@ public class SnmpTree implements Iterable<VariableBinding>
 	 * @param checkWritable
 	 *            Whether or not to check of the field is writable or force
 	 *            setting the value
+	 * @throws SnmpNotWritableException
 	 * @throws SnmpOidNotFoundException
-	 * @throws SnmpNoMoreEntriesException
-	 * @throws SnmpException
 	 */
 	public void set(final OID oid, final String value,
 			final boolean checkWritable) throws SnmpNotWritableException,
-			SnmpNoMoreEntriesException, SnmpOidNotFoundException
+			SnmpOidNotFoundException
 	{
-		checkNotNull(oid);
-		checkNotNull(value);
+		try
+		{
+			checkNotNull(oid);
+			checkNotNull(value);
 
-		final SnmpLookupField field = getFieldWithBoundsChecking(getIndexCached(oid));
-		if (checkWritable && !field.isWritable())
-			throw new SnmpNotWritableException();
+			final SnmpLookupField field = fieldArray[getIndexCached(oid)];
+			if (checkWritable && !field.isWritable())
+				throw new SnmpNotWritableException(oid);
 
-		field.set(value);
+			field.set(value);
+		}
+		catch (IndexOutOfBoundsException e)
+		{
+			throw new SnmpOidNotFoundException(oid);
+		}
 	}
 
 	/**
@@ -396,5 +312,43 @@ public class SnmpTree implements Iterable<VariableBinding>
 		checkArgument(maximumSize >= 0, "maximumSize must not be negative");
 
 		indexCacher = createCacher(maximumSize);
+	}
+
+	private LoadingCache<OID, Integer> createCacher(final int maximumSize)
+	{
+		return CacheBuilder.newBuilder() //
+				.maximumSize(indexCacheSize = maximumSize) //
+				.build(new CacheLoader<OID, Integer>() {
+					@Override
+					public Integer load(final OID key)
+					{
+						return getIndex(key);
+					}
+				});
+	}
+
+	/**
+	 * Performs a binary search to get the OID index.
+	 * 
+	 * @param oid
+	 *            The OID to lookup
+	 * @return The index of the OID in the fieldArray if it exists, or -(index
+	 *         of next OID) if it doesn't
+	 */
+	private int getIndex(final OID oid)
+	{
+		return Arrays.binarySearch(fieldArray, new LookupEntry(oid));
+	}
+
+	/**
+	 * A wrapper around the index cacher.
+	 * 
+	 * @param oid
+	 *            The OID to lookup
+	 * @return The index, as returned by {@link #getIndex}
+	 */
+	private int getIndexCached(final OID oid)
+	{
+		return indexCacher.getUnchecked(oid);
 	}
 }

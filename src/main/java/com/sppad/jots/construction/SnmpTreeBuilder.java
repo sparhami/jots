@@ -83,21 +83,6 @@ public class SnmpTreeBuilder
 		MibGenerator.generateMib(obj, this, mibName, rootName, parentName, os);
 	}
 
-	Predicate<Field> getInclusionStrategy()
-	{
-		return firstNonNull(inclusionStrategy, new DefaultInclusionStrategy());
-	}
-
-	int[] getPrefix()
-	{
-		return firstNonNull(prefix, NO_PREFIX);
-	}
-
-	SetStrategy getSetStrategy()
-	{
-		return firstNonNull(setStrategy, SetStrategy.SETTERS_OR_ANNOTATED);
-	}
-
 	/**
 	 * Determines what fields should be included in the generated SnmpTree.
 	 * Defaults to {@link SimpleInclusionStrategy}.
@@ -140,5 +125,20 @@ public class SnmpTreeBuilder
 		this.setStrategy = checkNotNull(setStrategy);
 
 		return this;
+	}
+
+	Predicate<Field> getInclusionStrategy()
+	{
+		return firstNonNull(inclusionStrategy, new DefaultInclusionStrategy());
+	}
+
+	int[] getPrefix()
+	{
+		return firstNonNull(prefix, NO_PREFIX);
+	}
+
+	SetStrategy getSetStrategy()
+	{
+		return firstNonNull(setStrategy, SetStrategy.SETTERS_OR_ANNOTATED);
 	}
 }

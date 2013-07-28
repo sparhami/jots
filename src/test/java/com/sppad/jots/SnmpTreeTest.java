@@ -14,10 +14,8 @@ import org.snmp4j.smi.OID;
 
 import com.sppad.jots.annotations.SnmpNotSettable;
 import com.sppad.jots.exceptions.SnmpBadValueException;
-import com.sppad.jots.exceptions.SnmpNoMoreEntriesException;
 import com.sppad.jots.exceptions.SnmpNotWritableException;
 import com.sppad.jots.exceptions.SnmpOidNotFoundException;
-import com.sppad.jots.exceptions.SnmpPastEndOfTreeException;
 import com.sppad.jots.lookup.SnmpLookupField;
 
 public class SnmpTreeTest
@@ -52,6 +50,7 @@ public class SnmpTreeTest
 	}
 
 	private static final Comparator<SnmpLookupField> COMPARE_BY_OID = new Comparator<SnmpLookupField>() {
+		@Override
 		public int compare(SnmpLookupField arg0, SnmpLookupField arg1)
 		{
 			return arg0.getOid().compareTo(arg1.getOid());
@@ -87,8 +86,7 @@ public class SnmpTreeTest
 	}
 
 	@Test
-	public void testAddObject() throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
+	public void testAddObject() throws SnmpOidNotFoundException
 	{
 		final String boolVal = tree.get(new OID(".1.1")).getVariable()
 				.toString();
@@ -96,39 +94,34 @@ public class SnmpTreeTest
 	}
 
 	@Test(expected = SnmpOidNotFoundException.class)
-	public void testGet_noSuchOID() throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
+	public void testGet_noSuchOID() throws SnmpOidNotFoundException
 	{
 		tree.get(new OID(".2.1")).getOid().toString();
 	}
 
 	@Test
-	public void testGetNext() throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException, SnmpPastEndOfTreeException
+	public void testGetNext() throws SnmpOidNotFoundException
 	{
 		final String oid = tree.getNext(new OID(".1.1")).getOid().toString();
 		assertThat(oid, is("1.2"));
 	}
 
 	@Test
-	public void testGetNextIndex() throws SecurityException,
-			SnmpPastEndOfTreeException
+	public void testGetNextIndex() throws SecurityException
 	{
 		final int index = tree.getNextIndex(new OID(".1.1"));
 		assertThat(index, is(1));
 	}
 
 	@Test
-	public void testGetNextIndexRoot() throws SecurityException,
-			SnmpPastEndOfTreeException
+	public void testGetNextIndexRoot() throws SecurityException
 	{
 		final int index = tree.getNextIndex(new OID(".1"));
 		assertThat(index, is(0));
 	}
 
 	@Test
-	public void testGetNextRoot() throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException, SnmpPastEndOfTreeException
+	public void testGetNextRoot() throws SnmpOidNotFoundException
 	{
 		final String oid = tree.getNext(new OID(".1")).getOid().toString();
 		assertThat(oid, is("1.1"));
@@ -136,16 +129,14 @@ public class SnmpTreeTest
 
 	@Test(expected = SnmpBadValueException.class)
 	public void testSetBoolean_primative_wrongType() throws SecurityException,
-			SnmpNotWritableException, SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
+			SnmpNotWritableException, SnmpOidNotFoundException
 	{
 		tree.set(new OID(".1.1"), "123asfa");
 	}
 
 	@Test
 	public void testSetFalse_object() throws SecurityException,
-			SnmpNoMoreEntriesException, SnmpOidNotFoundException,
-			SnmpNotWritableException
+			SnmpOidNotFoundException, SnmpNotWritableException
 	{
 		tree.set(new OID(".1.2"), "false");
 		final String boolVal = tree.get(new OID(".1.2")).getVariable()
@@ -155,8 +146,7 @@ public class SnmpTreeTest
 
 	@Test
 	public void testSetFalse_primative() throws SecurityException,
-			SnmpNoMoreEntriesException, SnmpOidNotFoundException,
-			SnmpNotWritableException
+			SnmpOidNotFoundException, SnmpNotWritableException
 
 	{
 		tree.set(new OID(".1.1"), "false");
@@ -167,8 +157,7 @@ public class SnmpTreeTest
 
 	@Test
 	public void testSetInt_primative() throws SecurityException,
-			SnmpNoMoreEntriesException, SnmpOidNotFoundException,
-			SnmpNotWritableException
+			SnmpOidNotFoundException, SnmpNotWritableException
 	{
 		tree.set(new OID(".1.3"), "123");
 		final String intVal = tree.get(new OID(".1.3")).getVariable()
@@ -178,8 +167,7 @@ public class SnmpTreeTest
 
 	@Test
 	public void testSetTrue_object() throws SecurityException,
-			SnmpNoMoreEntriesException, SnmpOidNotFoundException,
-			SnmpNotWritableException
+			SnmpOidNotFoundException, SnmpNotWritableException
 	{
 		tree.set(new OID(".1.2"), "true");
 		String boolVal = tree.get(new OID(".1.2")).getVariable().toString();
@@ -188,8 +176,7 @@ public class SnmpTreeTest
 
 	@Test
 	public void testSetTrue_primative() throws SecurityException,
-			SnmpNotWritableException, SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
+			SnmpNotWritableException, SnmpOidNotFoundException
 	{
 		tree.set(new OID(".1.1"), "true");
 		final String boolVal = tree.get(new OID(".1.1")).getVariable()
@@ -199,8 +186,7 @@ public class SnmpTreeTest
 
 	@Test(expected = SnmpNotWritableException.class)
 	public void testSnmpNotSettable() throws SecurityException,
-			SnmpNotWritableException, SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
+			SnmpNotWritableException, SnmpOidNotFoundException
 	{
 		tree.set(new OID(".1.4"), "hello world");
 	}
@@ -208,7 +194,7 @@ public class SnmpTreeTest
 	@Test
 	public void testSnmpTreeMerge() throws SecurityException,
 			NoSuchFieldException, NoSuchMethodException,
-			SnmpNoMoreEntriesException, SnmpOidNotFoundException
+			SnmpOidNotFoundException
 	{
 
 		final int[] prefix = new int[] {};

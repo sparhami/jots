@@ -128,22 +128,6 @@ public class IntStack
 	}
 
 	/**
-	 * Increases the size of the backing array for the stack by the specified
-	 * amount.
-	 * 
-	 * @param newSize
-	 *            The new size for the backing array, should be larger than the
-	 *            current size.
-	 */
-	private void increaseSize(final int newSize)
-	{
-		final int[] newBackingArray = new int[newSize];
-		System.arraycopy(backingArray, 0, newBackingArray, 0,
-				backingArray.length);
-		backingArray = newBackingArray;
-	}
-
-	/**
 	 * @return The top of the stack.
 	 */
 	public int peek()
@@ -199,5 +183,21 @@ public class IntStack
 	public int[] toArray()
 	{
 		return Arrays.copyOf(backingArray, topIndex + 1);
+	}
+
+	/**
+	 * Increases the size of the backing array for the stack by the specified
+	 * amount.
+	 * 
+	 * @param newSize
+	 *            The new size for the backing array, should be larger than the
+	 *            current size.
+	 */
+	private void increaseSize(final int newSize)
+	{
+		final int[] newBackingArray = new int[newSize];
+		System.arraycopy(backingArray, 0, newBackingArray, 0,
+				backingArray.length);
+		backingArray = newBackingArray;
 	}
 }

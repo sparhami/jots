@@ -12,14 +12,15 @@ public class TableNode extends InnerNode
 				.getName(), field);
 	}
 
-	void accept(final INodeVisitor visitor)
+	@Override
+	public String getEnding()
 	{
-		visitor.visitEnter(this);
+		return "Table";
+	}
 
-		for (final Node child : snmpNodes)
-			child.accept(visitor);
-
-		visitor.visitExit(this);
+	public TableEntryNode getEntry()
+	{
+		return (TableEntryNode) snmpNodes.iterator().next();
 	}
 
 	@Override
@@ -38,13 +39,14 @@ public class TableNode extends InnerNode
 		return parent;
 	}
 
-	public TableEntryNode getEntry()
+	@Override
+	void accept(final INodeVisitor visitor)
 	{
-		return (TableEntryNode) snmpNodes.iterator().next();
-	}
+		visitor.visitEnter(this);
 
-	public String getEnding()
-	{
-		return "Table";
+		for (final Node child : snmpNodes)
+			child.accept(visitor);
+
+		visitor.visitExit(this);
 	}
 }

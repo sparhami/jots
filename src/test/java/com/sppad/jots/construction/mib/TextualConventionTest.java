@@ -5,11 +5,13 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.google.common.base.Joiner;
+
 public class TextualConventionTest
 {
 	private static enum TestEnum
 	{
-		ONE, TWO, THREE
+		ONE, THREE, TWO
 	}
 
 	@Test
@@ -18,10 +20,10 @@ public class TextualConventionTest
 		String actual = TextualConvention
 				.createTextualConvention(TestEnum.class);
 
-		String expected = "TestEnum ::= TEXTUAL-CONVENTION\n"
-				+ "\tSYNTAX      OCTET STRING { \"ONE\", \"TWO\", \"THREE\" }\n\n";
+		String expected = "TestEnum ::= TEXTUAL-CONVENTION\n\tSYNTAX      OCTET STRING { \"";
+		expected += Joiner.on("\", \"").join(TestEnum.values());
+		expected += "\" }\n\n";
 
 		assertThat(actual, is(expected));
 	}
-
 }

@@ -57,6 +57,7 @@ public class FieldsTest
 	}
 
 	public static Function<Field, String> getFieldName = new Function<Field, String>() {
+		@Override
 		public String apply(Field field)
 		{
 			return field.getName();

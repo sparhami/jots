@@ -3,6 +3,7 @@ package com.sppad.jots.construction.mib;
 import java.io.PrintStream;
 import java.util.Set;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 import com.sppad.jots.construction.nodes.EntryNode;
 import com.sppad.jots.construction.nodes.INodeVisitor;
@@ -15,9 +16,9 @@ public class TextualConvention
 {
 	private static class TextualConventionVisitor implements INodeVisitor
 	{
-		private final Set<Class<?>> visitedEnums = Sets.newHashSet();
-
 		private final PrintStream ps;
+
+		private final Set<Class<?>> visitedEnums = Sets.newHashSet();
 
 		TextualConventionVisitor(PrintStream ps)
 		{
@@ -110,13 +111,11 @@ public class TextualConvention
 		final StringBuilder builder = new StringBuilder();
 
 		builder.append(cls.getSimpleName() + " ::= TEXTUAL-CONVENTION\n");
-		builder.append("\tSYNTAX      OCTET STRING {");
+		builder.append("\tSYNTAX      OCTET STRING { \"");
 
-		for (final Enum<?> enumElement : cls.getEnumConstants())
-			builder.append(" \"" + enumElement.name() + "\",");
+		Joiner.on("\", \"").appendTo(builder, cls.getEnumConstants());
 
-		builder.deleteCharAt(builder.lastIndexOf(","));
-		builder.append(" }\n\n");
+		builder.append("\" }\n\n");
 
 		return builder.toString();
 	}

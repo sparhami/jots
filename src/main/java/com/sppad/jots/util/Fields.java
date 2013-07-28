@@ -18,7 +18,8 @@ public class Fields
 					Float.class, Double.class, Character.class, String.class)
 			.build();
 
-	private static final Predicate<Field> removeSynthetic = new Predicate<Field>() {
+	private static final Predicate<Field> REMOVE_SYNTHETIC = new Predicate<Field>() {
+		@Override
 		public boolean apply(final Field field)
 		{
 			return !field.isSynthetic();
@@ -41,7 +42,7 @@ public class Fields
 		for (Class<?> c = cls; c != Object.class; c = c.getSuperclass())
 			fields.addAll(0, Arrays.asList(c.getDeclaredFields()));
 
-		return Collections2.filter(fields, removeSynthetic);
+		return Collections2.filter(fields, REMOVE_SYNTHETIC);
 	}
 
 	/**

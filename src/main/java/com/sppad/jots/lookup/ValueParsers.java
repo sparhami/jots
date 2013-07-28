@@ -7,7 +7,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
-import com.sppad.jots.exceptions.SnmpBadValueException;
 
 class ValueParsers
 {
@@ -25,16 +24,7 @@ class ValueParsers
 						@Override
 						public Enum apply(final String input)
 						{
-							try
-							{
-								return Enum.valueOf(key, input);
-							}
-							catch (IllegalArgumentException e)
-							{
-								throw new SnmpBadValueException(String.format(
-										"Value %s is not valid for this field",
-										input));
-							}
+							return Enum.valueOf(key, input);
 						}
 					};
 				}
@@ -49,7 +39,7 @@ class ValueParsers
 			else if ("false".equalsIgnoreCase(input))
 				return Boolean.FALSE;
 			else
-				throw new SnmpBadValueException(input);
+				throw new IllegalArgumentException();
 		}
 	};
 
@@ -63,7 +53,7 @@ class ValueParsers
 			}
 			catch (NumberFormatException e)
 			{
-				throw new SnmpBadValueException(input);
+				throw new IllegalArgumentException();
 			}
 		}
 	};
@@ -78,7 +68,7 @@ class ValueParsers
 			}
 			catch (NumberFormatException e)
 			{
-				throw new SnmpBadValueException(input);
+				throw new IllegalArgumentException();
 			}
 		}
 	};
@@ -93,7 +83,7 @@ class ValueParsers
 			}
 			catch (NumberFormatException e)
 			{
-				throw new SnmpBadValueException(input);
+				throw new IllegalArgumentException();
 			}
 		}
 	};
@@ -108,7 +98,7 @@ class ValueParsers
 			}
 			catch (NumberFormatException e)
 			{
-				throw new SnmpBadValueException(input);
+				throw new IllegalArgumentException();
 			}
 		}
 	};
@@ -134,6 +124,14 @@ class ValueParsers
 			.put(Double.class, CONVERT_TO_DOUBLE)
 			.put(String.class, CONVERT_TO_STRING).build();
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static <T extends Enum> Function<String, T> getEnumConverter(
+			final Class<T> enumClass)
+	{
+		return (Function<String, T>) cacheEnumConverters
+				.getUnchecked(enumClass);
+	}
+
 	@SuppressWarnings("unchecked")
 	static Function<String, ?> get(Class<?> cls)
 	{
@@ -141,14 +139,6 @@ class ValueParsers
 			return getEnumConverter((Class<? extends Enum<?>>) cls);
 		else
 			return CONVERTER_LOOKUP_MAP.get(cls);
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static <T extends Enum> Function<String, T> getEnumConverter(
-			final Class<T> enumClass)
-	{
-		return (Function<String, T>) cacheEnumConverters
-				.getUnchecked(enumClass);
 	}
 
 	private ValueParsers()

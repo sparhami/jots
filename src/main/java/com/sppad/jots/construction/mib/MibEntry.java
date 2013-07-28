@@ -12,34 +12,15 @@ import com.sppad.jots.util.Strings;
 
 public class MibEntry
 {
-	private final Node node;
-	private final String name;
-	private final String parentName;
-
-	public MibEntry(final Node node)
+	private static void printEntryEnd(final PrintStream ps)
 	{
-		this.node = node;
-		this.name = (String) node.getProperty("NAME");
-		this.parentName = (String) node.snmpParent.getProperty("NAME");
+		ps.println("}\n");
 	}
 
-	public void write(PrintStream ps)
+	private static void printEntrySequence(final String name,
+			final String type, final PrintStream ps)
 	{
-
-		final int[] staticOid = (int[]) node.getProperty("OID");
-		final int subtree = staticOid[staticOid.length - 1];
-
-		printEntryStart(node, name, parentName, subtree,
-				new LinkedList<String>(), ps);
-
-		for (final Node child : node.snmpNodes)
-		{
-			final String childName = (String) child.getProperty("NAME");
-			printEntrySequence(childName, "", ps);
-		}
-
-		printEntryEnd(ps);
-
+		ps.println("\t" + name + "\t" + type);
 	}
 
 	private static void printEntryStart(final Node node, final String name,
@@ -75,14 +56,35 @@ public class MibEntry
 		ps.print(" }\n");
 	}
 
-	private static void printEntrySequence(final String name,
-			final String type, final PrintStream ps)
+	private final String name;
+
+	private final Node node;
+
+	private final String parentName;
+
+	public MibEntry(final Node node)
 	{
-		ps.println("\t" + name + "\t" + type);
+		this.node = node;
+		this.name = (String) node.getProperty("NAME");
+		this.parentName = (String) node.snmpParent.getProperty("NAME");
 	}
 
-	private static void printEntryEnd(final PrintStream ps)
+	public void write(PrintStream ps)
 	{
-		ps.println("}\n");
+
+		final int[] staticOid = (int[]) node.getProperty("OID");
+		final int subtree = staticOid[staticOid.length - 1];
+
+		printEntryStart(node, name, parentName, subtree,
+				new LinkedList<String>(), ps);
+
+		for (final Node child : node.snmpNodes)
+		{
+			final String childName = (String) child.getProperty("NAME");
+			printEntrySequence(childName, "", ps);
+		}
+
+		printEntryEnd(ps);
+
 	}
 }

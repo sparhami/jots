@@ -7,7 +7,6 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 import com.google.common.base.Function;
-import com.sppad.jots.exceptions.SnmpBadValueException;
 
 public class ValueParsersTest
 {
@@ -16,7 +15,7 @@ public class ValueParsersTest
 		BLUE, GREEN, RED
 	}
 
-	@Test(expected = SnmpBadValueException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void test_boolean_bad()
 	{
 		ValueParsers.get(Boolean.class).apply("1241asd");
@@ -58,7 +57,7 @@ public class ValueParsersTest
 		assertThat(actual, is(1234.0));
 	}
 
-	@Test(expected = SnmpBadValueException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void test_double_bad()
 	{
 		ValueParsers.get(Double.class).apply("asbc");
@@ -81,7 +80,7 @@ public class ValueParsersTest
 		assertThat(actual, is(Color.RED));
 	}
 
-	@Test(expected = SnmpBadValueException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void test_enum_bad()
 	{
 		ValueParsers.get(Color.class).apply("purple");
@@ -105,7 +104,7 @@ public class ValueParsersTest
 		assertThat(actual, is(1234.0F));
 	}
 
-	@Test(expected = SnmpBadValueException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void test_float_bad()
 	{
 		ValueParsers.get(Float.class).apply("asbc");
@@ -128,7 +127,7 @@ public class ValueParsersTest
 		assertThat(actual, is(1234));
 	}
 
-	@Test(expected = SnmpBadValueException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void test_integer_bad()
 	{
 		ValueParsers.get(Integer.class).apply("asbc");
@@ -151,7 +150,7 @@ public class ValueParsersTest
 		assertThat(actual, is(1234L));
 	}
 
-	@Test(expected = SnmpBadValueException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void test_long_bad()
 	{
 		ValueParsers.get(Long.class).apply("asbc");

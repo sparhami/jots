@@ -14,21 +14,7 @@ public class TableEntryNode extends InnerNode
 		super(cls, parent, parent.inTable, "", field);
 	}
 
-	void accept(final INodeVisitor visitor)
-	{
-		visitor.visitEnter(this);
-
-		for (final Node child : snmpNodes)
-			child.accept(visitor);
-
-		visitor.visitExit(this);
-	}
-
-	public void setIndexField(Field indexField)
-	{
-		this.indexField = indexField;
-	}
-
+	@Override
 	public String getEnding()
 	{
 		return "Entry";
@@ -51,5 +37,21 @@ public class TableEntryNode extends InnerNode
 		{
 			return new int[] { ordinal };
 		}
+	}
+
+	public void setIndexField(Field indexField)
+	{
+		this.indexField = indexField;
+	}
+
+	@Override
+	void accept(final INodeVisitor visitor)
+	{
+		visitor.visitEnter(this);
+
+		for (final Node child : snmpNodes)
+			child.accept(visitor);
+
+		visitor.visitExit(this);
 	}
 }

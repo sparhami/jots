@@ -9,6 +9,7 @@ public class LeafNode extends Node
 		super(field.getType(), parent, parent.inTable, field.getName(), field);
 	}
 
+	@Override
 	void accept(final INodeVisitor visitor)
 	{
 		visitor.visitEnter(this);

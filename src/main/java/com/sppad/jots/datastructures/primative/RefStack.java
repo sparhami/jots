@@ -77,15 +77,6 @@ public class RefStack<T>
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
-	private void increaseSize(int newSize)
-	{
-		final T[] newBackingArray = (T[]) new Object[newSize];
-		System.arraycopy(backingArray, 0, newBackingArray, 0,
-				backingArray.length);
-		backingArray = newBackingArray;
-	}
-
 	public T peek()
 	{
 		return backingArray[topIndex];
@@ -122,5 +113,14 @@ public class RefStack<T>
 	public T[] values()
 	{
 		return backingArray;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void increaseSize(int newSize)
+	{
+		final T[] newBackingArray = (T[]) new Object[newSize];
+		System.arraycopy(backingArray, 0, newBackingArray, 0,
+				backingArray.length);
+		backingArray = newBackingArray;
 	}
 }

@@ -23,10 +23,8 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import com.sppad.jots.SnmpTree;
 import com.sppad.jots.exceptions.SnmpBadValueException;
-import com.sppad.jots.exceptions.SnmpNoMoreEntriesException;
 import com.sppad.jots.exceptions.SnmpNotWritableException;
 import com.sppad.jots.exceptions.SnmpOidNotFoundException;
-import com.sppad.jots.exceptions.SnmpPastEndOfTreeException;
 import com.sppad.jots.exceptions.SnmpPduLengthException;
 
 public class SnmpAgent implements CommandResponder
@@ -81,156 +79,6 @@ public class SnmpAgent implements CommandResponder
 		logger.info("Stopped SNMP agent on {}", transport);
 	}
 
-	/**
-	 * Performs a bulk get, getting the requested number of entries after the
-	 * given OID.
-	 * 
-	 * @param oid
-	 *            The start OID to get entries from
-	 * @param getCount
-	 *            How many following entries to get
-	 * @param response
-	 *            The response to add to
-	 * @throws SnmpPastEndOfTreeException
-	 * @throws SnmpOidNotFoundException
-	 * @throws SnmpNoMoreEntriesException
-	 * @throws SnmpPduLengthException
-	 */
-	void doSnmpBulkGet(final OID oid, final int getCount,
-			final CustomPDU response) throws SnmpPastEndOfTreeException,
-			SnmpNoMoreEntriesException, SnmpOidNotFoundException,
-			SnmpPduLengthException
-	{
-		final int startIndex = tree.getNextIndex(oid);
-		final int lastIndex = tree.getLastIndex();
-		for (int indexOffset = 0; indexOffset < getCount; indexOffset++)
-			if (startIndex + indexOffset > lastIndex)
-				break;
-			else
-				response.add(tree.get(startIndex + indexOffset));
-	}
-
-	public void doSnmpGet(final OID oid, final CustomPDU response)
-			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException,
-			SnmpPduLengthException
-	{
-		response.add(tree.get(oid));
-	}
-
-	public void doSnmpGetNext(final OID oid, final CustomPDU response)
-			throws SnmpNoMoreEntriesException, SnmpOidNotFoundException,
-			SnmpPastEndOfTreeException, SnmpPduLengthException
-	{
-		response.add(tree.getNext(oid));
-	}
-
-	public void doSnmpSet(final VariableBinding vb, final CustomPDU response)
-			throws SnmpNotWritableException, SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException, SnmpPduLengthException
-	{
-		tree.set(vb.getOid(), vb.getVariable().toString());
-
-		response.add(tree.get(vb.getOid()));
-	}
-
-	private void logError(final CommandResponderEvent request,
-			final CustomPDU response, final Throwable t)
-	{
-		final String commandType = PDU
-				.getTypeString(request.getPDU().getType());
-		final int index = response.getRequestIndex();
-		final VariableBinding vb = request.getPDU().getVariableBindings()
-				.get(index);
-
-		logger.error("Exception while handling {} {} : {}", commandType, vb,
-				t.getMessage());
-		logger.error("Stacktrace: ", t);
-	}
-
-	/**
-	 * Processes a get request by performing {@link #doSnmpGet(OID, CustomPDU)}
-	 * on each varBind.
-	 * 
-	 * @param request
-	 *            The request object.
-	 * @param response
-	 *            The response to add to.
-	 * @throws SnmpOidNotFoundException
-	 * @throws SnmpNoMoreEntriesException
-	 * @throws SnmpPduLengthException
-	 */
-	void processGet(final CommandResponderEvent request,
-			final CustomPDU response) throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException, SnmpPduLengthException
-	{
-		for (final VariableBinding var : request.getPDU().getVariableBindings())
-		{
-			doSnmpGet(var.getOid(), response);
-			response.incrementRequestIndex();
-		}
-	}
-
-	/**
-	 * Processes an SNMP GETBULK request. The request is made up of
-	 * non-repeaters (simple gets) and repeaters (bulk gets). For those varBinds
-	 * that are bulk gets, the {@link #doSnmpBulkGet(OID, int, CustomPDU)} is
-	 * used to add varBinds to the response.
-	 * 
-	 * @param request
-	 *            The request object.
-	 * @param response
-	 *            The response to add to.
-	 * @throws SnmpOidNotFoundException
-	 * @throws SnmpNoMoreEntriesException
-	 * @throws SnmpPastEndOfTreeException
-	 * @throws SnmpPduLengthException
-	 */
-	void processGetBulk(final CommandResponderEvent request,
-			final CustomPDU response) throws SnmpPastEndOfTreeException,
-			SnmpNoMoreEntriesException, SnmpOidNotFoundException,
-			SnmpPduLengthException
-	{
-		// nonRepeaters - how many OIDs to do get on before starting bulkgets
-		final int nonRepeaters = request.getPDU().getNonRepeaters();
-		// maxRepititions - how many following OIDs to get for the current OIDs
-		final int maxRepititions = request.getPDU().getMaxRepetitions();
-
-		for (final VariableBinding var : request.getPDU().getVariableBindings())
-		{
-			if (response.getRequestIndex() >= nonRepeaters)
-				doSnmpBulkGet(var.getOid(), maxRepititions, response);
-			else
-				doSnmpGet(var.getOid(), response);
-
-			response.incrementRequestIndex();
-		}
-	}
-
-	/**
-	 * Processes a getNext request by performing
-	 * {@link #doSnmpGetNext(OID, CustomPDU)} on each varBind.
-	 * 
-	 * @param request
-	 *            The request object.
-	 * @param response
-	 *            The response to add to.
-	 * @throws SnmpPastEndOfTreeException
-	 * @throws SnmpOidNotFoundException
-	 * @throws SnmpNoMoreEntriesException
-	 * @throws SnmpPduLengthException
-	 */
-	void processGetNext(final CommandResponderEvent request,
-			final CustomPDU response) throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException, SnmpPastEndOfTreeException,
-			SnmpPduLengthException
-	{
-		for (final VariableBinding var : request.getPDU().getVariableBindings())
-		{
-			doSnmpGetNext(var.getOid(), response);
-			response.incrementRequestIndex();
-		}
-	}
-
 	@Override
 	public void processPdu(final CommandResponderEvent request)
 	{
@@ -271,24 +119,26 @@ public class SnmpAgent implements CommandResponder
 						PDU.getTypeString(command.getType())));
 			}
 		}
-		catch (final SnmpBadValueException e)
-		{
-			response.setErrorStatus(PDU.badValue);
-			response.setErrorIndex(response.getRequestIndex());
-		}
-		catch (final SnmpPduLengthException | SnmpNoMoreEntriesException e)
+		catch (final SnmpPduLengthException e)
 		{
 			// nothing to do here, just return with what we have
 			// System.out.println("caught exception, now to return.");
 		}
-		catch (final SnmpOidNotFoundException | SnmpPastEndOfTreeException
-				| IllegalArgumentException e)
+		catch (final SnmpOidNotFoundException e)
 		{
 			response.setErrorStatus(PDU.noSuchName);
 			response.setErrorIndex(response.getRequestIndex());
 		}
+		catch (final SnmpBadValueException e)
+		{
+			logger.info("Value {} is not valid for OID {}", e.getValue(),
+					e.getOid());
+			response.setErrorStatus(PDU.badValue);
+			response.setErrorIndex(response.getRequestIndex());
+		}
 		catch (final SnmpNotWritableException e)
 		{
+			logger.info("Call to non writeable OID {}", e.getOid());
 			response.setErrorStatus(PDU.notWritable);
 			response.setErrorIndex(response.getRequestIndex());
 		}
@@ -324,29 +174,6 @@ public class SnmpAgent implements CommandResponder
 	}
 
 	/**
-	 * Processes a set request.
-	 * 
-	 * @param request
-	 *            The request object.
-	 * @param response
-	 * @throws SnmpOidNotFoundException
-	 * @throws SnmpNoMoreEntriesException
-	 * @throws SnmpNotWritableException
-	 * @throws SnmpPduLengthException
-	 */
-	void processSet(final CommandResponderEvent request,
-			final CustomPDU response) throws SnmpNotWritableException,
-			SnmpNoMoreEntriesException, SnmpOidNotFoundException,
-			SnmpPduLengthException
-	{
-		for (final VariableBinding var : request.getPDU().getVariableBindings())
-		{
-			doSnmpSet(var, response);
-			response.incrementRequestIndex();
-		}
-	}
-
-	/**
 	 * Replaces the tree used by the SnmpAgent with a new one.
 	 * 
 	 * @param tree
@@ -357,5 +184,170 @@ public class SnmpAgent implements CommandResponder
 		updateLock.writeLock().lock();
 		this.tree = tree;
 		updateLock.writeLock().unlock();
+	}
+
+	/**
+	 * Performs a bulk get, getting the requested number of entries after the
+	 * given OID.
+	 * 
+	 * @param oid
+	 *            The start OID to get entries from
+	 * @param getCount
+	 *            How many following entries to get
+	 * @param response
+	 *            The response to add to
+	 * @throws SnmpPastEndOfTreeException
+	 * @throws SnmpOidNotFoundException
+	 * @throws SnmpPduLengthException
+	 */
+	private void doSnmpBulkGet(final OID oid, final int getCount,
+			final CustomPDU response) throws SnmpOidNotFoundException,
+			SnmpPduLengthException
+	{
+		logger.debug("Performing bulkget for {}, count {}", oid, getCount);
+
+		final int startIndex = tree.getNextIndex(oid);
+		final int lastIndex = tree.getLastIndex();
+		final int lastGetIndex = Math.min(startIndex + (getCount - 1),
+				lastIndex);
+
+		for (int i = startIndex; i <= lastGetIndex; i++)
+			response.add(tree.get(i));
+	}
+
+	private void doSnmpGet(final OID oid, final CustomPDU response)
+			throws SnmpOidNotFoundException, SnmpPduLengthException
+	{
+		logger.debug("Performing get for {}", oid);
+		response.add(tree.get(oid));
+	}
+
+	private void doSnmpGetNext(final OID oid, final CustomPDU response)
+			throws SnmpOidNotFoundException, SnmpPduLengthException
+	{
+		logger.debug("Performing getnext for {}", oid);
+		response.add(tree.getNext(oid));
+	}
+
+	private void doSnmpSet(final VariableBinding vb, final CustomPDU response)
+			throws SnmpNotWritableException, SnmpOidNotFoundException,
+			SnmpPduLengthException
+	{
+		tree.set(vb.getOid(), vb.getVariable().toString());
+
+		logger.debug("Performing set for {}", vb);
+		response.add(tree.get(vb.getOid()));
+	}
+
+	private void logError(final CommandResponderEvent request,
+			final CustomPDU response, final Throwable t)
+	{
+		final String commandType = PDU
+				.getTypeString(request.getPDU().getType());
+		final int index = response.getRequestIndex();
+		final VariableBinding vb = request.getPDU().getVariableBindings()
+				.get(index);
+
+		logger.error("Exception while handling {} {} : {}", commandType, vb,
+				t.getMessage());
+		logger.error("Stacktrace: ", t);
+	}
+
+	/**
+	 * Processes a get request by performing {@link #doSnmpGet(OID, CustomPDU)}
+	 * on each varBind.
+	 * 
+	 * @param request
+	 *            The request object.
+	 * @param response
+	 *            The response to add to.
+	 * @throws SnmpOidNotFoundException
+	 * @throws SnmpPduLengthException
+	 */
+	private void processGet(final CommandResponderEvent request,
+			final CustomPDU response) throws SnmpOidNotFoundException,
+			SnmpPduLengthException
+	{
+		for (final VariableBinding var : request.getPDU().getVariableBindings())
+		{
+			doSnmpGet(var.getOid(), response);
+			response.incrementRequestIndex();
+		}
+	}
+
+	/**
+	 * Processes an SNMP GETBULK request. The request is made up of
+	 * non-repeaters (simple gets) and repeaters (bulk gets). For those varBinds
+	 * that are bulk gets, the {@link #doSnmpBulkGet(OID, int, CustomPDU)} is
+	 * used to add varBinds to the response.
+	 * 
+	 * @param request
+	 *            The request object.
+	 * @param response
+	 *            The response to add to.
+	 * @throws SnmpOidNotFoundException
+	 * @throws SnmpPduLengthException
+	 */
+	private void processGetBulk(final CommandResponderEvent request,
+			final CustomPDU response) throws SnmpOidNotFoundException,
+			SnmpPduLengthException
+	{
+		// nonRepeaters - how many OIDs to do get on before starting bulkgets
+		final int nonRepeaters = request.getPDU().getNonRepeaters();
+		// maxRepititions - how many following OIDs to get for the current OIDs
+		final int maxRepititions = request.getPDU().getMaxRepetitions();
+
+		for (final VariableBinding var : request.getPDU().getVariableBindings())
+		{
+			if (response.getRequestIndex() >= nonRepeaters)
+				doSnmpBulkGet(var.getOid(), maxRepititions, response);
+			else
+				doSnmpGet(var.getOid(), response);
+
+			response.incrementRequestIndex();
+		}
+	}
+
+	/**
+	 * Processes a getNext request by performing
+	 * {@link #doSnmpGetNext(OID, CustomPDU)} on each varBind.
+	 * 
+	 * @param request
+	 *            The request object.
+	 * @param response
+	 *            The response to add to.
+	 * @throws SnmpOidNotFoundException
+	 * @throws SnmpPduLengthException
+	 */
+	private void processGetNext(final CommandResponderEvent request,
+			final CustomPDU response) throws SnmpOidNotFoundException,
+			SnmpPduLengthException
+	{
+		for (final VariableBinding var : request.getPDU().getVariableBindings())
+		{
+			doSnmpGetNext(var.getOid(), response);
+			response.incrementRequestIndex();
+		}
+	}
+
+	/**
+	 * Processes a set request.
+	 * 
+	 * @param request
+	 *            The request object.
+	 * @param response
+	 * @throws SnmpOidNotFoundException
+	 * @throws SnmpNotWritableException
+	 * @throws SnmpPduLengthException
+	 */
+	private void processSet(final CommandResponderEvent request,
+			final CustomPDU response) throws SnmpNotWritableException,
+			SnmpOidNotFoundException, SnmpPduLengthException
+	{
+		for (final VariableBinding var : request.getPDU().getVariableBindings())
+		{
+			doSnmpSet(var, response);
+			response.incrementRequestIndex();
+		}
 	}
 }

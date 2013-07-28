@@ -52,15 +52,6 @@ class OidAssigner
 			visitEnterNode(node);
 		}
 
-		private void visitEnterNode(final Node node)
-		{
-			oidStack.push(oidStack.pop() + 1);
-
-			node.setProperty("OID", oidStack.toArray());
-
-			oidStack.push(0);
-		}
-
 		@Override
 		public void visitExit(final EntryNode node)
 		{
@@ -89,6 +80,15 @@ class OidAssigner
 		public void visitExit(final TableNode node)
 		{
 			visitExitNode(node);
+		}
+
+		private void visitEnterNode(final Node node)
+		{
+			oidStack.push(oidStack.pop() + 1);
+
+			node.setProperty("OID", oidStack.toArray());
+
+			oidStack.push(0);
 		}
 
 		private void visitExitNode(final Node node)

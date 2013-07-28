@@ -7,6 +7,7 @@ public class RootNode extends InnerNode
 		super(klass, null, false, name, null);
 	}
 
+	@Override
 	public void accept(final INodeVisitor visitor)
 	{
 		visitor.visitEnter(this);

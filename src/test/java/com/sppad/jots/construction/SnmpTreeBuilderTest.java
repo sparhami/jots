@@ -15,16 +15,10 @@ import com.google.common.collect.Sets;
 import com.sppad.jots.JotsOID;
 import com.sppad.jots.SnmpTree;
 import com.sppad.jots.annotations.Jots;
-import com.sppad.jots.exceptions.SnmpNoMoreEntriesException;
 import com.sppad.jots.exceptions.SnmpOidNotFoundException;
 
 public class SnmpTreeBuilderTest
 {
-	private static final int[] prefix = new int[] { 1, 3, 6, 1, 4, 1, 100 };
-
-	private static final SnmpTree tree = SnmpTreeBuilder.from(new TestObject())
-			.prefix(prefix).build();
-
 	@SuppressWarnings("unused")
 	private static class CollectionObject
 	{
@@ -63,33 +57,13 @@ public class SnmpTreeBuilderTest
 		public final NestedObject obj = new NestedObject();
 	}
 
-	@Test
-	public void testSuperclassField() throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
-	{
-		final OID oid = JotsOID.createOID(prefix, new int[] { 1, 0 });
+	private static final int[] prefix = new int[] { 1, 3, 6, 1, 4, 1, 100 };
 
-		String expected = "foobar";
-		String actual = tree.get(oid).getVariable().toString();
-
-		assertThat(actual, is(expected));
-	}
+	private static final SnmpTree tree = SnmpTreeBuilder.from(new TestObject())
+			.prefix(prefix).build();
 
 	@Test
-	public void testSubclassField() throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
-	{
-		final OID oid = JotsOID.createOID(prefix, new int[] { 2, 0 });
-
-		String expected = "false";
-		String actual = tree.get(oid).getVariable().toString();
-
-		assertThat(actual, is(expected));
-	}
-
-	@Test
-	public void testAnnotatedCollection() throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
+	public void testAnnotatedCollection() throws SnmpOidNotFoundException
 	{
 		final OID oid = JotsOID.createOID(prefix, new int[] { 3, 1, 1, 2 });
 
@@ -100,8 +74,7 @@ public class SnmpTreeBuilderTest
 	}
 
 	@Test
-	public void testNestedCollection() throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
+	public void testNestedCollection() throws SnmpOidNotFoundException
 	{
 		final OID oid = JotsOID.createOID(prefix, new int[] { 3, 1, 2, 1, 1, 2,
 				3 });
@@ -113,8 +86,7 @@ public class SnmpTreeBuilderTest
 	}
 
 	@Test
-	public void testNestedObject() throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
+	public void testNestedObject() throws SnmpOidNotFoundException
 	{
 		final OID oid = JotsOID.createOID(prefix, new int[] { 4, 1, 0 });
 
@@ -125,10 +97,31 @@ public class SnmpTreeBuilderTest
 	}
 
 	// @Test
-	public void testPrint() throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
+	public void testPrint() throws SnmpOidNotFoundException
 	{
 		for (VariableBinding vb : tree)
 			System.out.println(vb);
+	}
+
+	@Test
+	public void testSubclassField() throws SnmpOidNotFoundException
+	{
+		final OID oid = JotsOID.createOID(prefix, new int[] { 2, 0 });
+
+		String expected = "false";
+		String actual = tree.get(oid).getVariable().toString();
+
+		assertThat(actual, is(expected));
+	}
+
+	@Test
+	public void testSuperclassField() throws SnmpOidNotFoundException
+	{
+		final OID oid = JotsOID.createOID(prefix, new int[] { 1, 0 });
+
+		String expected = "foobar";
+		String actual = tree.get(oid).getVariable().toString();
+
+		assertThat(actual, is(expected));
 	}
 }

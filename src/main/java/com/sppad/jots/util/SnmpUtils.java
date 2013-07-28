@@ -46,7 +46,7 @@ public class SnmpUtils
 		oidInts[0] = length;
 
 		for (int i = 0; i < length; i++)
-			oidInts[i + 1] = (int) string.charAt(i);
+			oidInts[i + 1] = string.charAt(i);
 
 		return oidInts;
 	}

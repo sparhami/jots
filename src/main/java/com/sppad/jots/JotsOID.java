@@ -26,6 +26,15 @@ public class JotsOID
 		return oid;
 	}
 
+	public static OID createTerminalOID(int[] prefix, int[] staticOid,
+			IntStack extensionStack)
+	{
+		if (extensionStack.size() == 0)
+			return createOID(prefix, staticOid, NON_TABLE_TERMINATOR);
+		else
+			return createOID(prefix, staticOid, extensionStack);
+	}
+
 	private static OID createOID(final int[] prefix, final int[] staticOid,
 			final IntStack extension)
 	{
@@ -44,14 +53,5 @@ public class JotsOID
 		oid.setValue(oidArray);
 
 		return oid;
-	}
-
-	public static OID createTerminalOID(int[] prefix, int[] staticOid,
-			IntStack extensionStack)
-	{
-		if (extensionStack.size() == 0)
-			return createOID(prefix, staticOid, NON_TABLE_TERMINATOR);
-		else
-			return createOID(prefix, staticOid, extensionStack);
 	}
 }

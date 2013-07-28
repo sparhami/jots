@@ -20,18 +20,6 @@ import com.sppad.jots.construction.nodes.TableNode;
 
 class MibGenerator implements INodeVisitor
 {
-	static void printHeader(final String mibName, final String rootName,
-			final String parentName, int oid, final PrintStream ps)
-	{
-		ps.print(MibInfo
-				.createMibHeader(mibName, rootName, "", parentName, oid));
-	}
-
-	static void printFooter(final PrintStream ps)
-	{
-		ps.print("END");
-	}
-
 	static void generateMib(Object obj, SnmpTreeBuilder treeBuilder,
 			final String mibName, final String rootName,
 			final String parentName, final OutputStream os)
@@ -55,6 +43,18 @@ class MibGenerator implements INodeVisitor
 		printFooter(ps);
 	}
 
+	static void printFooter(final PrintStream ps)
+	{
+		ps.print("END");
+	}
+
+	static void printHeader(final String mibName, final String rootName,
+			final String parentName, int oid, final PrintStream ps)
+	{
+		ps.print(MibInfo
+				.createMibHeader(mibName, rootName, "", parentName, oid));
+	}
+
 	private final int[] prefix;
 
 	private final PrintStream ps;
@@ -63,11 +63,6 @@ class MibGenerator implements INodeVisitor
 	{
 		this.prefix = prefix;
 		this.ps = ps;
-	}
-
-	private void printOid(final String nameString, OID oid)
-	{
-		System.out.printf("%-20s %-20s\n", oid, nameString);
 	}
 
 	@Override
@@ -158,5 +153,10 @@ class MibGenerator implements INodeVisitor
 	public void visitExit(final TableNode node)
 	{
 
+	}
+
+	private void printOid(final String nameString, OID oid)
+	{
+		System.out.printf("%-20s %-20s\n", oid, nameString);
 	}
 }

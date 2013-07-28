@@ -9,6 +9,7 @@ public class EntryNode extends InnerNode
 		super(field.getType(), parent, parent.inTable, field.getName(), field);
 	}
 
+	@Override
 	void accept(final INodeVisitor visitor)
 	{
 		visitor.visitEnter(this);

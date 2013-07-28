@@ -25,6 +25,7 @@ import com.sppad.jots.lookup.SnmpLookupField;
 class SnmpTreeConstructor
 {
 	private static final Comparator<SnmpLookupField> COMPARE_BY_OID = new Comparator<SnmpLookupField>() {
+		@Override
 		public int compare(final SnmpLookupField arg0,
 				final SnmpLookupField arg1)
 		{
@@ -34,6 +35,14 @@ class SnmpTreeConstructor
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(SnmpTreeConstructor.class);
+
+	private static Collection<?> getCollection(final Object obj)
+	{
+		if (obj instanceof Map)
+			return ((Map<?, ?>) obj).values();
+		else
+			return (Collection<?>) obj;
+	}
 
 	static SnmpTree create(final Object obj, final SnmpTreeBuilder treeBuilder)
 	{
@@ -48,14 +57,6 @@ class SnmpTreeConstructor
 		tc.descend(node, obj);
 
 		return new SnmpTree(tc.prefix, tc.sortedSet);
-	}
-
-	private static Collection<?> getCollection(final Object obj)
-	{
-		if (obj instanceof Map)
-			return ((Map<?, ?>) obj).values();
-		else
-			return (Collection<?>) obj;
 	}
 
 	/* Tracks the length of each index pushed onto the stack */
@@ -100,6 +101,18 @@ class SnmpTreeConstructor
 				descendIntoObject(child, obj);
 	}
 
+	private void descendIntoCollection(final TableEntryNode node,
+			final Collection<?> collection)
+	{
+		int index = 1;
+		for (final Object next : collection)
+		{
+			pushExtension(node, next, index++);
+			descend(node, next);
+			popExtension();
+		}
+	}
+
 	private void descendIntoCollection(final TableNode node, final Object obj)
 	{
 		try
@@ -114,18 +127,6 @@ class SnmpTreeConstructor
 			logger.warn(
 					ErrorMessage.CANNOT_CREATE_SUBTREE_DUE_TO_ACCESS.getFmt(),
 					node.field);
-		}
-	}
-
-	private void descendIntoCollection(final TableEntryNode node,
-			final Collection<?> collection)
-	{
-		int index = 1;
-		for (final Object next : collection)
-		{
-			pushExtension(node, next, index++);
-			descend(node, next);
-			popExtension();
 		}
 	}
 

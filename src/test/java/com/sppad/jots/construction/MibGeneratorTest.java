@@ -9,13 +9,9 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.sppad.jots.annotations.Jots;
-import com.sppad.jots.exceptions.SnmpNoMoreEntriesException;
-import com.sppad.jots.exceptions.SnmpOidNotFoundException;
 
 public class MibGeneratorTest
 {
-	private static final int[] prefix = new int[] { 1, 3, 6, 1, 4, 1, 100 };
-
 	@SuppressWarnings("unused")
 	private static class CollectionObject
 	{
@@ -29,8 +25,8 @@ public class MibGeneratorTest
 	@SuppressWarnings("unused")
 	private static class NestedObject
 	{
-		public int number = 5;
 		public String key = "aNumber";
+		public int number = 5;
 	}
 
 	@SuppressWarnings("unused")
@@ -55,9 +51,10 @@ public class MibGeneratorTest
 		public final NestedObject obj = new NestedObject();
 	}
 
+	private static final int[] prefix = new int[] { 1, 3, 6, 1, 4, 1, 100 };
+
 	@Test
-	public void testGeneration() throws SnmpNoMoreEntriesException,
-			SnmpOidNotFoundException
+	public void testGeneration()
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 

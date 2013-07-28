@@ -42,8 +42,6 @@ public abstract class Node
 	/** The parent of this node, usually the object containing this node. */
 	public final Node parent;
 
-	private final Map<String, Object> properties = Maps.newHashMap();
-
 	/** The children nodes in snmp order */
 	public final Collection<Node> snmpNodes = Lists.newLinkedList();
 
@@ -52,6 +50,8 @@ public abstract class Node
 	 * since nested collections need to be flattened into a mult-indexed table.
 	 */
 	public final Node snmpParent;
+
+	private final Map<String, Object> properties = Maps.newHashMap();
 
 	Node(final Class<?> klass, @Nullable final Node parent,
 			final boolean inTable, final String name,
@@ -67,12 +67,6 @@ public abstract class Node
 		if (field != null)
 			field.setAccessible(true);
 	}
-
-	/**
-	 * Allows visiting the node using a hierarchical visitor pattern according
-	 * to the SNMP ordering (nested collections in hierarchy flattened).
-	 */
-	abstract void accept(final INodeVisitor visitor);
 
 	public void addChild(final Node node)
 	{
@@ -94,13 +88,19 @@ public abstract class Node
 		return properties.get(name);
 	}
 
-	Node getSnmpParentNode(final Node parent)
-	{
-		return parent;
-	}
-
 	public void setProperty(final String name, final Object value)
 	{
 		properties.put(name, value);
+	}
+
+	/**
+	 * Allows visiting the node using a hierarchical visitor pattern according
+	 * to the SNMP ordering (nested collections in hierarchy flattened).
+	 */
+	abstract void accept(final INodeVisitor visitor);
+
+	Node getSnmpParentNode(final Node parent)
+	{
+		return parent;
 	}
 }

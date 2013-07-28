@@ -53,15 +53,6 @@ public abstract class SnmpTrapReceiver implements CommandResponder
 		snmp.close();
 	}
 
-	private void logError(final CommandResponderEvent request, final Throwable t)
-	{
-		final String commandType = PDU
-				.getTypeString(request.getPDU().getType());
-
-		logger.error("Exception while handling {} {} : {}", new Object[] {
-				commandType, request.getPDU(), t.getMessage() });
-	}
-
 	public void processInform(final CommandResponderEvent request)
 	{
 		final PDU response = new PDU();
@@ -123,6 +114,15 @@ public abstract class SnmpTrapReceiver implements CommandResponder
 		}
 
 		request.setProcessed(true);
+	}
+
+	private void logError(final CommandResponderEvent request, final Throwable t)
+	{
+		final String commandType = PDU
+				.getTypeString(request.getPDU().getType());
+
+		logger.error("Exception while handling {} {} : {}", new Object[] {
+				commandType, request.getPDU(), t.getMessage() });
 	}
 
 	protected abstract void processTrap(final CommandResponderEvent request)

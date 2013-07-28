@@ -6,14 +6,21 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+import org.snmp4j.smi.Integer32;
 import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.Variable;
+import org.snmp4j.smi.VariableBinding;
 
 import com.google.common.base.Function;
 import com.sppad.jots.annotations.SnmpNotSettable;
+import com.sppad.jots.annotations.SnmpSettable;
+import com.sppad.jots.exceptions.SnmpBadValueException;
+import com.sppad.jots.exceptions.SnmpException;
 import com.sppad.jots.exceptions.SnmpInternalException;
 import com.sppad.jots.util.Fields;
 
-public class SnmpLookupField
+public class SnmpLookupField extends LookupEntry
 {
 	public static SnmpLookupField create(final OID oid, final Field field,
 			final Object object)
@@ -36,9 +43,6 @@ public class SnmpLookupField
 	/** The field object for this OID */
 	final Field field;
 
-	/** The OID object for this field */
-	final OID oid;
-
 	/** The method that should be used when performing a set */
 	final Method setter;
 
@@ -47,9 +51,6 @@ public class SnmpLookupField
 	 * field
 	 */
 	final Function<String, ? extends Object> valueParser;
-
-	/** Whether the field is writable or not */
-	final boolean writable;
 
 	/**
 	 * Constructs an snmpLookupField object.
@@ -62,19 +63,13 @@ public class SnmpLookupField
 			final Object enclosingObject,
 			final Function<String, ? extends Object> valueConverter)
 	{
-		this.oid = oid;
+		super(oid);
+
 		this.field = field;
 		this.enclosingObject = enclosingObject;
 		this.setter = Fields.getSetterForField(field);
 		;
-		this.writable = checkIsWritable();
 		this.valueParser = valueConverter;
-	}
-
-	private boolean checkIsWritable()
-	{
-		return field.getAnnotation(SnmpNotSettable.class) == null
-				&& setter != null;
 	}
 
 	/**
@@ -102,14 +97,6 @@ public class SnmpLookupField
 	public String getFieldName()
 	{
 		return field.getName();
-	}
-
-	/**
-	 * @return The OID object corresponding to this field
-	 */
-	public OID getOid()
-	{
-		return oid;
 	}
 
 	/**
@@ -144,7 +131,10 @@ public class SnmpLookupField
 	 */
 	public boolean isWritable()
 	{
-		return writable;
+		final boolean ss = getAnnotation(SnmpSettable.class) != null;
+		final boolean sns = getAnnotation(SnmpNotSettable.class) != null;
+
+		return ss || (setter != null && !sns);
 	}
 
 	/**
@@ -163,6 +153,10 @@ public class SnmpLookupField
 		{
 			setParsedValue(valueParser.apply(data));
 		}
+		catch (IllegalArgumentException e)
+		{
+			throw new SnmpBadValueException(oid, data);
+		}
 		catch (SecurityException | IllegalAccessException
 				| InvocationTargetException e)
 		{
@@ -170,8 +164,27 @@ public class SnmpLookupField
 		}
 	}
 
-	void setParsedValue(final Object value) throws IllegalArgumentException,
-			IllegalAccessException, InvocationTargetException
+	/**
+	 * Creates a VariableBInding with the OID for this field and the current
+	 * value of the field.
+	 */
+	public VariableBinding toVarBind()
+	{
+		final Variable variable;
+		final Object object = getValue();
+
+		if (object instanceof Integer)
+			variable = new Integer32((Integer) object);
+		else if (object instanceof Enum)
+			variable = new OctetString(((Enum<?>) object).name());
+		else
+			variable = new OctetString(object == null ? "" : object.toString());
+
+		return new VariableBinding(oid, variable);
+	}
+
+	private void setParsedValue(final Object value)
+			throws IllegalAccessException, InvocationTargetException
 	{
 		if (setter != null)
 			setter.invoke(enclosingObject, value);

@@ -8,6 +8,19 @@ import com.sppad.jots.mib.IntegerInterfaceComment;
 
 public class SnmpDescription
 {
+	public static String getDescription(final Field field)
+	{
+		final Type type = field.getType();
+
+		if (type.equals(Boolean.class) || type.equals(Boolean.TYPE))
+			return getBooleanDescription(field);
+
+		if (type.equals(Integer.class) || type.equals(Integer.TYPE))
+			return getIntegerDescription(field);
+
+		return null;
+	}
+
 	private static String getBooleanDescription(final Field field)
 	{
 		final String descriptionString;
@@ -31,19 +44,6 @@ public class SnmpDescription
 		}
 
 		return descriptionString;
-	}
-
-	public static String getDescription(final Field field)
-	{
-		final Type type = field.getType();
-
-		if (type.equals(Boolean.class) || type.equals(Boolean.TYPE))
-			return getBooleanDescription(field);
-
-		if (type.equals(Integer.class) || type.equals(Integer.TYPE))
-			return getIntegerDescription(field);
-
-		return null;
 	}
 
 	private static String getIntegerDescription(Field field)
