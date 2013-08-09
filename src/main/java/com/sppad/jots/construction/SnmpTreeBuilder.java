@@ -13,6 +13,10 @@ import com.sppad.jots.annotations.SnmpSettable;
 import com.sppad.jots.construction.config.DefaultInclusionStrategy;
 import com.sppad.jots.construction.config.SimpleInclusionStrategy;
 
+/**
+ * Used for building a {@link SnmpTree} or a MIB file corresponding to a
+ * SnmpTree.
+ */
 public class SnmpTreeBuilder
 {
 	public enum SetStrategy

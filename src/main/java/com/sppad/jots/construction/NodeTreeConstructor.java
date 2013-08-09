@@ -20,6 +20,11 @@ import com.sppad.jots.log.LogMessages;
 import com.sppad.jots.util.Fields;
 import com.sppad.jots.util.Strings;
 
+/**
+ * Creates a tree of Nodes containing the structure for a SNMP tree from the
+ * Class graph starting at a given Class. Uses a Predicate to determine which
+ * fields should be included in the generated tree.
+ */
 class NodeTreeConstructor
 {
 	private static final Logger logger = LoggerFactory

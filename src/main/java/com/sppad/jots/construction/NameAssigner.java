@@ -12,6 +12,10 @@ import com.sppad.jots.construction.nodes.TableEntryNode;
 import com.sppad.jots.construction.nodes.TableNode;
 import com.sppad.jots.util.Strings;
 
+/**
+ * Assigns names to all nodes in a Node tree based off the field names and
+ * annotations if applicable.
+ */
 class NameAssigner
 {
 	private static class NameAssigningVisitor implements INodeVisitor

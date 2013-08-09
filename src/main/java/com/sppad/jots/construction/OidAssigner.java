@@ -9,6 +9,11 @@ import com.sppad.jots.construction.nodes.TableEntryNode;
 import com.sppad.jots.construction.nodes.TableNode;
 import com.sppad.jots.datastructures.primative.IntStack;
 
+/**
+ * Assigns the "OID" property to all Nodes that are children of a given
+ * RootNode. The tagged OID does not include any prefix, which can be added
+ * later.
+ */
 class OidAssigner
 {
 	private static class OidAssigningVisitor implements INodeVisitor

@@ -1,6 +1,7 @@
 package com.sppad.jots.construction.mib;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 
 import com.google.common.base.Charsets;
@@ -21,38 +22,46 @@ public class MibInfo
 	 *            The parent tree, e.g. enterprises
 	 * @param mibTreeOid
 	 *            Where in the parent tree the MIB resides
+	 * @param ps
+	 *            A printStream to write to
 	 * @return A String containing the header info.
 	 */
-	public static String createMibHeader(final String mibName,
+	public static void printHeader(final String mibName,
 			final String rootName, final String description,
-			final String parentTree, final int mibTreeOid)
+			final String parentTree, final int mibTreeOid, final PrintStream ps)
 	{
 		try
 		{
 			final URL importsUrl = MibInfo.class
 					.getResource("/jotsMibImports.txt");
 
-			final StringBuilder builder = new StringBuilder();
-			builder.append(mibName + " DEFINITIONS ::= BEGIN\n\n");
-			builder.append(Resources.toString(importsUrl, Charsets.UTF_8));
+			ps.println(mibName + " DEFINITIONS ::= BEGIN\n\n");
+			ps.println(Resources.toString(importsUrl, Charsets.UTF_8));
 
-			builder.append("\n\n");
-			builder.append(rootName + " MODULE-IDENTITY\n");
-			builder.append("\tLAST-UPDATED \"200001010000Z\"\n");
-			builder.append("\tORGANIZATION \"None\"\n");
-			builder.append("\tCONTACT-INFO \"None\"\n");
-			builder.append("\tDESCRIPTION \n\"");
-			builder.append(description);
-			builder.append("\"\n\n");
-			builder.append("\t::= { " + parentTree + " " + mibTreeOid
-					+ " }\n\n");
-
-			return builder.toString();
+			ps.println("\n\n");
+			ps.println(rootName + " MODULE-IDENTITY");
+			ps.println("\tLAST-UPDATED \"200001010000Z\"");
+			ps.println("\tORGANIZATION \"None\"");
+			ps.println("\tCONTACT-INFO \"None\"");
+			ps.print("\tDESCRIPTION \n\t\t\"");
+			ps.print(description);
+			ps.println("\"");
+			ps.println("\t::= { " + parentTree + " " + mibTreeOid + " }");
+			ps.println();
 		}
 		catch (IOException e)
 		{
 			throw new RuntimeException(
 					"Internal library error: failed to read MIB defs\n");
 		}
+	}
+
+	public static void printFooter(PrintStream ps)
+	{
+		ps.print("END");
+	}
+	
+	private MibInfo() {
+		
 	}
 }

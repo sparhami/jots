@@ -21,6 +21,11 @@ import com.sppad.jots.datastructures.primative.IntStack;
 import com.sppad.jots.log.LogMessages;
 import com.sppad.jots.lookup.SnmpLookupField;
 
+/**
+ * Constructs an {@link SnmpTree} Usings the settings from an SnmpTreeBuilder.
+ * Creates a Node tree, tags OIDs, then traverses in order to build the fields
+ * for the resulting SnmpTree.
+ */
 class SnmpTreeConstructor
 {
 	private static final Logger logger = LoggerFactory

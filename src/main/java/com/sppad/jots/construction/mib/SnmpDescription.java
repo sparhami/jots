@@ -70,4 +70,8 @@ public class SnmpDescription
 
 		return descriptionString;
 	}
+	
+	private SnmpDescription() {
+		
+	}
 }

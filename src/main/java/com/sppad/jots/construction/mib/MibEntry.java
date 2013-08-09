@@ -12,6 +12,26 @@ import com.sppad.jots.util.Strings;
 
 public class MibEntry
 {
+	public static void print(final Node node, final PrintStream ps)
+	{
+		final String name = (String) node.getProperty("NAME");
+		final String parentName = (String) node.snmpParent.getProperty("NAME");
+
+		final int[] staticOid = (int[]) node.getProperty("OID");
+		final int subtree = staticOid[staticOid.length - 1];
+
+		printEntryStart(node, name, parentName, subtree,
+				new LinkedList<String>(), ps);
+
+		for (final Node child : node.snmpNodes)
+		{
+			final String childName = (String) child.getProperty("NAME");
+			printEntrySequence(childName, "", ps);
+		}
+
+		printEntryEnd(ps);
+	}
+
 	private static void printEntryEnd(final PrintStream ps)
 	{
 		ps.println("}\n");
@@ -29,7 +49,6 @@ public class MibEntry
 	{
 		final String sequenceName = Strings.firstCharToUppercase(name);
 
-		ps.println();
 		ps.println(name + " OBJECT-TYPE");
 		ps.println("\tSYNTAX\t\t" + sequenceName);
 		ps.println("\tMAX-ACCESS\tnot-accessible");
@@ -56,35 +75,8 @@ public class MibEntry
 		ps.print(" }\n");
 	}
 
-	private final String name;
-
-	private final Node node;
-
-	private final String parentName;
-
-	public MibEntry(final Node node)
+	private MibEntry()
 	{
-		this.node = node;
-		this.name = (String) node.getProperty("NAME");
-		this.parentName = (String) node.snmpParent.getProperty("NAME");
-	}
-
-	public void write(PrintStream ps)
-	{
-
-		final int[] staticOid = (int[]) node.getProperty("OID");
-		final int subtree = staticOid[staticOid.length - 1];
-
-		printEntryStart(node, name, parentName, subtree,
-				new LinkedList<String>(), ps);
-
-		for (final Node child : node.snmpNodes)
-		{
-			final String childName = (String) child.getProperty("NAME");
-			printEntrySequence(childName, "", ps);
-		}
-
-		printEntryEnd(ps);
 
 	}
 }

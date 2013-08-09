@@ -4,14 +4,13 @@ import java.io.PrintStream;
 
 public class MibLeaf
 {
-	public static void addItem(final String name, final String parentName,
+	public static void print(final String name, final String parentName,
 			final int oid, final Class<?> type, final String description,
 			final boolean isWritable, final PrintStream ps)
 	{
 		final String typeName = getSyntax(type);
 		final String maxAccess = isWritable ? "read-write" : "read-only";
 
-		ps.println();
 		ps.println(name + " OBJECT-TYPE");
 		ps.println("\tSYNTAX\t\t" + typeName);
 		ps.println("\tMAX-ACCESS\t" + maxAccess);
@@ -20,6 +19,7 @@ public class MibLeaf
 		ps.println("\t\t\"" + description + "\"");
 
 		ps.println("\t::= { " + parentName + " " + oid + " }");
+		ps.println();
 	}
 
 	static final String getSyntax(final Class<?> type)
@@ -34,5 +34,10 @@ public class MibLeaf
 			return type.getSimpleName();
 
 		return "OCTET STRING (SIZE(0..65535))";
+	}
+
+	private MibLeaf()
+	{
+
 	}
 }

@@ -91,6 +91,10 @@ public class TextualConvention
 
 	}
 
+	/**
+	 * Prints textual conventions for the boolean type as well as all enum types
+	 * in the Node tree.
+	 */
 	public static void addTextualConventions(final RootNode node,
 			final PrintStream ps)
 	{
